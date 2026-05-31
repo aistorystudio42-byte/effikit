@@ -124,6 +124,12 @@ User asks for something
 | `skills/art/` | Da Vinci, Beethoven, Picasso, Michelangelo personas |
 | `skills/science/` | Einstein, Newton, Feynman, Tesla personas |
 | `skills/performance-boost/` | Speed, focus, quality, workflow optimization |
+| `skills/media/` | Image/video/audio performance and optimization |
+| `skills/marketing/` | Copywriting, positioning, growth, storytelling |
+| `skills/code-critic/` | Code review, antipatterns, refactoring, standards |
+| `skills/reasoning/` | First principles, Socratic, logic, debiasing |
+| `skills/typescript-expert/` | Advanced TS types, patterns, compiler, performance |
+| `skills/ceo/` | Strategy, network effects, growth, positioning |
 
 Each skills folder contains 4 `.md` files — read the one closest to your current task.
 

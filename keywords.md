@@ -176,6 +176,12 @@
 | art, artistic, da vinci, beethoven, picasso, michelangelo | `skills/art/` |
 | science, physics, einstein, newton, feynman, tesla | `skills/science/` |
 | productivity, focus, speed, workflow, efficiency, boost | `skills/performance-boost/` |
+| image, video, audio, lazy loading, blur hash, WebP, AVIF, srcset, media optimization, Core Web Vitals, LCP | `skills/media/` |
+| copywriting, AIDA, headline, CTA, positioning, growth loops, storytelling, viral coefficient, brand story | `skills/marketing/` |
+| code critic, antipatterns, refactor, strangler fig, coding standards, code review surgery | `skills/code-critic/` |
+| first principles, socratic method, logical fallacies, debiasing, pre-mortem, cognitive bias, reasoning | `skills/reasoning/` |
+| TypeScript advanced, conditional types, infer, branded types, discriminated unions, ts-morph, tsc performance | `skills/typescript-expert/` |
+| strategy, Porter's five forces, network effects, growth model, positioning category, CEO, moat | `skills/ceo/` |
 
 ---
 
