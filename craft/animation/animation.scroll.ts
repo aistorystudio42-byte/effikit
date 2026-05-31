@@ -27,6 +27,8 @@ export function useScrollProgress(elementRef?: RefObject<HTMLElement>) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    // FIX: SSR guard
+    if (typeof window === "undefined") return;
     const update = () => {
       if (elementRef?.current) {
         const el      = elementRef.current;
@@ -62,6 +64,8 @@ export function useElementScrollProgress<T extends HTMLElement>(): [
   const lastY = useRef(0);
 
   useEffect(() => {
+    // FIX: SSR guard
+    if (typeof window === "undefined") return;
     const el = ref.current;
     if (!el) return;
 
@@ -233,6 +237,8 @@ export function useStickyHeader(threshold: number = 80): {
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    // FIX: SSR guard
+    if (typeof window === "undefined") return;
     const handler = () => {
       const y    = window.scrollY;
       const diff = y - lastScrollY.current;

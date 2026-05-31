@@ -123,7 +123,11 @@ export function useEventListener(
 interface WindowSize { width: number; height: number; }
 
 export function useWindowSize(): WindowSize {
-  const [size, setSize] = useState<WindowSize>({ width: 0, height: 0 });
+  const [size, setSize] = useState<WindowSize>(() => {
+    // FIX: Initialize with actual values (SSR-safe) to avoid 0x0 flash
+    if (typeof window === "undefined") return { width: 0, height: 0 };
+    return { width: window.innerWidth, height: window.innerHeight };
+  });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -196,6 +200,8 @@ export function useScrollPosition(elementRef?: RefObject<HTMLElement>): ScrollPo
   const lastY = useRef(0);
 
   useEffect(() => {
+    // FIX: SSR guard
+    if (typeof window === "undefined") return;
     const el = elementRef?.current ?? window;
 
     const getY = () => elementRef?.current

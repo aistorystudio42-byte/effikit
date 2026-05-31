@@ -59,6 +59,10 @@ function base64UrlDecode(data: string): string {
 // ─── HMAC-SHA256 signing (Web Crypto API) ────────────────────────────────────
 
 async function hmacSign(payload: string, secret: string): Promise<string> {
+  // FIX: Guard against missing Web Crypto API (insecure contexts / older Node)
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error("Web Crypto API (crypto.subtle) is required but not available. Ensure you are in a secure context (HTTPS) or Node.js 18+.");
+  }
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     "raw", encoder.encode(secret),

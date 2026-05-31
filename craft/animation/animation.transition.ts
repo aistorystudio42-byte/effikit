@@ -121,6 +121,12 @@ export function useTransition(
   const [mounted, setMounted] = useState(visible);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // FIX: Stabilize callback refs to prevent infinite re-render loops with inline functions
+  const onEnteredRef = useRef(onEntered);
+  const onExitedRef = useRef(onExited);
+  onEnteredRef.current = onEntered;
+  onExitedRef.current = onExited;
+
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
@@ -130,7 +136,7 @@ export function useTransition(
         setState("entering");
         timerRef.current = setTimeout(() => {
           setState("entered");
-          onEntered?.();
+          onEnteredRef.current?.();
         }, duration);
       }, delay);
     } else {
@@ -138,12 +144,12 @@ export function useTransition(
       timerRef.current = setTimeout(() => {
         setState("exited");
         setMounted(false);
-        onExited?.();
+        onExitedRef.current?.();
       }, duration + delay);
     }
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, [visible, duration, delay, onEntered, onExited]);
+  }, [visible, duration, delay]);
 
   return { state, mounted };
 }

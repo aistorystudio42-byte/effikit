@@ -107,6 +107,10 @@ export function useFetch<T>(
   onErrorRef.current = onError;
   transformRef.current = transform;
 
+  // FIX: Stabilize headers ref to avoid infinite fetch loops with inline header objects
+  const headersRef = useRef(headers);
+  headersRef.current = headers;
+
   const fetchData = useCallback(async () => {
     if (!url || !enabled) return;
 
@@ -116,7 +120,7 @@ export function useFetch<T>(
 
     dispatch({ type: "FETCH" });
     try {
-      const res = await fetch(url, { signal: abortRef.current.signal, headers });
+      const res = await fetch(url, { signal: abortRef.current.signal, headers: headersRef.current });
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       const raw = await res.json();
       const data = transformRef.current ? transformRef.current(raw) : (raw as T);
@@ -128,7 +132,7 @@ export function useFetch<T>(
       dispatch({ type: "ERROR", error });
       onErrorRef.current?.(error);
     }
-  }, [url, enabled, headers ? JSON.stringify(headers) : undefined]);
+  }, [url, enabled]);
 
   useEffect(() => {
     fetchData();

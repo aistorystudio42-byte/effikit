@@ -241,6 +241,8 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ manager, child
 
   // Sync across tabs via storage event
   useEffect(() => {
+    // FIX: SSR guard — window/storage events only exist in the browser
+    if (typeof window === "undefined") return;
     const handler = (e: StorageEvent) => {
       // FIX: Exact key match instead of .includes to prevent crosstalk
       if (e.key === manager.getKey()) syncState();

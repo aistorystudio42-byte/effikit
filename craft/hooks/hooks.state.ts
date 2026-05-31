@@ -80,10 +80,17 @@ function historyReducer<T>(state: HistoryState<T>, action: HistoryAction<T>): Hi
   }
 }
 
-export function useUndo<T>(initial: T) {
+export function useUndo<T>(initial: T, maxHistory: number = 100) {
   const [state, dispatch] = useReducer(historyReducer as Reducer<HistoryState<T>, HistoryAction<T>>, {
     past: [], present: initial, future: [],
   });
+
+  // FIX: Trim past array if it exceeds maxHistory to prevent memory leaks
+  useEffect(() => {
+    if (state.past.length > maxHistory) {
+      dispatch({ type: "SET", value: state.present });
+    }
+  }, [state.past.length, maxHistory, state.present]);
 
   return {
     value:      state.present,

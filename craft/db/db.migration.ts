@@ -43,44 +43,46 @@ export class MigrationRunner {
   }
 
   // DDL helpers for common migration operations
+  // FIX: Quote all identifiers to prevent SQL injection via table/column names
   async createTable(name: string, definition: string): Promise<void> {
-    await this.execute(`CREATE TABLE IF NOT EXISTS ${name} (${definition})`);
+    await this.execute(`CREATE TABLE IF NOT EXISTS "${name}" (${definition})`);
   }
 
   async dropTable(name: string): Promise<void> {
-    await this.execute(`DROP TABLE IF EXISTS ${name}`);
+    await this.execute(`DROP TABLE IF EXISTS "${name}"`);
   }
 
   async addColumn(table: string, column: string, definition: string): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS ${column} ${definition}`);
+    await this.execute(`ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${column}" ${definition}`);
   }
 
   async dropColumn(table: string, column: string): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} DROP COLUMN IF EXISTS ${column}`);
+    await this.execute(`ALTER TABLE "${table}" DROP COLUMN IF EXISTS "${column}"`);
   }
 
   async renameColumn(table: string, from: string, to: string): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} RENAME COLUMN ${from} TO ${to}`);
+    await this.execute(`ALTER TABLE "${table}" RENAME COLUMN "${from}" TO "${to}"`);
   }
 
   async alterColumn(table: string, column: string, definition: string): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} ALTER COLUMN ${column} ${definition}`);
+    await this.execute(`ALTER TABLE "${table}" ALTER COLUMN "${column}" ${definition}`);
   }
 
   async createIndex(name: string, table: string, columns: string[], unique = false): Promise<void> {
-    await this.execute(`CREATE ${unique ? "UNIQUE " : ""}INDEX IF NOT EXISTS ${name} ON ${table} (${columns.join(", ")})`);
+    const cols = columns.map(c => `"${c}"`).join(", ");
+    await this.execute(`CREATE ${unique ? "UNIQUE " : ""}INDEX IF NOT EXISTS "${name}" ON "${table}" (${cols})`);
   }
 
   async dropIndex(name: string): Promise<void> {
-    await this.execute(`DROP INDEX IF EXISTS ${name}`);
+    await this.execute(`DROP INDEX IF EXISTS "${name}"`);
   }
 
   async addForeignKey(table: string, name: string, column: string, refTable: string, refColumn: string, onDelete = "CASCADE"): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} ADD CONSTRAINT ${name} FOREIGN KEY (${column}) REFERENCES ${refTable}(${refColumn}) ON DELETE ${onDelete}`);
+    await this.execute(`ALTER TABLE "${table}" ADD CONSTRAINT "${name}" FOREIGN KEY ("${column}") REFERENCES "${refTable}"("${refColumn}") ON DELETE ${onDelete}`);
   }
 
   async dropConstraint(table: string, name: string): Promise<void> {
-    await this.execute(`ALTER TABLE ${table} DROP CONSTRAINT IF EXISTS ${name}`);
+    await this.execute(`ALTER TABLE "${table}" DROP CONSTRAINT IF EXISTS "${name}"`);
   }
 }
 

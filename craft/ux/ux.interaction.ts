@@ -42,7 +42,9 @@ export function usePointer(elementRef: RefObject<HTMLElement>) {
 
     const getPoint = (e: MouseEvent | TouchEvent): Point => {
       if ("touches" in e) {
-        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        // FIX: Guard against empty touches array (touchend has no touches)
+        const touch = e.touches[0] ?? e.changedTouches?.[0];
+        return touch ? { x: touch.clientX, y: touch.clientY } : { x: 0, y: 0 };
       }
       return { x: e.clientX, y: e.clientY };
     };
@@ -106,7 +108,11 @@ export function useGesture(
   const update = useCallback(() => setState({ ...stateRef.current }), []);
 
   const getPoint = (e: MouseEvent | TouchEvent): Point => {
-    if ("touches" in e) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if ("touches" in e) {
+      // FIX: Guard against empty touches array on touchend
+      const touch = e.touches[0] ?? e.changedTouches?.[0];
+      return touch ? { x: touch.clientX, y: touch.clientY } : { x: 0, y: 0 };
+    }
     return { x: e.clientX, y: e.clientY };
   };
 
@@ -182,6 +188,8 @@ export function useGesture(
 
     el.addEventListener("mousedown",  onStart);
     el.addEventListener("touchstart", onStart, { passive: true });
+    // FIX: SSR guard — window may not exist in server-side rendering environments
+    if (typeof window === "undefined") return;
     window.addEventListener("mousemove",  onMove);
     window.addEventListener("touchmove",  onMove, { passive: true });
     window.addEventListener("mouseup",   onEnd);
@@ -323,6 +331,8 @@ export function useClickOutside<T extends HTMLElement>(
   handlerRef.current = handler;
 
   useEffect(() => {
+    // FIX: SSR guard — document may not exist in server-side rendering
+    if (typeof document === "undefined") return;
     const listener = (e: MouseEvent | TouchEvent) => {
       if (!ref.current || ref.current.contains(e.target as Node)) return;
       handlerRef.current();

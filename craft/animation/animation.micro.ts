@@ -60,10 +60,13 @@ export function useSpring(
   const startRef  = useRef(0);
   const rafRef    = useRef<number | null>(null);
   const targetRef = useRef(target);
+  const valueRef  = useRef(target); // FIX: Track current value to avoid stale closure
 
   useEffect(() => {
-    if (target === targetRef.current && Math.abs(value - target) < 0.001) return;
-    fromRef.current   = value;
+    // FIX: SSR guard — performance/rAF not available during SSR
+    if (typeof window === "undefined") return;
+    if (target === targetRef.current && Math.abs(valueRef.current - target) < 0.001) return;
+    fromRef.current   = valueRef.current;
     targetRef.current = target;
     startRef.current  = performance.now();
 
@@ -71,11 +74,13 @@ export function useSpring(
       const t       = (now - startRef.current) / 1000;
       const current = springValue(fromRef.current, target, config, t);
 
-      if (Math.abs(current - target) < 0.001 && Math.abs(current - value) < 0.001) {
+      if (Math.abs(current - target) < 0.001) {
         setValue(target);
+        valueRef.current = target;
         return;
       }
       setValue(current);
+      valueRef.current = current;
       rafRef.current = requestAnimationFrame(animate);
     };
 

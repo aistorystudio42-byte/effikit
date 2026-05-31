@@ -275,9 +275,11 @@ export const ToastProvider: React.FC<{ children: ReactNode; maxToasts?: number }
   }, [dismissToast]);
 
   useEffect(() => {
+    // FIX: Capture ref snapshot so cleanup doesn't access a stale Map
+    const timers = timersRef.current;
     return () => {
-      timersRef.current.forEach(clearTimeout);
-      timersRef.current.clear();
+      timers.forEach(clearTimeout);
+      timers.clear();
     };
   }, []);
 

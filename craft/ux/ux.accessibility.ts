@@ -19,6 +19,8 @@ const FOCUSABLE_SELECTORS = [
 export function useFocusTrap(containerRef: RefObject<HTMLElement>, enabled: boolean = true) {
   useEffect(() => {
     if (!enabled) return;
+    // FIX: SSR guard — document may not exist during server-side rendering
+    if (typeof document === "undefined") return;
     const el = containerRef.current;
     if (!el) return;
 
@@ -167,6 +169,8 @@ export function useKeyboardShortcut(shortcuts: ShortcutDefinition[]) {
   shortcutsRef.current = shortcuts;
 
   useEffect(() => {
+    // FIX: SSR guard
+    if (typeof document === "undefined") return;
     const handler = (e: globalThis.KeyboardEvent) => {
       for (const s of shortcutsRef.current) {
         if (s.disabled) continue;
