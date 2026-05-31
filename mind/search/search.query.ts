@@ -51,6 +51,7 @@ const DEFAULT_STOP_WORDS = new Set([
 
 export function naiveStem(word: string): string {
   word = word.toLowerCase();
+  if (word.length < 3) return word;
 
   // Step 1a: plurals and -ed/-ing
   if (word.endsWith("sses")) return word.slice(0, -2);
@@ -84,9 +85,12 @@ function tokenize(raw: string): Array<{ raw: string; type: TokenType; field?: st
     let negated = false;
 
     // Negation prefix
-    if (raw[i] === "-" || raw.slice(i).startsWith("NOT ")) {
+    if (raw[i] === "-") {
       negated = true;
-      i += raw[i] === "-" ? 1 : 4;
+      i += 1;
+    } else if (raw.slice(i).startsWith("NOT ") || raw.slice(i) === "NOT") {
+      negated = true;
+      i += 4;
     }
 
     // Quoted phrase

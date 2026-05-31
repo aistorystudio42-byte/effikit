@@ -154,16 +154,20 @@ interface PermissionProviderProps {
   children: ReactNode;
 }
 
-export const PermissionProvider: React.FC<PermissionProviderProps> = ({ engine, context, children }) => (
-  <PermissionContext.Provider value={{
+export const PermissionProvider: React.FC<PermissionProviderProps> = ({ engine, context, children }) => {
+  const value = React.useMemo(() => ({
     engine,
     context,
-    can:    (a, r) => engine.can(context, a, r),
-    cannot: (a, r) => engine.cannot(context, a, r),
-  }}>
-    {children}
-  </PermissionContext.Provider>
-);
+    can:    (a: Action, r: Resource) => engine.can(context, a, r),
+    cannot: (a: Action, r: Resource) => engine.cannot(context, a, r),
+  }), [engine, context]);
+
+  return (
+    <PermissionContext.Provider value={value}>
+      {children}
+    </PermissionContext.Provider>
+  );
+};
 
 // Gate component — renders children only if permission passes
 interface GateProps {

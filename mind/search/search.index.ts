@@ -80,6 +80,7 @@ export class InvertedIndex {
   private index: Map<string, PostingEntry[]> = new Map();
   private docLengths: Map<string, Map<string, number>> = new Map(); // docId → field → tokenCount
   private docStore: Map<string, Record<string, string>> = new Map();
+  private fieldTokenTotals: Map<string, number> = new Map();
   private docCount = 0;
 
   constructor(config: IndexConfig) {
@@ -104,6 +105,7 @@ export class InvertedIndex {
 
       const tokens = this.config.tokenizer(text);
       fieldLengths.set(fieldConfig.name, tokens.length);
+      this.fieldTokenTotals.set(fieldConfig.name, (this.fieldTokenTotals.get(fieldConfig.name) ?? 0) + tokens.length);
 
       // Build term frequency map with positions
       const tfMap = new Map<string, { count: number; positions: number[] }>();
@@ -138,6 +140,12 @@ export class InvertedIndex {
     if (!this.docStore.has(docId)) return false;
 
     this.docStore.delete(docId);
+    const lengths = this.docLengths.get(docId);
+    if (lengths) {
+      for (const [field, len] of lengths) {
+        this.fieldTokenTotals.set(field, (this.fieldTokenTotals.get(field) ?? 0) - len);
+      }
+    }
     this.docLengths.delete(docId);
     this.docCount--;
 
@@ -161,9 +169,7 @@ export class InvertedIndex {
     const avgFieldLen: Record<string, number> = {};
     for (const fieldConfig of this.config.fields) {
       if (!fieldConfig.indexed) continue;
-      const total = [...this.docLengths.values()].reduce(
-        (s, fm) => s + (fm.get(fieldConfig.name) ?? 0), 0
-      );
+      const total = this.fieldTokenTotals.get(fieldConfig.name) ?? 0;
       avgFieldLen[fieldConfig.name] = total / Math.max(this.docCount, 1);
     }
 

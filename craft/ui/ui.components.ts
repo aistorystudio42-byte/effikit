@@ -13,6 +13,7 @@ import React, {
   createContext,
   useContext,
   forwardRef,
+  useId,
   ReactNode,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -162,7 +163,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const inputId = id ?? `input-${Math.random().toString(36).slice(2, 9)}`;
+    // FIX: useId() instead of Math.random() — SSR-safe, stable across renders,
+    // prevents hydration mismatch and broken htmlFor/id associations.
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
 
     const sizeClasses: Record<Size, string> = {
       xs: "text-xs px-2 py-1",
@@ -272,10 +276,11 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
+// FIX: DJB2 hash — far fewer collisions than simple charCode sum.
+// "AB" and "BA" now produce different hashes.
 function nameToColor(name: string): string {
-  // Deterministic color from name — same name always gets the same color
   const colors = ["bg-blue-500", "bg-purple-500", "bg-green-500", "bg-orange-500", "bg-pink-500", "bg-teal-500"];
-  const hash = name.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const hash = name.split("").reduce((h, c) => ((h * 31 + c.charCodeAt(0)) >>> 0), 5381);
   return colors[hash % colors.length];
 }
 
@@ -337,6 +342,13 @@ export const Tooltip: React.FC<TooltipProps> = ({
     setVisible(false);
   }, []);
 
+  // FIX: Cleanup on unmount prevents timer firing after component is gone.
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
   const placementClasses: Record<Placement, string> = {
     top: "bottom-full left-1/2 -translate-x-1/2 mb-1",
     bottom: "top-full left-1/2 -translate-x-1/2 mt-1",
@@ -371,8 +383,15 @@ interface ModalProps {
   footer?: ReactNode;
 }
 
-const ModalContext = createContext<{ close: () => void }>({ close: () => {} });
-export const useModal = () => useContext(ModalContext);
+// FIX: Null-safe context — throws a clear error if useModal() is called
+// outside of a <Modal>, preventing silent misbehavior.
+const ModalContext = createContext<{ close: () => void } | null>(null);
+
+export function useModal(): { close: () => void } {
+  const ctx = useContext(ModalContext);
+  if (!ctx) throw new Error("useModal must be called inside a <Modal> component.");
+  return ctx;
+}
 
 const modalSizeMap = {
   sm: "max-w-sm",
@@ -392,6 +411,11 @@ export const Modal: React.FC<ModalProps> = ({
   footer,
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
+
+  // FIX: useId() for ARIA relationships — unique per Modal instance,
+  // SSR-safe, prevents duplicate-id WCAG violations when multiple Modals exist.
+  const titleId = useId();
+  const descId = useId();
 
   // Trap focus inside modal while open
   useEffect(() => {
@@ -428,8 +452,8 @@ export const Modal: React.FC<ModalProps> = ({
         className="fixed inset-0 z-50 flex items-center justify-center p-4"
         aria-modal="true"
         role="dialog"
-        aria-labelledby={title ? "modal-title" : undefined}
-        aria-describedby={description ? "modal-desc" : undefined}
+        aria-labelledby={title ? titleId : undefined}
+        aria-describedby={description ? descId : undefined}
       >
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
@@ -442,8 +466,8 @@ export const Modal: React.FC<ModalProps> = ({
           {/* Header */}
           {(title || description) && (
             <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-              {title && <h2 id="modal-title" className="text-lg font-semibold text-gray-900">{title}</h2>}
-              {description && <p id="modal-desc" className="mt-1 text-sm text-gray-500">{description}</p>}
+              {title && <h2 id={titleId} className="text-lg font-semibold text-gray-900">{title}</h2>}
+              {description && <p id={descId} className="mt-1 text-sm text-gray-500">{description}</p>}
             </div>
           )}
 
@@ -493,6 +517,8 @@ export const Dropdown: React.FC<DropdownProps> = ({
   placement = "bottom-left",
 }) => {
   const [open, setOpen] = useState(false);
+  // FIX: activeIndex now tracks index within the FULL items array (not filtered),
+  // so keyboard selection always maps correctly to rendered items.
   const [activeIndex, setActiveIndex] = useState<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -507,11 +533,30 @@ export const Dropdown: React.FC<DropdownProps> = ({
   }, [open]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const enabledItems = items.filter((i) => !i.disabled);
-    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => Math.min(i + 1, enabledItems.length - 1)); }
-    if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); }
-    if (e.key === "Enter" && activeIndex >= 0) { onSelect(enabledItems[activeIndex].value); setOpen(false); }
-    if (e.key === "Escape") setOpen(false);
+    const enabledIndices = items.reduce<number[]>((acc, item, i) => {
+      if (!item.disabled) acc.push(i);
+      return acc;
+    }, []);
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((cur) => {
+        const curPos = enabledIndices.indexOf(cur);
+        return enabledIndices[Math.min(curPos + 1, enabledIndices.length - 1)] ?? -1;
+      });
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((cur) => {
+        const curPos = enabledIndices.indexOf(cur);
+        return enabledIndices[Math.max(curPos - 1, 0)] ?? -1;
+      });
+    }
+    if (e.key === "Enter" && activeIndex >= 0) {
+      const item = items[activeIndex];
+      if (item && !item.disabled) { onSelect(item.value); setOpen(false); }
+    }
+    if (e.key === "Escape") { setOpen(false); setActiveIndex(-1); }
   };
 
   const placementClass = placement === "bottom-right" ? "right-0" : "left-0";
@@ -531,7 +576,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
               role="menuitem"
               disabled={item.disabled}
               aria-disabled={item.disabled}
-              onClick={() => { onSelect(item.value); setOpen(false); }}
+              onClick={() => { onSelect(item.value); setOpen(false); setActiveIndex(-1); }}
               className={`w-full text-left flex items-center gap-2 px-3 py-2 text-sm transition-colors ${item.disabled ? "text-gray-300 cursor-not-allowed" : item.danger ? "text-red-600 hover:bg-red-50" : "text-gray-700 hover:bg-gray-50"} ${idx === activeIndex ? "bg-gray-50" : ""}`}
             >
               {item.icon && <span className="flex-shrink-0">{item.icon}</span>}

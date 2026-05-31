@@ -50,6 +50,9 @@ function stdDev(values: number[], mean: number): number {
 }
 
 function computeStats(timings: number[], name: string, options: BenchmarkOptions): BenchmarkResult {
+  if (timings.length === 0) {
+    return { name, iterations: 0, totalMs: 0, meanMs: 0, medianMs: 0, p95Ms: 0, p99Ms: 0, minMs: 0, maxMs: 0, stdDevMs: 0, opsPerSec: 0 };
+  }
   const sorted = [...timings].sort((a, b) => a - b);
   const totalMs = timings.reduce((s, v) => s + v, 0);
   const meanMs = totalMs / timings.length;
@@ -135,19 +138,6 @@ export class BenchmarkSuite {
     const fastest = results.reduce((a, b) => (a.meanMs < b.meanMs ? a : b));
     const slowest = results.reduce((a, b) => (a.meanMs > b.meanMs ? a : b));
 
-    const comparisons = results.map((r) => ({
-      name: r.name,
-      vsfast: r.name === fastest.name
-        ? "baseline"
-        : `${(r.meanMs / fastest.meanMs).toFixed(2)}x slower`,
-    })).map(({ name, vsfast }) => ({ name, vsfast }))
-      // Rename for type correctness
-      .map(({ name, vsfast }) => ({ name, vsfast: vsfast as string }))
-      // Map back to expected shape
-      .map(({ name, vsfast }) => ({ name, vsfast }))
-      // Final shape
-      .map(({ name, vsfast }) => ({ name, vsfast }));
-
     return {
       suite: this.suiteName,
       results,
@@ -155,14 +145,11 @@ export class BenchmarkSuite {
       slowest: slowest.name,
       comparisons: results.map((r) => ({
         name: r.name,
-        vsfast: r.name === fastest.name
+        vsfastest: r.name === fastest.name
           ? "baseline (fastest)"
           : `${(r.meanMs / fastest.meanMs).toFixed(2)}x slower`,
-      })).map(({ name, vsfast }) => ({ name, vsfast }))
-        .map(({ name, vsfast }) => ({ name, vsfast }))
-        // Rename to match interface
-        .map(({ name, vsfast }) => ({ name, vsfast })),
-    } as unknown as BenchmarkSuiteResult;
+      })),
+    };
   }
 }
 

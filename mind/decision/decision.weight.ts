@@ -69,7 +69,7 @@ export function ahpWeights(pm: PairwiseMatrix): {
   const weightedSums = matrix.map((row, i) =>
     row.reduce((s, val, j) => s + val * priorities[j], 0)
   );
-  const lambdaMax = weightedSums.reduce((s, ws, i) => s + ws / priorities[i], 0) / n;
+  const lambdaMax = weightedSums.reduce((s, ws, i) => s + (priorities[i] === 0 ? 0 : ws / priorities[i]), 0) / n;
   const CI = (lambdaMax - n) / (n - 1);
   const RI = RANDOM_INDEX[n] ?? 1.49;
   const consistencyRatio = RI === 0 ? 0 : CI / RI;

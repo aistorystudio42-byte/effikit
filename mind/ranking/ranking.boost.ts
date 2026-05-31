@@ -66,6 +66,7 @@ export class BoostEngine {
   }
 
   removeRule(label: string): this {
+    if (!label) return this;
     this.rules = this.rules.filter((r) => r.label !== label);
     return this;
   }
@@ -110,7 +111,10 @@ export class BoostEngine {
     items: Array<Boostable & BoostResult>
   ): Array<Boostable & BoostResult> {
     const pinned   = items.filter((i) => i.pinnedPosition !== null)
-                         .sort((a, b) => (a.pinnedPosition ?? 0) - (b.pinnedPosition ?? 0));
+                         .sort((a, b) => {
+                           if (a.pinnedPosition === b.pinnedPosition) return b.boostedScore - a.boostedScore;
+                           return (a.pinnedPosition ?? 0) - (b.pinnedPosition ?? 0);
+                         });
     const unpinned = items.filter((i) => i.pinnedPosition === null)
                          .sort((a, b) => b.boostedScore - a.boostedScore);
 

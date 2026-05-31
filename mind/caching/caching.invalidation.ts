@@ -245,6 +245,7 @@ export class StaleWhileRevalidateCache<K = string, V = unknown> {
         this.revalidating.add(k);
         fetcher()
           .then((v) => { this.set(k, v, staleMs, expireMs); })
+          .catch((err) => { console.error(`SWR revalidation failed for ${k}:`, err); })
           .finally(() => this.revalidating.delete(k));
       }
 

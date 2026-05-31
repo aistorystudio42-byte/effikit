@@ -124,15 +124,18 @@ const diversityFilter: FilterRule = {
     const alpha = ctx.diversityAlpha ?? 0;
     if (alpha === 0 || items.length === 0) return items;
 
-    const maxScore = items[0].score || 1;
+    const maxScore = Math.max(...items.map((i) => Math.abs(i.score)), 1e-9);
     const selected: FilterableItem[] = [];
+    const inSelected = new Set<number>();
     const candidates = [...items];
 
-    while (candidates.length > 0 && selected.length < (ctx.maxResults ?? items.length)) {
-      let bestIdx = 0;
+    while (selected.length < (ctx.maxResults ?? items.length)) {
+      let bestIdx = -1;
       let bestMMR = -Infinity;
 
       for (let i = 0; i < candidates.length; i++) {
+        if (inSelected.has(i)) continue;
+
         const relevance = candidates[i].score / maxScore;
         const maxSim = selected.length === 0
           ? 0
@@ -142,8 +145,9 @@ const diversityFilter: FilterRule = {
         if (mmr > bestMMR) { bestMMR = mmr; bestIdx = i; }
       }
 
+      if (bestIdx === -1) break;
       selected.push(candidates[bestIdx]);
-      candidates.splice(bestIdx, 1);
+      inSelected.add(bestIdx);
     }
 
     return selected;
@@ -186,13 +190,13 @@ export class FilterPipeline {
 
 function defaultRules(): FilterRule[] {
   return [
-    seenFilter,
-    blacklistFilter,
-    tagFilter,
-    recencyFilter,
-    categoryCapFilter,
-    authorCapFilter,
-    diversityFilter,
+    { ...seenFilter },
+    { ...blacklistFilter },
+    { ...tagFilter },
+    { ...recencyFilter },
+    { ...categoryCapFilter },
+    { ...authorCapFilter },
+    { ...diversityFilter },
   ];
 }
 

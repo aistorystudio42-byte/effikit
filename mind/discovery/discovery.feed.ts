@@ -121,7 +121,8 @@ export class FeedBuilder {
 
     let startIdx = 0;
     if (cursor) {
-      const cursorIdx = pool.findIndex((i) => i.id === cursor.lastId);
+      const idToIndex = new Map(pool.map((item, idx) => [item.id, idx]));
+      const cursorIdx = idToIndex.get(cursor.lastId) ?? -1;
       startIdx = cursorIdx >= 0 ? cursorIdx + 1 : 0;
     }
 
@@ -158,13 +159,13 @@ function interleaveMixed(
   const result: FeedItem[] = [];
   let si = 0;
   let ci = 0;
-  const total = scored.length;
+  const total = scored.length + chrono.length;
 
   for (let i = 0; i < total; i++) {
-    // Use ratio to decide which list contributes this slot
-    const pickScored = Math.random() < ratio;
+    // Ratio-based deterministic slot allocation (no randomness)
+    const useScored = (si / (si + ci + 1)) < ratio;
 
-    if (pickScored) {
+    if (useScored) {
       while (si < scored.length && seen.has(scored[si].id)) si++;
       if (si < scored.length) { seen.add(scored[si].id); result.push(scored[si++]); continue; }
     }

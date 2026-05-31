@@ -5,6 +5,9 @@
  * @not-when    JWT signing/verification — use auth.token.ts; OAuth flows — use your auth provider's SDK
  */
 
+import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode } from "react";
+import { z } from "zod";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SessionUser {
@@ -26,6 +29,22 @@ export interface Session {
 }
 
 export type SessionStatus = "active" | "expired" | "missing" | "refreshing";
+
+const SessionSchema = z.object({
+  user: z.object({
+    id: z.string(),
+    email: z.string(),
+    name: z.string().optional(),
+    avatar: z.string().optional(),
+    roles: z.array(z.string()),
+    metadata: z.record(z.unknown()).optional(),
+  }),
+  accessToken: z.string(),
+  refreshToken: z.string().optional(),
+  expiresAt: z.number(),
+  createdAt: z.number(),
+  issuedAt: z.number(),
+});
 
 // ─── Storage Adapters ─────────────────────────────────────────────────────────
 
@@ -83,7 +102,14 @@ export class SessionManager {
     const raw = this.storage.get(this.key);
     if (!raw) return null;
     try {
-      return JSON.parse(raw) as Session;
+      // FIX: Validate parsed JSON to prevent Session Injection XSS attacks
+      const parsed = JSON.parse(raw);
+      const result = SessionSchema.safeParse(parsed);
+      if (!result.success) {
+        this.clear();
+        return null;
+      }
+      return result.data as Session;
     } catch {
       this.clear();
       return null;
@@ -103,8 +129,8 @@ export class SessionManager {
     return "active";
   }
 
-  isExpired(session: Session = this.get() ?? ({} as Session)): boolean {
-    if (!session.expiresAt) return true;
+  isExpired(session: Session | null = this.get()): boolean {
+    if (!session || !session.expiresAt) return true;
     return Date.now() >= session.expiresAt;
   }
 
@@ -158,11 +184,13 @@ export class SessionManager {
       this.config.onExpired?.();
     }
   }
+  
+  getKey() {
+    return this.key;
+  }
 }
 
 // ─── React Integration ────────────────────────────────────────────────────────
-
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode } from "react";
 
 interface SessionContextValue {
   session:  Session | null;
@@ -214,11 +242,12 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ manager, child
   // Sync across tabs via storage event
   useEffect(() => {
     const handler = (e: StorageEvent) => {
-      if (e.key?.includes("session")) syncState();
+      // FIX: Exact key match instead of .includes to prevent crosstalk
+      if (e.key === manager.getKey()) syncState();
     };
     window.addEventListener("storage", handler);
     return () => window.removeEventListener("storage", handler);
-  }, [syncState]);
+  }, [syncState, manager]);
 
   return (
     <SessionContext.Provider value={{ session, status, user: session?.user ?? null, login, logout, refresh }}>
@@ -226,8 +255,6 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ manager, child
     </SessionContext.Provider>
   );
 };
-
-import React from "react";
 
 /*
  * Usage Examples:

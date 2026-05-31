@@ -144,9 +144,20 @@ export function normalizeError(err: unknown): NormalizedError {
   }
 
   // String or unknown
+  let technicalMsg = "Unknown error";
+  if (typeof err === "string") {
+    technicalMsg = err;
+  } else {
+    try {
+      technicalMsg = JSON.stringify(err);
+    } catch {
+      technicalMsg = String(err);
+    }
+  }
+
   return {
     message:    DEFAULT_MESSAGES["unknown"],
-    technical:  typeof err === "string" ? err : JSON.stringify(err),
+    technical:  technicalMsg,
     category:   "unknown",
     severity:   "error",
     statusCode: null,
@@ -212,7 +223,13 @@ type ReporterFn = (error: NormalizedError, context?: Record<string, unknown>) =>
 
 const reporters: ReporterFn[] = [];
 
-export function addErrorReporter(fn: ReporterFn) { reporters.push(fn); }
+export function addErrorReporter(fn: ReporterFn): () => void {
+  reporters.push(fn);
+  return () => {
+    const idx = reporters.indexOf(fn);
+    if (idx !== -1) reporters.splice(idx, 1);
+  };
+}
 
 export function reportError(err: unknown, context?: Record<string, unknown>) {
   const normalized = normalizeError(err);
@@ -233,8 +250,14 @@ function isApiError(err: unknown): err is { message: string; status: number | nu
 function extractValidationFields(response: unknown): Record<string, string[]> | undefined {
   if (!response || typeof response !== "object") return undefined;
   const r = response as Record<string, unknown>;
-  if (r.errors && typeof r.errors === "object") return r.errors as Record<string, string[]>;
-  if (r.fields && typeof r.fields === "object") return r.fields as Record<string, string[]>;
+
+  const isValidFields = (obj: unknown): obj is Record<string, string[]> => {
+    if (!obj || typeof obj !== "object") return false;
+    return Object.values(obj).every(v => Array.isArray(v) && v.every(i => typeof i === "string"));
+  };
+
+  if (isValidFields(r.errors)) return r.errors;
+  if (isValidFields(r.fields)) return r.fields;
   return undefined;
 }
 

@@ -48,7 +48,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   if (lines > 1) {
     return (
-      <div className={`flex flex-col gap-2 ${className}`}>
+      <div className={`flex flex-col gap-2 ${className}`} aria-hidden="true">
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
@@ -139,7 +139,8 @@ const progressSizeMap = { sm: "h-1", md: "h-2", lg: "h-3" };
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   value, max = 100, label, color = "blue", size = "md", animated = false, showValue = false,
 }) => {
-  const pct = Math.min(100, Math.max(0, (value / max) * 100));
+  const safeMax = max > 0 ? max : 1; // FIX: Guard against division by zero
+  const pct = Math.min(100, Math.max(0, (value / safeMax) * 100));
   return (
     <div className="w-full">
       {(label || showValue) && (
@@ -250,9 +251,14 @@ export const ToastProvider: React.FC<{ children: ReactNode; maxToasts?: number }
   children, maxToasts = 5,
 }) => {
   const [toasts, dispatch] = useReducer(toastReducer, []);
+  const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
 
   const dismissToast = useCallback((id: string) => {
     dispatch({ type: "REMOVE", id });
+    if (timersRef.current.has(id)) {
+      clearTimeout(timersRef.current.get(id)!);
+      timersRef.current.delete(id);
+    }
   }, []);
 
   const toast = useCallback((
@@ -263,8 +269,17 @@ export const ToastProvider: React.FC<{ children: ReactNode; maxToasts?: number }
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
     const duration = options.duration ?? 4000;
     dispatch({ type: "ADD", toast: { id, message, variant, duration, ...options } });
-    if (duration > 0) setTimeout(() => dismissToast(id), duration);
+    if (duration > 0) {
+      timersRef.current.set(id, setTimeout(() => dismissToast(id), duration));
+    }
   }, [dismissToast]);
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout);
+      timersRef.current.clear();
+    };
+  }, []);
 
   const visible = toasts.slice(-maxToasts);
 

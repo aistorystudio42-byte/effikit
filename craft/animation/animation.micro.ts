@@ -122,6 +122,12 @@ export function useHoverLift(options: HoverLiftOptions = {}) {
 export function useRipple(color: string = "rgba(255,255,255,0.35)") {
   const [ripples, setRipples] = useState<RippleItem[]>([]);
   const counterRef = useRef(0);
+  const mountedRef = useRef(true); // FIX: Prevent state update on unmounted component
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const addRipple = useCallback((e: MouseEvent<HTMLElement>) => {
     const el   = e.currentTarget;
@@ -132,7 +138,9 @@ export function useRipple(color: string = "rgba(255,255,255,0.35)") {
     const id   = counterRef.current++;
 
     setRipples((r) => [...r, { id, x, y, size }]);
-    setTimeout(() => setRipples((r) => r.filter((rip) => rip.id !== id)), 600);
+    setTimeout(() => {
+      if (mountedRef.current) setRipples((r) => r.filter((rip) => rip.id !== id));
+    }, 600);
   }, []);
 
   const RippleContainer = useCallback(() => (
@@ -212,6 +220,7 @@ export function useCountUp(
   const rafRef       = useRef<number | null>(null);
 
   useEffect(() => {
+    setCurrent(start); // FIX: Ensure we start from the new 'start' value
     if (end === start) return;
     startTimeRef.current = null;
 
@@ -269,6 +278,7 @@ export const PressableButton: React.FC<PressableProps> = ({
 // Inject once at app root: injectRippleStyles()
 
 export function injectRippleStyles() {
+  if (typeof document === "undefined") return; // FIX: SSR guard
   if (document.getElementById("effikit-ripple-style")) return;
   const style = document.createElement("style");
   style.id = "effikit-ripple-style";

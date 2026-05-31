@@ -271,12 +271,16 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
   const [key, setKey] = useState(routeKey);
   const [visible, setVisible] = useState(true);
   const pendingKeyRef = useRef<string | null>(null);
+  const [displayChildren, setDisplayChildren] = useState(children); // FIX: Retain old children during exit animation
 
   useEffect(() => {
-    if (routeKey === key) return;
+    if (routeKey === key) {
+      setDisplayChildren(children);
+      return;
+    }
     pendingKeyRef.current = routeKey;
     setVisible(false);
-  }, [routeKey, key]);
+  }, [routeKey, key, children]);
 
   const handleExited = useCallback(() => {
     if (pendingKeyRef.current) {
@@ -288,7 +292,7 @@ export const PageTransition: React.FC<PageTransitionProps> = ({
 
   return (
     <Transition visible={visible} preset={preset} duration={duration} onExited={handleExited} keepMounted>
-      {children}
+      {displayChildren}
     </Transition>
   );
 };

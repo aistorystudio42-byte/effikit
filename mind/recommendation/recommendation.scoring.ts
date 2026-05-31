@@ -61,10 +61,11 @@ function zScoreNormalize(scores: number[]): number[] {
 }
 
 function softmaxNormalize(scores: number[]): number[] {
+  if (scores.length === 0) return [];
   const maxScore = Math.max(...scores);
   const exps = scores.map((s) => Math.exp(s - maxScore)); // numerically stable
   const sum = exps.reduce((a, b) => a + b, 0);
-  return exps.map((e) => e / sum);
+  return sum === 0 ? scores.map(() => 1 / scores.length) : exps.map((e) => e / sum);
 }
 
 function normalize(scores: number[], strategy: ScoringConfig["normalizationStrategy"]): number[] {
@@ -79,6 +80,7 @@ function normalize(scores: number[], strategy: ScoringConfig["normalizationStrat
 // ─── Weight Normalization ──────────────────────────────────────────────────────
 
 function normalizeWeights(signals: ScoringSignal[]): number[] {
+  if (signals.length === 0) return [];
   const total = signals.reduce((s, sig) => s + Math.abs(sig.weight), 0);
   return total === 0 ? signals.map(() => 1 / signals.length) : signals.map((s) => s.weight / total);
 }

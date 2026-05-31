@@ -72,6 +72,19 @@ export class MemoCache<T> {
     return this.cache.delete(this.keyFn(...args));
   }
 
+  has(args: unknown[]): boolean {
+    const key = this.keyFn(...args);
+    const entry = this.cache.get(key);
+    if (!entry) return false;
+    
+    // Check TTL
+    if (this.ttlMs > 0 && Date.now() - entry.createdAt > this.ttlMs) {
+      this.cache.delete(key);
+      return false;
+    }
+    return true;
+  }
+
   clear(): void { this.cache.clear(); }
 
   get stats() {
@@ -94,8 +107,7 @@ export function memoize<TArgs extends unknown[], TReturn>(
   const cache = new MemoCache<TReturn>(options);
 
   return (...args: TArgs): TReturn => {
-    const cached = cache.get(args);
-    if (cached !== undefined) return cached;
+    if (cache.has(args)) return cache.get(args) as TReturn;
     const result = fn(...args);
     cache.set(args, result);
     return result;
@@ -111,8 +123,7 @@ export function memoizeAsync<TArgs extends unknown[], TReturn>(
   const cache = new MemoCache<Promise<TReturn>>(options);
 
   return (...args: TArgs): Promise<TReturn> => {
-    const cached = cache.get(args);
-    if (cached !== undefined) return cached;
+    if (cache.has(args)) return cache.get(args) as Promise<TReturn>;
 
     // Cache the promise itself so concurrent calls share one in-flight request
     const promise = fn(...args).catch((err) => {
@@ -208,6 +219,14 @@ export class ReactiveCache<T> {
   private rdeps = new Map<string, Set<string>>(); // dep key → dependent keys
 
   compute(key: string, dependencies: string[], compute: () => T): T {
+    // Clean up old reverse dependencies
+    const oldDeps = this.deps.get(key);
+    if (oldDeps) {
+      for (const dep of oldDeps) {
+        this.rdeps.get(dep)?.delete(key);
+      }
+    }
+    
     // Track dependencies
     this.deps.set(key, new Set(dependencies));
     for (const dep of dependencies) {

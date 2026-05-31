@@ -53,7 +53,7 @@ async function runWithRetry<I, O>(
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt < maxAttempts - 1 && step.retryDelayMs) {
-        await sleep(step.retryDelayMs * Math.pow(2, attempt)); // Exponential backoff
+        await sleep(Math.min(step.retryDelayMs * Math.pow(2, attempt), 30_000)); // Exponential backoff capped at 30s
       }
     }
   }
@@ -160,12 +160,12 @@ export class ParallelPipeline<TInput = unknown> {
         })
       );
 
-      for (const result of settled) {
+      settled.forEach((result, i) => {
         if (result.status === "rejected") {
-          const step = chunk[settled.indexOf(result)];
+          const step = chunk[i];
           stepResults[step.id] = { status: "failed", error: String(result.reason), durationMs: 0 };
         }
-      }
+      });
     }
 
     const succeeded = Object.values(stepResults).every((r) => r.status !== "failed");

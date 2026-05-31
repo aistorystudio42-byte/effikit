@@ -60,9 +60,15 @@ export class GeneticAlgorithm {
     let overallBest = population[0];
     let overallBestFitness = -Infinity;
 
+    const MAX_CACHE_SIZE = 10000;
     const getFitness = (c: Chromosome): number => {
       const key = c.join(",");
-      if (!this.fitnessCache.has(key)) this.fitnessCache.set(key, fitness(c));
+      if (!this.fitnessCache.has(key)) {
+        if (this.fitnessCache.size >= MAX_CACHE_SIZE) {
+          this.fitnessCache.delete(this.fitnessCache.keys().next().value!);
+        }
+        this.fitnessCache.set(key, fitness(c));
+      }
       return this.fitnessCache.get(key)!;
     };
 
@@ -139,7 +145,11 @@ export class SimulatedAnnealing {
     let temp = this.config.initialTemp;
     const acceptanceHistory: number[] = [];
 
-    while (temp > this.config.finalTemp) {
+    let outerSteps = 0;
+    const maxOuterSteps = 10000;
+
+    while (temp > this.config.finalTemp && outerSteps < maxOuterSteps) {
+      outerSteps++;
       let accepted = 0;
 
       for (let step = 0; step < this.config.stepsPerTemp; step++) {

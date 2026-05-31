@@ -99,11 +99,11 @@ export class ConflictResolver<T> {
 
     switch (this.strategy) {
       case "last-write-wins":
-        resolved = versions.sort((a, b) => b.timestamp - a.timestamp)[0].value;
+        resolved = [...versions].sort((a, b) => b.timestamp - a.timestamp)[0].value;
         break;
 
       case "first-write-wins":
-        resolved = versions.sort((a, b) => a.timestamp - b.timestamp)[0].value;
+        resolved = [...versions].sort((a, b) => a.timestamp - b.timestamp)[0].value;
         break;
 
       case "merge":

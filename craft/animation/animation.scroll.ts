@@ -111,6 +111,7 @@ export function useParallax<T extends HTMLElement>(
   const [offset, setOffset] = useState(0);
 
   useEffect(() => {
+    if (typeof window === "undefined") return; // FIX: SSR guard
     const update = () => {
       const el = ref.current;
       if (!el) return;
@@ -199,6 +200,7 @@ export function useScrollSpy(
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
+    if (typeof document === "undefined") return; // FIX: SSR guard
     const observers = sectionIds.map((id) => {
       const el = document.getElementById(id);
       if (!el) return null;

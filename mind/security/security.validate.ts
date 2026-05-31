@@ -111,14 +111,17 @@ export const Validate = {
   alphanumeric:(v: string): boolean => PATTERNS.alphanumeric.test(v),
   ipv4:        (v: string): boolean => {
     if (!PATTERNS.ipv4.test(v)) return false;
-    return v.split(".").every((n) => parseInt(n, 10) <= 255);
+    return v.split(".").every((n) => {
+      if (n.length > 1 && n.startsWith("0")) return false; // leading zero
+      return parseInt(n, 10) <= 255;
+    });
   },
   hexColor:    (v: string): boolean => PATTERNS.hexColor.test(v),
   jwt:         (v: string): boolean => PATTERNS.jwt.test(v),
 
   /** Check for potential XSS patterns */
   noXSS: (v: string): boolean =>
-    !/<script|javascript:|on\w+\s*=|<iframe|<object|<embed|<link|<meta/i.test(v),
+    !/<script|javascript:|on\w+\s*=|<iframe|<object|<embed|<link|<meta|data:text\/html|vbscript:|expression\(/i.test(v),
 
   /** Check for potential SQL injection patterns */
   noSQLInjection: (v: string): boolean =>

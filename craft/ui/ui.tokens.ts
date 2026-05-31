@@ -111,7 +111,9 @@ export const typography = {
     xs:   { size: '0.75rem',  lineHeight: '1rem' },      // 12px
     sm:   { size: '0.875rem', lineHeight: '1.25rem' },   // 14px
     base: { size: '1rem',     lineHeight: '1.5rem' },    // 16px
-    md:   { size: '1rem',     lineHeight: '1.5rem' },    // 16px
+    // NOTE: 'md' is a deprecated alias for 'base' (same values).
+    // Prefer 'base' for new code. 'md' kept for backward compatibility.
+    md:   { size: '1rem',     lineHeight: '1.5rem' },    // 16px — alias of 'base'
     lg:   { size: '1.125rem', lineHeight: '1.75rem' },   // 18px
     xl:   { size: '1.25rem',  lineHeight: '1.75rem' },   // 20px
     "2xl": { size: '1.5rem',  lineHeight: '2rem' },      // 24px
@@ -309,9 +311,12 @@ export function generateCSSVariables(t: Theme = theme): string {
  *   padding: ${spacing[4]};
  * `;
  *
- * // Generate and inject CSS variables (call once at app root)
+ * // Generate and inject CSS variables (call once at app root — CLIENT ONLY)
+ * // FIX: Always guard with typeof document check for SSR compatibility.
  * const css = generateCSSVariables();
- * document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`);
+ * if (typeof document !== 'undefined') {
+ *   document.head.insertAdjacentHTML('beforeend', `<style>${css}</style>`);
+ * }
  *
  * // Use in Tailwind extend config
  * // tailwind.config.js → theme.extend.colors = palette.blue (etc.)

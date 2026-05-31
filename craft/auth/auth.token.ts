@@ -43,13 +43,17 @@ export interface VerifyResult<T extends JwtClaims = JwtClaims> {
 // ─── Base64URL helpers (no external deps) ────────────────────────────────────
 
 function base64UrlEncode(data: string): string {
-  return btoa(data).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  // FIX: Provide Node.js fallback for btoa
+  const b64 = typeof btoa === "function" ? btoa(data) : Buffer.from(data).toString("base64");
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 function base64UrlDecode(data: string): string {
   const pad = data.length % 4;
   const padded = pad ? data + "=".repeat(4 - pad) : data;
-  return atob(padded.replace(/-/g, "+").replace(/_/g, "/"));
+  const b64 = padded.replace(/-/g, "+").replace(/_/g, "/");
+  // FIX: Provide Node.js fallback for atob
+  return typeof atob === "function" ? atob(b64) : Buffer.from(b64, "base64").toString("utf-8");
 }
 
 // ─── HMAC-SHA256 signing (Web Crypto API) ────────────────────────────────────
@@ -62,7 +66,15 @@ async function hmacSign(payload: string, secret: string): Promise<string> {
     false, ["sign"]
   );
   const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(payload));
-  return base64UrlEncode(String.fromCharCode(...new Uint8Array(sig)));
+  
+  // FIX: Prevent 'Maximum call stack size exceeded' on large buffers
+  let binary = "";
+  const bytes = new Uint8Array(sig);
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const b64 = typeof btoa === "function" ? btoa(binary) : Buffer.from(binary, "binary").toString("base64");
+  return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 async function hmacVerify(payload: string, signature: string, secret: string): Promise<boolean> {
@@ -88,7 +100,8 @@ export async function signJwt(
   const fullClaims: JwtClaims = {
     iat: now,
     nbf: now,
-    jti: options.jwtId ? crypto.randomUUID() : undefined,
+    // FIX: Fallback for crypto.randomUUID in older Node or non-secure browser contexts
+    jti: options.jwtId ? (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`) : undefined,
     iss: options.issuer,
     aud: options.audience,
     exp: options.expiresIn ? now + options.expiresIn : undefined,

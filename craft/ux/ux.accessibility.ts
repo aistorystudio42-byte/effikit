@@ -5,7 +5,7 @@
  * @not-when    Static content pages — focus management and ARIA are only necessary for interactive widgets
  */
 
-import { useRef, useEffect, useCallback, useState, RefObject, KeyboardEvent } from "react";
+import { useRef, useEffect, useCallback, useState, RefObject, KeyboardEvent, useId } from "react";
 
 // ─── Focus Trap ───────────────────────────────────────────────────────────────
 // Keeps keyboard focus inside a container (required for modals, drawers, dialogs)
@@ -112,17 +112,26 @@ type LivePoliteness = "polite" | "assertive" | "off";
 export function useLiveRegion(politeness: LivePoliteness = "polite") {
   const [message, setMessage] = useState("");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const announce = useCallback((text: string, clearAfter: number = 3000) => {
     // Clear first so re-announcing the same text is always detected as a change
     setMessage("");
-    requestAnimationFrame(() => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
       setMessage(text);
       if (clearAfter > 0) {
         if (timerRef.current) clearTimeout(timerRef.current);
         timerRef.current = setTimeout(() => setMessage(""), clearAfter);
       }
     });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
 
   // The JSX to render in your component tree (visually hidden)
@@ -154,9 +163,12 @@ interface ShortcutDefinition {
 }
 
 export function useKeyboardShortcut(shortcuts: ShortcutDefinition[]) {
+  const shortcutsRef = useRef(shortcuts);
+  shortcutsRef.current = shortcuts;
+
   useEffect(() => {
     const handler = (e: globalThis.KeyboardEvent) => {
-      for (const s of shortcuts) {
+      for (const s of shortcutsRef.current) {
         if (s.disabled) continue;
         if (e.key.toLowerCase() !== s.key.toLowerCase()) continue;
 
@@ -175,18 +187,14 @@ export function useKeyboardShortcut(shortcuts: ShortcutDefinition[]) {
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [shortcuts]);
+  }, []);
 }
 
 // ─── useAriaId — Stable unique IDs for ARIA relationships ────────────────────
 
-let idCounter = 0;
 export function useAriaId(prefix: string = "aria"): string {
-  const idRef = useRef<string | null>(null);
-  if (idRef.current === null) {
-    idRef.current = `${prefix}-${++idCounter}`;
-  }
-  return idRef.current;
+  const id = useId();
+  return `${prefix}-${id.replace(/:/g, "")}`;
 }
 
 // ─── getAriaProps — Helper to build common ARIA attribute sets ─────────────────

@@ -122,7 +122,8 @@ export class ContentAdapter {
 
       // Combined affinity
       const affinity = (tagBoost * 0.6 + catBoost * 0.4);
-      score *= 1 + affinity * (this.config.interestBoostMultiplier - 1);
+      const epsilonNoise = (Math.random() - 0.5) * 0.1; // 10% random exploration bounds
+      score *= 1 + Math.max(0, affinity + epsilonNoise) * (this.config.interestBoostMultiplier - 1);
 
       // Penalize recently viewed items
       if (context.recentlyViewed.includes(item.id)) {

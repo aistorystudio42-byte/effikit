@@ -189,7 +189,7 @@ export class Graph<N = Record<string, unknown>, E = Record<string, unknown>> {
       if (node) sub.addNode(node.id, node.data, node.label);
     }
 
-    for (const edge of this.edges.values()) {
+    for (const edge of this.allEdges()) {
       if (nodeSet.has(edge.source) && nodeSet.has(edge.target)) {
         sub.addEdge(edge.source, edge.target, edge.data, {
           weight: edge.weight, label: edge.label, directed: edge.directed,

@@ -59,29 +59,7 @@ function itemSimilarity(a: DiversifiableItem, b: DiversifiableItem): number {
   return tagJaccard(a, b);
 }
 
-// ─── MMR (Maximal Marginal Relevance) ─────────────────────────────────────────
-// Iteratively selects items that maximize: λ·relevance − (1−λ)·max_similarity_to_selected
 
-function mmrSelect(
-  candidates: DiversifiableItem[],
-  selected: DiversifiableItem[],
-  lambda: number
-): { item: DiversifiableItem; index: number } {
-  let bestIdx = 0;
-  let bestScore = -Infinity;
-
-  for (let i = 0; i < candidates.length; i++) {
-    const relevance = candidates[i].score;
-    const maxSim = selected.length === 0
-      ? 0
-      : Math.max(...selected.map((s) => itemSimilarity(candidates[i], s)));
-
-    const mmr = lambda * relevance - (1 - lambda) * maxSim;
-    if (mmr > bestScore) { bestScore = mmr; bestIdx = i; }
-  }
-
-  return { item: candidates[bestIdx], index: bestIdx };
-}
 
 // ─── Serendipity Injection ─────────────────────────────────────────────────────
 // Randomly samples low-ranked items to inject surprise into the feed
@@ -144,33 +122,51 @@ export class DiversityEngine {
   ): DiversityResult {
     if (items.length === 0) return { items: [], categoryDistribution: {}, diversityScore: 0 };
 
-    const maxScore = items[0].score || 1;
+    const maxScore = Math.max(...items.map((i) => Math.abs(i.score)), 1e-9);
     const normalized = items.map((i) => ({ ...i, score: i.score / maxScore }));
 
     const selected: DiversifiableItem[] = [];
+    const inSelected = new Set<number>();
     const candidates = [...normalized];
+    const maxSims = new Array(candidates.length).fill(0);
     const categoryCount: Record<string, number> = {};
     const authorCount: Record<string, number> = {};
 
     while (
-      selected.length < targetSize - Math.floor(targetSize * this.config.serendipityRatio) &&
-      candidates.length > 0
+      selected.length < targetSize - Math.floor(targetSize * this.config.serendipityRatio)
     ) {
-      const { item, index } = mmrSelect(candidates, selected, this.config.lambda);
+      let bestIdx = -1;
+      let bestScore = -Infinity;
 
-      // Enforce category and author caps
+      for (let i = 0; i < candidates.length; i++) {
+        if (inSelected.has(i)) continue;
+
+        const relevance = candidates[i].score;
+        const mmr = this.config.lambda * relevance - (1 - this.config.lambda) * maxSims[i];
+        if (mmr > bestScore) { bestScore = mmr; bestIdx = i; }
+      }
+
+      if (bestIdx === -1) break;
+
+      const item = candidates[bestIdx];
       const catCount = categoryCount[item.categoryId] ?? 0;
       const authCount = authorCount[item.authorId] ?? 0;
 
       if (catCount >= this.config.maxPerCategory || authCount >= this.config.maxPerAuthor) {
-        candidates.splice(index, 1);
+        inSelected.add(bestIdx);
         continue;
       }
 
       selected.push(item);
-      candidates.splice(index, 1);
+      inSelected.add(bestIdx);
       categoryCount[item.categoryId] = catCount + 1;
       authorCount[item.authorId] = authCount + 1;
+
+      for (let i = 0; i < candidates.length; i++) {
+        if (!inSelected.has(i)) {
+          maxSims[i] = Math.max(maxSims[i], itemSimilarity(candidates[i], item));
+        }
+      }
     }
 
     // Inject serendipity items

@@ -40,8 +40,8 @@ function withTimeout<T>(fn: () => Promise<T>, ms: number): Promise<T> {
 
 function computeDelay(attempt: number, base: number, strategy: FallbackOptions["retryBackoff"]): number {
   switch (strategy) {
-    case "exponential": return base * Math.pow(2, attempt);
-    case "jitter":      return base * Math.pow(2, attempt) * (0.5 + Math.random() * 0.5);
+    case "exponential": return Math.min(base * Math.pow(2, attempt), 30_000);
+    case "jitter":      return Math.min(base * Math.pow(2, attempt) * (0.5 + Math.random() * 0.5), 30_000);
     default:            return base;
   }
 }

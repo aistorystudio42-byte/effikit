@@ -160,6 +160,10 @@ export class LayeredCache<V = unknown> {
     }
   }
 
+  dispose(): void {
+    this.stopWriteback();
+  }
+
   private startWritebackTimer(): void {
     this.writebackTimer = setInterval(
       () => this.flushDirtyKeys(),
@@ -185,7 +189,8 @@ export function mapLayer<V>(name: string, maxSize?: number): CacheLayer<V> {
     set(key, value, ttlMs = 0) {
       if (maxSize && store.size >= maxSize && !store.has(key)) {
         // Simple FIFO eviction when map is full
-        store.delete(store.keys().next().value);
+        const firstKey = store.keys().next().value;
+        if (firstKey !== undefined) store.delete(firstKey);
       }
       store.set(key, { value, expiresAt: ttlMs > 0 ? Date.now() + ttlMs : 0 });
     },

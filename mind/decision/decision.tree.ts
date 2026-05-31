@@ -66,7 +66,8 @@ export class DecisionTree<C = Record<string, unknown>, R = unknown> {
 
   evaluate(context: C): TraversalResult<R> {
     const path: TraversalStep[] = [];
-    const result = this.traverse(this.root, context, path, 0);
+    const visited = new Set<string>();
+    const result = this.traverse(this.root, context, path, 0, visited);
     return { result, path, depth: path.length };
   }
 
@@ -74,11 +75,16 @@ export class DecisionTree<C = Record<string, unknown>, R = unknown> {
     node: DecisionNode<C, R>,
     context: C,
     path: TraversalStep[],
-    depth: number
+    depth: number,
+    visited: Set<string>
   ): R {
     if (depth > this.maxDepth) {
       throw new Error(`DecisionTree: max depth ${this.maxDepth} exceeded at node "${node.id}"`);
     }
+    if (visited.has(node.id)) {
+      throw new Error(`DecisionTree: infinite loop detected at node "${node.id}"`);
+    }
+    visited.add(node.id);
 
     if (node.type === "action") {
       path.push({ nodeId: node.id, nodeType: "action", label: node.label });
@@ -93,7 +99,7 @@ export class DecisionTree<C = Record<string, unknown>, R = unknown> {
         label: node.label,
         outcome: result ? "true" : "false",
       });
-      return this.traverse(result ? node.trueBranch : node.falseBranch, context, path, depth + 1);
+      return this.traverse(result ? node.trueBranch : node.falseBranch, context, path, depth + 1, visited);
     }
 
     if (node.type === "split") {
@@ -105,7 +111,7 @@ export class DecisionTree<C = Record<string, unknown>, R = unknown> {
         throw new Error(`DecisionTree: no branch found for key "${key}" in split node "${node.id}"`);
       }
 
-      return this.traverse(branch, context, path, depth + 1);
+      return this.traverse(branch, context, path, depth + 1, visited);
     }
 
     throw new Error(`DecisionTree: unknown node type`);

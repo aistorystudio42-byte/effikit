@@ -85,7 +85,7 @@ function computeModularity<N, E>(
   return q / (2 * m);
 }
 
-function modulatityGain<N, E>(
+function modularityGain<N, E>(
   graph: Graph<N, E>,
   nodeId: string,
   targetComm: Set<string>,
@@ -152,7 +152,7 @@ export function louvainCommunities<N, E>(
       let bestGain = 0;
 
       for (const [nc, ncNodes] of neighborComms) {
-        const gain = modulatityGain(graph, node.id, ncNodes, m);
+        const gain = modularityGain(graph, node.id, ncNodes, m);
         if (gain > bestGain) { bestGain = gain; bestComm = nc; }
       }
 

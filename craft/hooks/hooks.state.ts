@@ -25,14 +25,17 @@ interface CounterOptions { min?: number; max?: number; step?: number }
 export function useCounter(initial: number = 0, opts: CounterOptions = {}) {
   const { min = -Infinity, max = Infinity, step = 1 } = opts;
   const [count, setCount] = useState(initial);
-  const clamp = (n: number) => Math.min(max, Math.max(min, n));
+
+  // FIX: Stabilize opts with ref to prevent stale closures in callbacks
+  const optsRef = useRef({ min, max, step });
+  optsRef.current = { min, max, step };
 
   return {
     count,
-    increment: useCallback(() => setCount((c) => clamp(c + step)), []),
-    decrement: useCallback(() => setCount((c) => clamp(c - step)), []),
+    increment: useCallback(() => setCount((c) => Math.min(optsRef.current.max, Math.max(optsRef.current.min, c + optsRef.current.step))), []),
+    decrement: useCallback(() => setCount((c) => Math.min(optsRef.current.max, Math.max(optsRef.current.min, c - optsRef.current.step))), []),
     reset:     useCallback(() => setCount(initial), [initial]),
-    set:       useCallback((n: number) => setCount(clamp(n)), []),
+    set:       useCallback((n: number) => setCount(Math.min(optsRef.current.max, Math.max(optsRef.current.min, n))), []),
   };
 }
 
@@ -204,13 +207,25 @@ export function createStore<S, A>(
   }
 
   function useStore<Selected>(selector: (s: S) => Selected): Selected {
-    const [selected, setSelected] = useState(() => selector(currentState));
+    const [, forceUpdate] = useState(0);
+    const selectorRef = useRef(selector);
+    const valueRef = useRef(selector(currentState));
+
+    // FIX: Stabilize selector, evaluate immediately during render for fresh data
+    selectorRef.current = selector;
+    valueRef.current = selector(currentState);
+
     useEffect(() => {
-      // Re-check in case state changed between render and effect
-      setSelected(selector(currentState));
-      return subscribe((s) => setSelected(selector(s)));
-    }, [selector]);
-    return selected;
+      return subscribe((s) => {
+        const nextValue = selectorRef.current(s);
+        if (valueRef.current !== nextValue) {
+          valueRef.current = nextValue;
+          forceUpdate((n) => n + 1);
+        }
+      });
+    }, []); // Empty deps prevents infinite re-subscription on inline selectors
+
+    return valueRef.current;
   }
 
   return { getState, dispatch, subscribe, useStore };

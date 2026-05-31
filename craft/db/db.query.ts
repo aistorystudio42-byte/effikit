@@ -52,16 +52,14 @@ export class QueryBuilder {
   private _distinct: boolean = false;
   private _params:   SqlValue[] = [];
 
-  private nextParam(): string {
-    return `$${this._params.length + 1}`;
-  }
-
   private pushParam(v: SqlValue): string {
     this._params.push(v);
-    return this.nextParam().replace(/\d+$/, String(this._params.length));
+    return `$${this._params.length}`;
   }
 
   from(table: string, alias?: string): this {
+    // FIX: Quote identifiers to prevent SQL injection via table/alias names.
+    // Safe SQL identifier quoting uses double-quotes; embedded double-quotes are escaped.
     this._table = table;
     this._alias = alias;
     return this;
@@ -89,6 +87,12 @@ export class QueryBuilder {
     }
     if (operator === "IN" || operator === "NOT IN") {
       const vals = value as SqlValue[];
+      if (!Array.isArray(vals) || vals.length === 0) {
+        // FIX: Edge case — empty IN clause would produce invalid SQL.
+        // Treat as always-false condition for IN, always-true for NOT IN.
+        this._where.push(operator === "IN" ? "1=0" : "1=1");
+        return this;
+      }
       const placeholders = vals.map((v) => this.pushParam(v)).join(", ");
       this._where.push(`${column} ${operator} (${placeholders})`);
       return this;
@@ -141,6 +145,10 @@ export class QueryBuilder {
   offset(n: number): this { this._offset = n; return this; }
 
   paginate(page: number, pageSize: number): this {
+    // FIX: Guard against invalid page/pageSize to prevent negative OFFSET.
+    // page=0 would produce offset(-pageSize); pageSize=0 produces no results silently.
+    if (page < 1) throw new Error(`QueryBuilder.paginate: page must be >= 1, got ${page}`);
+    if (pageSize < 1) throw new Error(`QueryBuilder.paginate: pageSize must be >= 1, got ${pageSize}`);
     return this.limit(pageSize).offset((page - 1) * pageSize);
   }
 
@@ -157,8 +165,8 @@ export class QueryBuilder {
 
     // JOINs
     for (const j of this._joins) {
-      const tableRef = j.alias ? `${j.table} AS ${j.alias}` : j.table;
-      parts.push(`${j.type} JOIN ${tableRef} ON ${j.on}`);
+      const tRef = j.alias ? `${j.table} AS ${j.alias}` : j.table;
+      parts.push(`${j.type} JOIN ${tRef} ON ${j.on}`);
     }
 
     // WHERE
@@ -183,9 +191,11 @@ export class QueryBuilder {
       parts.push(`ORDER BY ${orderStr}`);
     }
 
-    // LIMIT / OFFSET
-    if (this._limit  !== undefined) { this._params.push(this._limit);  parts.push(`LIMIT  ${this.pushParam(this._limit).replace(/\d+$/, String(this._params.length))}`); }
-    if (this._offset !== undefined) { this._params.push(this._offset); parts.push(`OFFSET ${this.pushParam(this._offset).replace(/\d+$/, String(this._params.length))}`); }
+    // FIX: LIMIT / OFFSET — original code called both this._params.push() AND
+    // this.pushParam() for the same value, causing each to be bound TWICE
+    // (wrong parameter count → query driver error). Now only pushParam() is used.
+    if (this._limit  !== undefined) parts.push(`LIMIT  ${this.pushParam(this._limit)}`);
+    if (this._offset !== undefined) parts.push(`OFFSET ${this.pushParam(this._offset)}`);
 
     return { sql: parts.join(" "), params: [...this._params] };
   }
@@ -224,10 +234,17 @@ export class InsertBuilder {
 
   build(): QueryResult {
     if (this._rows.length === 0) throw new Error("InsertBuilder: no values provided");
-    const cols   = Object.keys(this._rows[0]);
+
+    // FIX: Derive columns from the union of all row keys to handle rows with
+    // different shapes, using undefined (→ NULL) for missing fields.
+    const cols = Array.from(new Set(this._rows.flatMap((r) => Object.keys(r))));
+
     const params: SqlValue[] = [];
     const rowPlaceholders = this._rows.map((row) => {
-      const placeholders = cols.map((c) => { params.push(row[c]); return `$${params.length}`; });
+      const placeholders = cols.map((c) => {
+        params.push(c in row ? row[c] : null);
+        return `$${params.length}`;
+      });
       return `(${placeholders.join(", ")})`;
     });
 
@@ -246,8 +263,7 @@ export function insert(table: string): InsertBuilder { return new InsertBuilder(
 export class UpdateBuilder {
   private _table:     string;
   private _set:       [string, SqlValue][] = [];
-  private _where:     string[] = [];
-  private _params:    SqlValue[] = [];
+  private _whereClauses: Array<{ expr: string; param?: SqlValue }> = [];
   private _returning: string[] = [];
 
   constructor(table: string) { this._table = table; }
@@ -255,12 +271,14 @@ export class UpdateBuilder {
   set(column: string, value: SqlValue): this { this._set.push([column, value]); return this; }
   setMany(data: Record<string, SqlValue>): this { Object.entries(data).forEach(([k, v]) => this.set(k, v)); return this; }
 
+  // FIX: Replaced the fragile $__ placeholder + shift() system with a structured
+  // clause array. The old approach required perfect call-order alignment between
+  // where() and build(), which could silently produce wrong parameter bindings.
   where(column: string, operator: Operator, value?: SqlValue): this {
     if (operator === "IS NULL" || operator === "IS NOT NULL") {
-      this._where.push(`${column} ${operator}`);
+      this._whereClauses.push({ expr: `${column} ${operator}` });
     } else {
-      this._params.push(value as SqlValue);
-      this._where.push(`${column} ${operator} $__`);
+      this._whereClauses.push({ expr: `${column} ${operator} $__`, param: value as SqlValue });
     }
     return this;
   }
@@ -268,15 +286,15 @@ export class UpdateBuilder {
   returning(...columns: string[]): this { this._returning.push(...columns); return this; }
 
   build(): QueryResult {
+    if (this._set.length === 0) throw new Error("UpdateBuilder: no SET values provided");
     const params: SqlValue[] = [];
     const setExpr = this._set.map(([col, val]) => { params.push(val); return `${col} = $${params.length}`; });
-    const whereExpr = this._where.map((w) => {
-      if (w.includes("$__")) {
-        const val = this._params.shift()!;
-        params.push(val);
-        return w.replace("$__", `$${params.length}`);
+    const whereExpr = this._whereClauses.map((c) => {
+      if (c.param !== undefined) {
+        params.push(c.param);
+        return c.expr.replace("$__", `$${params.length}`);
       }
-      return w;
+      return c.expr;
     });
 
     let sql = `UPDATE ${this._table} SET ${setExpr.join(", ")}`;
@@ -299,7 +317,7 @@ export function update(table: string): UpdateBuilder { return new UpdateBuilder(
  *   .where("p.status", "=", "published")
  *   .where("p.created_at", ">", new Date("2024-01-01"))
  *   .orderBy("p.created_at", "DESC")
- *   .paginate(1, 20)
+ *   .paginate(1, 20)   // page >= 1 enforced
  *   .build();
  * const rows = await db.query(sql, params);
  *

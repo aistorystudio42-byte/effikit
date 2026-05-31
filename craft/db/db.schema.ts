@@ -78,9 +78,12 @@ const typeToSql: Record<ColumnType, string> = {
 };
 
 export function generateCreateTable<T extends SchemaColumns>(schema: TableSchema<T>): string {
+  // FIX: Quote table name to prevent SQL injection or keyword conflicts
+  const tableName = `"${schema.tableName}"`;
   const columns = Object.entries(schema.columns).map(([name, col]) => {
     const def = col as ColumnDefinition;
-    let sql = `  ${name} `;
+    // FIX: Quote column names
+    let sql = `  "${name}" `;
 
     if (def.type === "varchar" && def.length) sql += `VARCHAR(${def.length})`;
     else if (def.type === "numeric" && def.precision) sql += `NUMERIC(${def.precision}${def.scale ? `,${def.scale}` : ""})`;
@@ -94,20 +97,22 @@ export function generateCreateTable<T extends SchemaColumns>(schema: TableSchema
       sql += ` DEFAULT ${dv}`;
     }
     if (def.references) {
-      sql += ` REFERENCES ${def.references.table}(${def.references.column})`;
+      // FIX: Quote referenced table and column
+      sql += ` REFERENCES "${def.references.table}"("${def.references.column}")`;
       if (def.references.onDelete) sql += ` ON DELETE ${def.references.onDelete}`;
     }
     if (def.check) sql += ` CHECK (${def.check})`;
     return sql;
   });
 
-  const lines = [`CREATE TABLE IF NOT EXISTS ${schema.tableName} (`, ...columns.map((c, i) => c + (i < columns.length - 1 ? "," : "")), ");"];
+  const lines = [`CREATE TABLE IF NOT EXISTS ${tableName} (`, ...columns.map((c, i) => c + (i < columns.length - 1 ? "," : "")), ");"];
 
   // Indexes
   const indexes = (schema.indexes ?? []).map((idx) => {
-    const name = idx.name ?? `idx_${schema.tableName}_${(idx.columns as string[]).join("_")}`;
+    const name = `"${idx.name ?? `idx_${schema.tableName}_${(idx.columns as string[]).join("_")}`}"`;
     const unique = idx.unique ? "UNIQUE " : "";
-    return `CREATE ${unique}INDEX IF NOT EXISTS ${name} ON ${schema.tableName} (${(idx.columns as string[]).join(", ")});`;
+    const cols = (idx.columns as string[]).map(c => `"${c}"`).join(", ");
+    return `CREATE ${unique}INDEX IF NOT EXISTS ${name} ON ${tableName} (${cols});`;
   });
 
   return [...lines, ...indexes].join("\n");
@@ -150,6 +155,9 @@ function columnToZod(col: ColumnDefinition): ZodType {
     case "timestamp":
     case "timestamptz":
       schema = z.union([z.date(), z.string().datetime()]);
+      break;
+    case "time": // FIX: Handle 'time' type
+      schema = z.string();
       break;
     case "json":
     case "jsonb":

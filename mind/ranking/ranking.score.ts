@@ -67,14 +67,14 @@ export class ELOSystem {
 
     const kWinner = this.kFactor(winner.gamesPlayed);
     const kLoser  = this.kFactor(loser.gamesPlayed);
-
-    const delta = kWinner * (actualWinner - expectedWinner);
+    const K = (kWinner + kLoser) / 2; // Average K to ensure zero-sum rating conservation
+    const delta = K * (actualWinner - expectedWinner);
 
     return {
       winnerId: winner.id,
       loserId: loser.id,
       winnerNewRating: Math.round(winner.rating + delta),
-      loserNewRating:  Math.round(loser.rating  - kLoser * (actualLoser - expectedLoser)),
+      loserNewRating:  Math.round(loser.rating  - delta),
       ratingChange: Math.abs(Math.round(delta)),
     };
   }
@@ -123,7 +123,7 @@ export class TrueSkillSystem {
     loser: TrueSkillPlayer
   ): { winner: TrueSkillPlayer; loser: TrueSkillPlayer } {
     const c = Math.sqrt(winner.sigma ** 2 + loser.sigma ** 2 + 2 * this.beta ** 2);
-    const winProb = gaussianCDF((winner.mu - loser.mu) / c);
+    const winProb = Math.max(1e-9, gaussianCDF((winner.mu - loser.mu) / c));
 
     // Approximation of message passing update
     const v = gaussianPDF((winner.mu - loser.mu) / c) / winProb;

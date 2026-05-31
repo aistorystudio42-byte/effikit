@@ -210,7 +210,7 @@ export class BehaviorAnalyzer {
       hourCounts[new Date(event.timestamp).getUTCHours()]++;
     }
     const maxHourCount = Math.max(...hourCounts);
-    const peakActivityHours = hourCounts
+    const peakActivityHours = maxHourCount === 0 ? [] : hourCounts
       .map((count, hour) => ({ hour, count }))
       .filter((h) => h.count >= maxHourCount * 0.7)
       .map((h) => h.hour);
@@ -218,7 +218,7 @@ export class BehaviorAnalyzer {
     // Typical session interval
     let typicalInterval = 0;
     if (sessions.length > 1) {
-      const intervals = sessions.slice(1).map((s, i) => s.startTime - sessions[i].endTime);
+      const intervals = sessions.slice(1).map((s, i) => Math.max(0, s.startTime - sessions[i].endTime));
       typicalInterval = intervals.reduce((s, v) => s + v, 0) / intervals.length;
     }
 

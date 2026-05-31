@@ -124,16 +124,14 @@ export class LRUCache<K = string, V = unknown> {
 
   // Evict all expired entries (call periodically)
   purgeExpired(): number {
-    let purged = 0;
+    const toDelete: K[] = [];
     for (const [k, node] of this.map) {
       if (node.ttlMs > 0 && Date.now() - node.createdAt > node.ttlMs) {
-        this.remove(node);
-        this.map.delete(k);
-        purged++;
-        this.expired++;
+        toDelete.push(k as unknown as K);
       }
     }
-    return purged;
+    for (const k of toDelete) this.delete(k);
+    return toDelete.length;
   }
 
   private addToHead(node: LRUNode<V>): void {
@@ -194,10 +192,12 @@ export class LFUCache<K = string, V = unknown> {
     if (this.values.size >= this.capacity) {
       const minBucket = this.freqBuckets.get(this.minFreq)!;
       const evictKey = minBucket.values().next().value;
-      minBucket.delete(evictKey);
-      this.values.delete(evictKey);
-      this.freq.delete(evictKey);
-      this.evictions++;
+      if (evictKey !== undefined) {
+        minBucket.delete(evictKey);
+        this.values.delete(evictKey);
+        this.freq.delete(evictKey);
+        this.evictions++;
+      }
     }
 
     this.values.set(k, value);
@@ -262,9 +262,10 @@ export class TTLCache<K = string, V = unknown> {
   }
   purgeExpired(): number {
     const now = Date.now();
-    let count = 0;
-    for (const [k, e] of this.store) { if (now > e.expiresAt) { this.store.delete(k); count++; } }
-    return count;
+    const toDelete: string[] = [];
+    for (const [k, e] of this.store) { if (now > e.expiresAt) toDelete.push(k); }
+    for (const k of toDelete) this.store.delete(k);
+    return toDelete.length;
   }
   get size(): number { return this.store.size; }
 }

@@ -65,13 +65,14 @@ export function jaroSimilarity(s1: string, s2: string): number {
   if (len1 === 0 || len2 === 0) return 0;
 
   const matchDist = Math.floor(Math.max(len1, len2) / 2) - 1;
+  const safeMatchDist = Math.max(0, matchDist);
   const s1Matches = new Array(len1).fill(false);
   const s2Matches = new Array(len2).fill(false);
   let matches = 0, transpositions = 0;
 
   for (let i = 0; i < len1; i++) {
-    const start = Math.max(0, i - matchDist);
-    const end   = Math.min(i + matchDist + 1, len2);
+    const start = Math.max(0, i - safeMatchDist);
+    const end   = Math.min(i + safeMatchDist + 1, len2);
     for (let j = start; j < end; j++) {
       if (s2Matches[j] || s1[i] !== s2[j]) continue;
       s1Matches[i] = s2Matches[j] = true;
@@ -127,7 +128,7 @@ export function ngramSimilarity(a: string, b: string, n = 2): number {
 export function bitapSearch(text: string, pattern: string, maxErrors = 1): number {
   const m = pattern.length;
   if (m === 0) return 0;
-  if (m > 63) return levenshtein(text, pattern); // Bitap limited to ~64 chars
+  if (m > 63) return levenshtein(text, pattern) <= maxErrors ? 1 : 0; // Bitap limited to ~64 chars
 
   // Build character bitmask
   const patternMask: Record<string, number> = {};

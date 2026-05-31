@@ -99,6 +99,14 @@ export function useFetch<T>(
   );
   const abortRef = useRef<AbortController | null>(null);
 
+  // FIX: Stabilize callback refs to prevent infinite fetch loops when inline functions are passed
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  const transformRef = useRef(transform);
+  onSuccessRef.current = onSuccess;
+  onErrorRef.current = onError;
+  transformRef.current = transform;
+
   const fetchData = useCallback(async () => {
     if (!url || !enabled) return;
 
@@ -111,16 +119,16 @@ export function useFetch<T>(
       const res = await fetch(url, { signal: abortRef.current.signal, headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       const raw = await res.json();
-      const data = transform ? transform(raw) : (raw as T);
+      const data = transformRef.current ? transformRef.current(raw) : (raw as T);
       dispatch({ type: "SUCCESS", data });
-      onSuccess?.(data);
+      onSuccessRef.current?.(data);
     } catch (err) {
       if ((err as Error).name === "AbortError") return; // ignore deliberate cancellation
       const error = err instanceof Error ? err : new Error(String(err));
       dispatch({ type: "ERROR", error });
-      onError?.(error);
+      onErrorRef.current?.(error);
     }
-  }, [url, enabled, headers, transform, onSuccess, onError]);
+  }, [url, enabled, headers ? JSON.stringify(headers) : undefined]);
 
   useEffect(() => {
     fetchData();
@@ -158,6 +166,7 @@ export function useRetry<T>(
   }, []);
 
   const execute = useCallback(async (currentAttempt: number = 0) => {
+    if (!mountedRef.current) return;
     dispatch({ type: "FETCH" });
     setAttempt(currentAttempt);
     try {
@@ -169,7 +178,9 @@ export function useRetry<T>(
         // Exponential backoff with jitter
         const delay = Math.min(baseDelay * Math.pow(2, currentAttempt) + Math.random() * 100, maxDelay);
         onRetry?.(currentAttempt + 1, error);
-        timerRef.current = setTimeout(() => execute(currentAttempt + 1), delay);
+        timerRef.current = setTimeout(() => {
+          if (mountedRef.current) execute(currentAttempt + 1);
+        }, delay);
       } else {
         if (mountedRef.current) dispatch({ type: "ERROR", error });
       }
@@ -219,6 +230,7 @@ export function useMutation<TData, TVariables>(
     initialAsync<TData>()
   );
   const mountedRef = useRef(true);
+  const mutatingRef = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -226,6 +238,8 @@ export function useMutation<TData, TVariables>(
   }, []);
 
   const mutate = useCallback(async (variables: TVariables): Promise<TData | null> => {
+    if (mutatingRef.current) return null; // FIX: Prevent concurrent identical mutations
+    mutatingRef.current = true;
     dispatch({ type: "FETCH" });
     try {
       const data = await mutationFn(variables);
@@ -243,6 +257,8 @@ export function useMutation<TData, TVariables>(
         onSettled?.(null, error, variables);
       }
       return null;
+    } finally {
+      mutatingRef.current = false;
     }
   }, [mutationFn, onSuccess, onError, onSettled]);
 

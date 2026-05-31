@@ -129,7 +129,10 @@ export class RankingEngine {
     const engagementScore = computeEngagement(item);
     const freshnessScore  = computeFreshness(item.publishedAt, this.freshnessHalfLifeHours);
     const qualityScore    = item.qualityScore;
-    const wilsonScore     = wilsonLowerBound(item.likes, item.likes + Math.max(0, item.views - item.likes));
+    const wilsonScore     = wilsonLowerBound(
+      Math.min(item.likes, item.views), // likes > views olamaz
+      Math.max(item.views, item.likes)  // total en az likes kadar
+    );
 
     const compositeScore =
       this.weights.engagement * engagementScore +
@@ -149,27 +152,7 @@ export class RankingEngine {
   }
 
   rank(items: RankableItem[]): RankedItem[] {
-    // Rank each item then normalize engagement scores across the batch
-    const ranked = items.map((i) => this.rankItem(i));
-
-    // Min-max normalize engagement within this batch to make it comparable
-    const engScores = ranked.map((r) => r.components.engagementScore);
-    const engMin = Math.min(...engScores);
-    const engMax = Math.max(...engScores);
-    const engRange = engMax - engMin || 1;
-
-    for (const r of ranked) {
-      const normalizedEng = (r.components.engagementScore - engMin) / engRange;
-      r.finalScore =
-        this.weights.engagement * normalizedEng +
-        this.weights.freshness  * r.components.freshnessScore +
-        this.weights.quality    * r.components.qualityScore +
-        this.weights.wilson     * r.components.wilsonScore;
-
-      r.finalScore *= r.item.boostMultiplier ?? 1.0;
-    }
-
-    return ranked.sort((a, b) => b.finalScore - a.finalScore);
+    return items.map((i) => this.rankItem(i)).sort((a, b) => b.finalScore - a.finalScore);
   }
 }
 

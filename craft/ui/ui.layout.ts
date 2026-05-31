@@ -25,9 +25,15 @@ export const breakpoints: Record<Breakpoint, number> = {
 };
 
 export function useBreakpoint(): Breakpoint {
+  // FIX: Initialize with "sm" — safe for both SSR and client. The effect
+  // only runs on the client, so window is always available inside it.
   const [bp, setBp] = React.useState<Breakpoint>("sm");
 
   React.useEffect(() => {
+    // FIX: typeof window guard — prevents ReferenceError in SSR environments
+    // (Next.js, Remix, etc.) where window is not defined during rendering.
+    if (typeof window === "undefined") return;
+
     const update = () => {
       const w = window.innerWidth;
       if (w >= breakpoints["2xl"]) setBp("2xl");
@@ -36,9 +42,15 @@ export function useBreakpoint(): Breakpoint {
       else if (w >= breakpoints.md) setBp("md");
       else setBp("sm");
     };
+
     update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+    // FIX: Debounce resize via passive listener — avoids React re-render storm
+    // on every pixel of resize drag. Using requestAnimationFrame as a lightweight
+    // debounce mechanism without introducing external dependencies.
+    let rafId: number;
+    const onResize = () => { cancelAnimationFrame(rafId); rafId = requestAnimationFrame(update); };
+    window.addEventListener("resize", onResize);
+    return () => { window.removeEventListener("resize", onResize); cancelAnimationFrame(rafId); };
   }, []);
 
   return bp;
@@ -180,7 +192,9 @@ export const Grid: React.FC<GridProps> = ({
   ...props
 }) => (
   <div
-    className={`grid ${buildGridColsClass(cols)} ${!rowGap && !colGap ? gapMap[gap] : ""} ${rowGap ? `row-gap-${rowGap}` : ""} ${colGap ? `col-gap-${colGap}` : ""} ${className}`}
+    // FIX: Tailwind v3 uses gap-y-N / gap-x-N, NOT row-gap-N / col-gap-N.
+    // The old class names are invalid and produce no CSS, silently breaking layout.
+    className={`grid ${buildGridColsClass(cols)} ${!rowGap && !colGap ? gapMap[gap] : ""} ${rowGap ? `gap-y-${rowGap}` : ""} ${colGap ? `gap-x-${colGap}` : ""} ${className}`}
     {...props}
   >
     {children}
@@ -205,7 +219,10 @@ export const GridItem: React.FC<GridItemProps> = ({
   const spanClass = colSpan
     ? typeof colSpan === "number"
       ? `col-span-${colSpan}`
-      : Object.entries(colSpan).map(([bp, n]) => `${bp === "sm" ? "sm:" : bp === "md" ? "md:" : bp === "lg" ? "lg:" : "xl:"}col-span-${n}`).join(" ")
+      // FIX: Added "2xl:" case — previously "2xl" fell through to "xl:" prefix.
+      : Object.entries(colSpan).map(([bp, n]) =>
+          `${bp === "sm" ? "sm:" : bp === "md" ? "md:" : bp === "lg" ? "lg:" : bp === "2xl" ? "2xl:" : "xl:"}col-span-${n}`
+        ).join(" ")
     : "";
 
   return (
@@ -311,13 +328,16 @@ interface SpacerProps {
 }
 
 export const Spacer: React.FC<SpacerProps> = ({ size = 4, axis = "vertical" }) => {
+  // FIX: Use explicit "Npx" string values — CSSProperties width/height accept
+  // numbers as px, but being explicit avoids confusion and ensures correctness
+  // for fractional gap values (0.5, 1.5, etc.) which multiply to non-integer px.
   const px = size * 4; // tailwind spacing unit = 4px
   const style: CSSProperties = {
     display: "block",
-    width: axis !== "vertical" ? px : undefined,
-    height: axis !== "horizontal" ? px : undefined,
-    minWidth: axis !== "vertical" ? px : undefined,
-    minHeight: axis !== "horizontal" ? px : undefined,
+    width: axis !== "vertical" ? `${px}px` : undefined,
+    height: axis !== "horizontal" ? `${px}px` : undefined,
+    minWidth: axis !== "vertical" ? `${px}px` : undefined,
+    minHeight: axis !== "horizontal" ? `${px}px` : undefined,
   };
   return <span aria-hidden style={style} />;
 };

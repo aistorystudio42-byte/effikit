@@ -172,7 +172,10 @@ export class SyncClient {
 
   private send(partial: Partial<SyncMessage>): void {
     const msg = this.buildMessage(partial.type ?? "publish", partial);
-    if (!this.isConnected) { this.messageQueue.push(msg); return; }
+    if (!this.isConnected) { 
+      if (this.messageQueue.length < 1000) this.messageQueue.push(msg); 
+      return; 
+    }
     this.ws!.send(JSON.stringify(msg));
   }
 

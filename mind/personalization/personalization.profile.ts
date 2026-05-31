@@ -143,12 +143,14 @@ export class UserProfileBuilder {
 
   // Merge two profiles (useful for cross-device identity resolution)
   merge(primary: UserProfile, secondary: UserProfile): UserProfile {
+    const wA = primary.totalInteractions;
+    const wB = secondary.totalInteractions;
     const merged: UserProfile = {
       userId: primary.userId,
       interests: {
-        tags:       mergeVectors(primary.interests.tags, secondary.interests.tags),
-        categories: mergeVectors(primary.interests.categories, secondary.interests.categories),
-        authors:    mergeVectors(primary.interests.authors, secondary.interests.authors),
+        tags:       mergeVectors(primary.interests.tags, secondary.interests.tags, wA, wB),
+        categories: mergeVectors(primary.interests.categories, secondary.interests.categories, wA, wB),
+        authors:    mergeVectors(primary.interests.authors, secondary.interests.authors, wA, wB),
       },
       disliked: {
         tags:       new Set([...primary.disliked.tags, ...secondary.disliked.tags]),
@@ -186,7 +188,9 @@ export class UserProfileBuilder {
       const k = normalize(key);
       const current = vector[k] ?? 0;
       // Exponential moving average update: blend new signal with existing score
-      vector[k] = Math.max(-1, Math.min(1, current + signal * (1 - Math.abs(current))));
+      const weight = (current * signal > 0) ? (1 - Math.abs(current)) : 1;
+      const next = current + signal * weight;
+      vector[k] = Math.max(-1, Math.min(1, next));
     }
   }
 
@@ -199,10 +203,12 @@ export class UserProfileBuilder {
   }
 }
 
-function mergeVectors(a: Record<string, number>, b: Record<string, number>): Record<string, number> {
+function mergeVectors(a: Record<string, number>, b: Record<string, number>, wA = 1, wB = 1): Record<string, number> {
   const result = { ...a };
+  const totalW = Math.max(1, wA + wB);
   for (const [k, v] of Object.entries(b)) {
-    result[k] = ((result[k] ?? 0) + v) / 2;
+    const aVal = result[k] ?? 0;
+    result[k] = (aVal * wA + v * wB) / totalW;
   }
   return result;
 }

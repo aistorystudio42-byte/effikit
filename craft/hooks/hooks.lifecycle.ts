@@ -106,12 +106,12 @@ export function useEventListener(
 
   useEffect(() => {
     const isRef = targetOrOptions && "current" in (targetOrOptions as object);
-    const el: EventTarget = isRef
+    const el: EventTarget | undefined = isRef
       ? (targetOrOptions as RefObject<HTMLElement>).current!
-      : window;
+      : (typeof window !== "undefined" ? window : undefined);
     const opts = isRef ? options : (targetOrOptions as AddEventListenerOptions);
 
-    if (!el) return;
+    if (!el || typeof el.addEventListener !== "function") return;
     const listener = (e: Event) => handlerRef.current(e as Event);
     el.addEventListener(event, listener, opts);
     return () => el.removeEventListener(event, listener, opts);
@@ -126,6 +126,7 @@ export function useWindowSize(): WindowSize {
   const [size, setSize] = useState<WindowSize>({ width: 0, height: 0 });
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const update = () => setSize({ width: window.innerWidth, height: window.innerHeight });
     update();
     window.addEventListener("resize", update);
@@ -143,7 +144,7 @@ export function useElementSize<T extends HTMLElement>(): [RefObject<T>, { width:
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof ResizeObserver === "undefined") return;
 
     const observer = new ResizeObserver(([entry]) => {
       const { width, height } = entry.contentRect;
@@ -171,7 +172,7 @@ export function useIntersection<T extends HTMLElement>(
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || typeof IntersectionObserver === "undefined") return;
 
     const observer = new IntersectionObserver(([e]) => {
       setEntry(e);

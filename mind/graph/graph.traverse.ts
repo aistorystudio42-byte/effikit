@@ -178,7 +178,9 @@ export function dijkstra<N, E>(
     for (const neighbor of graph.neighbors(u)) {
       if (!unvisited.has(neighbor.id)) continue;
       const edge = graph.getEdge(u, neighbor.id);
-      const alt = dist[u] + (edge?.weight ?? 1);
+      const weight = edge?.weight ?? 1;
+      if (weight < 0) throw new Error("Dijkstra cannot handle negative edge weights");
+      const alt = dist[u] + weight;
       if (alt < dist[neighbor.id]) {
         dist[neighbor.id] = alt;
         prev[neighbor.id] = u;

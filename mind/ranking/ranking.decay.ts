@@ -52,6 +52,7 @@ function stepDecay(ageMs: number, steps: DecayStep[]): number {
 }
 
 function gaussianDecay(ageMs: number, peakMs: number, spreadMs: number): number {
+  if (spreadMs === 0) return ageMs === peakMs ? 1 : 0;
   const x = ageMs - peakMs;
   return Math.exp(-(x * x) / (2 * spreadMs * spreadMs));
 }

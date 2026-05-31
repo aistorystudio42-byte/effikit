@@ -44,19 +44,23 @@ function magnitude(v: number[]): number {
   return Math.sqrt(v.reduce((sum, val) => sum + val * val, 0));
 }
 
-// Cosine similarity between two sparse rating vectors
-function cosineSimilarity(
+// Pearson CF similarity (mean-centered)
+function pearsonSimilarity(
   a: Record<string, number>,
   b: Record<string, number>
 ): number {
   const commonKeys = Object.keys(a).filter((k) => k in b);
-  if (commonKeys.length === 0) return 0;
+  if (commonKeys.length < 3) return 0; // Shrinkage: require at least 3 common items
 
-  const vecA = commonKeys.map((k) => a[k]);
-  const vecB = commonKeys.map((k) => b[k]);
-
-  const mag = magnitude(vecA) * magnitude(vecB);
-  return mag === 0 ? 0 : dotProduct(vecA, vecB) / mag;
+  const meanA = commonKeys.reduce((s, k) => s + a[k], 0) / commonKeys.length;
+  const meanB = commonKeys.reduce((s, k) => s + b[k], 0) / commonKeys.length;
+  
+  const num = commonKeys.reduce((s, k) => s + (a[k] - meanA) * (b[k] - meanB), 0);
+  const den = Math.sqrt(
+    commonKeys.reduce((s, k) => s + (a[k] - meanA) ** 2, 0) *
+    commonKeys.reduce((s, k) => s + (b[k] - meanB) ** 2, 0)
+  );
+  return den === 0 ? 0 : num / den;
 }
 
 // Jaccard similarity for tag sets
@@ -78,7 +82,7 @@ function findSimilarUsers(
 ): Array<{ user: UserProfile; similarity: number }> {
   return allUsers
     .filter((u) => u.userId !== target.userId)
-    .map((u) => ({ user: u, similarity: cosineSimilarity(target.ratings, u.ratings) }))
+    .map((u) => ({ user: u, similarity: pearsonSimilarity(target.ratings, u.ratings) }))
     .filter((x) => x.similarity >= minThreshold)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, maxNeighbors);
@@ -99,7 +103,8 @@ function collaborativeScore(
     }
   }
 
-  return totalWeight === 0 ? 0 : weightedSum / totalWeight;
+  // Guard against division by near-zero or negative sum
+  return totalWeight < 0.01 ? 0 : weightedSum / totalWeight;
 }
 
 // ─── Content-Based Filtering ──────────────────────────────────────────────────
@@ -128,7 +133,9 @@ function buildUserTagProfile(user: UserProfile, allItems: Item[]): Record<string
 function contentScore(item: Item, userTagProfile: Record<string, number>): number {
   if (item.tags.length === 0) return 0;
   const tagScores = item.tags.map((t) => userTagProfile[t] ?? 0);
-  return tagScores.reduce((s, v) => s + v, 0) / item.tags.length;
+  const avg = tagScores.reduce((s, v) => s + v, 0) / item.tags.length;
+  const max = Math.max(...tagScores);
+  return 0.6 * avg + 0.4 * max;
 }
 
 // ─── Recommendation Engine ────────────────────────────────────────────────────

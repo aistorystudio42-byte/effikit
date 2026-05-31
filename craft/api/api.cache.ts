@@ -95,7 +95,11 @@ export class CacheStore<T = unknown> {
     return Date.now() > entry.staleAt;
   }
 
-  has(key: string): boolean { return this.store.has(key) && !!this.get(key); }
+  has(key: string): boolean {
+    const entry = this.store.get(key);
+    if (!entry) return false;
+    return Date.now() <= entry.expiresAt;
+  }
 
   evict(key: string): void {
     this.store.delete(key);
@@ -239,26 +243,34 @@ export function useCachedFetch<T>(
   } = {},
   cache: RequestCache = DEFAULT_REQUEST_CACHE
 ) {
-  const { enabled = true, onSuccess, onError, ...cacheOpts } = options;
+  const { enabled = true, onSuccess, onError, strategy, ttl, tags } = options;
   const [data, setData]       = useState<T | null>(null);
   const [error, setError]     = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
+
+  // FIX: Stabilize callback and array refs to avoid dependency loops and JSON.stringify
+  const tagsRef = useRef(tags);
+  const onSuccessRef = useRef(onSuccess);
+  const onErrorRef = useRef(onError);
+  tagsRef.current = tags;
+  onSuccessRef.current = onSuccess;
+  onErrorRef.current = onError;
 
   const refetch = useCallback(async () => {
     if (!url || !enabled) return;
     setLoading(true);
     setError(null);
     try {
-      const result = await cache.fetch<T>(url, undefined, cacheOpts);
-      if (mountedRef.current) { setData(result); onSuccess?.(result); }
+      const result = await cache.fetch<T>(url, undefined, { strategy, ttl, tags: tagsRef.current });
+      if (mountedRef.current) { setData(result); onSuccessRef.current?.(result); }
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
-      if (mountedRef.current) { setError(e); onError?.(e); }
+      if (mountedRef.current) { setError(e); onErrorRef.current?.(e); }
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [url, enabled, cache, JSON.stringify(cacheOpts)]);
+  }, [url, enabled, cache, strategy, ttl]);
 
   useEffect(() => {
     mountedRef.current = true;

@@ -85,12 +85,11 @@ export function useGesture(
   elementRef: RefObject<HTMLElement>,
   options: UseGestureOptions = {}
 ): GestureState {
-  const {
-    threshold = 50,
-    velocityThreshold = 0.3,
-    onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown,
-    onDragStart, onDrag, onDragEnd,
-  } = options;
+  const { threshold = 50, velocityThreshold = 0.3 } = options;
+  
+  // FIX: Stabilize callback options with a ref to avoid infinite re-binds in useEffect
+  const optsRef = useRef(options);
+  optsRef.current = options;
 
   const stateRef = useRef<GestureState>({
     isDragging: false, isSwiping: false,
@@ -129,7 +128,7 @@ export function useGesture(
         direction: null, distance: 0, duration: 0,
       };
       update();
-      onDragStart?.(stateRef.current);
+      optsRef.current.onDragStart?.(stateRef.current);
     };
 
     const onMove = (e: MouseEvent | TouchEvent) => {
@@ -161,7 +160,7 @@ export function useGesture(
       lastPointRef.current = pt;
       lastTimeRef.current  = now;
       update();
-      onDrag?.(stateRef.current);
+      optsRef.current.onDrag?.(stateRef.current);
     };
 
     const onEnd = () => {
@@ -171,13 +170,13 @@ export function useGesture(
 
       stateRef.current = { ...stateRef.current, isDragging: false, isSwiping: isSwipe };
       update();
-      onDragEnd?.(stateRef.current);
+      optsRef.current.onDragEnd?.(stateRef.current);
 
       if (isSwipe) {
-        if (direction === "left")  onSwipeLeft?.(stateRef.current);
-        if (direction === "right") onSwipeRight?.(stateRef.current);
-        if (direction === "up")    onSwipeUp?.(stateRef.current);
-        if (direction === "down")  onSwipeDown?.(stateRef.current);
+        if (direction === "left")  optsRef.current.onSwipeLeft?.(stateRef.current);
+        if (direction === "right") optsRef.current.onSwipeRight?.(stateRef.current);
+        if (direction === "up")    optsRef.current.onSwipeUp?.(stateRef.current);
+        if (direction === "down")  optsRef.current.onSwipeDown?.(stateRef.current);
       }
     };
 
@@ -196,7 +195,7 @@ export function useGesture(
       window.removeEventListener("mouseup",   onEnd);
       window.removeEventListener("touchend",  onEnd);
     };
-  }, [elementRef, threshold, velocityThreshold, onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, onDragStart, onDrag, onDragEnd, update]);
+  }, [elementRef, threshold, velocityThreshold, update]);
 
   return state;
 }
@@ -319,10 +318,14 @@ export function useClickOutside<T extends HTMLElement>(
   ref: RefObject<T>,
   handler: () => void
 ) {
+  // FIX: Stabilize handler ref to prevent unbind/rebind loop on inline functions
+  const handlerRef = useRef(handler);
+  handlerRef.current = handler;
+
   useEffect(() => {
     const listener = (e: MouseEvent | TouchEvent) => {
       if (!ref.current || ref.current.contains(e.target as Node)) return;
-      handler();
+      handlerRef.current();
     };
     document.addEventListener("mousedown", listener);
     document.addEventListener("touchstart", listener, { passive: true });
@@ -330,7 +333,7 @@ export function useClickOutside<T extends HTMLElement>(
       document.removeEventListener("mousedown", listener);
       document.removeEventListener("touchstart", listener);
     };
-  }, [ref, handler]);
+  }, [ref]);
 }
 
 /*

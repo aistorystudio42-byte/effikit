@@ -74,14 +74,16 @@ export class ApiClient {
 
   private buildUrl(path: string, params?: Record<string, string | number | boolean | undefined>): string {
     const base = this.config.baseURL.replace(/\/$/, "");
-    const url  = new URL(path.startsWith("http") ? path : `${base}/${path.replace(/^\//, "")}`);
+    const fullPath = path.startsWith("http") ? path : `${base}/${path.replace(/^\//, "")}`;
 
     const allParams = { ...this.config.params, ...(params ?? {}) };
+    const query = new URLSearchParams();
     Object.entries(allParams).forEach(([k, v]) => {
-      if (v !== undefined) url.searchParams.set(k, String(v));
+      if (v !== undefined) query.set(k, String(v));
     });
 
-    return url.toString();
+    const qs = query.toString();
+    return qs ? `${fullPath}${fullPath.includes("?") ? "&" : "?"}${qs}` : fullPath;
   }
 
   private buildHeaders(overrides: Record<string, string> = {}): Record<string, string> {
@@ -105,9 +107,17 @@ export class ApiClient {
     // Timeout controller (merged with any external signal)
     const timeoutController = new AbortController();
     const timeoutId = timeout > 0 ? setTimeout(() => timeoutController.abort(), timeout) : null;
-    const signal = options.signal
-      ? anySignal([options.signal, timeoutController.signal])
-      : timeoutController.signal;
+    
+    let signal: AbortSignal;
+    let cleanupSignal = () => {};
+
+    if (options.signal) {
+      const combined = anySignal([options.signal, timeoutController.signal]);
+      signal = combined[0];
+      cleanupSignal = combined[1];
+    } else {
+      signal = timeoutController.signal;
+    }
 
     let init: RequestInit = {
       method,
@@ -125,6 +135,7 @@ export class ApiClient {
     try {
       const raw = await fetch(url, init);
 
+      cleanupSignal();
       if (timeoutId) clearTimeout(timeoutId);
 
       let responseData: T;
@@ -160,6 +171,7 @@ export class ApiClient {
 
       return response as ApiResponse<T>;
     } catch (err) {
+      cleanupSignal();
       if (timeoutId) clearTimeout(timeoutId);
 
       // Re-throw ApiError objects as-is
@@ -205,13 +217,21 @@ function isApiError(err: unknown): err is ApiError {
 }
 
 // Combines multiple AbortSignals — aborts when any of them fires
-function anySignal(signals: AbortSignal[]): AbortSignal {
+function anySignal(signals: AbortSignal[]): [AbortSignal, () => void] {
   const controller = new AbortController();
+  const abort = () => controller.abort();
+  
   for (const signal of signals) {
     if (signal.aborted) { controller.abort(); break; }
-    signal.addEventListener("abort", () => controller.abort(), { once: true });
+    signal.addEventListener("abort", abort, { once: true });
   }
-  return controller.signal;
+  
+  const cleanup = () => {
+    for (const signal of signals) {
+      signal.removeEventListener("abort", abort);
+    }
+  };
+  return [controller.signal, cleanup];
 }
 
 // ─── createApiClient — Factory with sensible defaults ────────────────────────
