@@ -293,5 +293,7 @@ Hepsini bir anda yazmaya çalışma, bölüm bölüm ilerle.
 Repo adresi: https://github.com/aistorystudio42-byte/effikit.git
 
 Tüm çalışmayı bu repoya push et.
+**BRANCH: main** — Her zaman main branch'ine push et, master'a değil.
+Push komutu: git push origin HEAD:main
 Commit mesajları Türkçe ve açıklayıcı olsun.
 Her bölüm tamamlandığında ayrı commit at.
