@@ -33,6 +33,7 @@ interface SyncResult {
 const ROOT_DIR = path.resolve(__dirname);
 const KEYWORDS_FILE = path.join(ROOT_DIR, "keywords.md");
 const SCAN_DIRS = ["craft", "mind"];
+const SCAN_MD_DIRS = ["bridge", "prompt"];
 
 const TAG_PATTERNS = {
   keywords: /@keywords\s+(.+)/,
@@ -72,7 +73,6 @@ function scanDirectory(dirPath: string): FileMetadata[] {
     const fullPath = path.join(dirPath, entry.name);
 
     if (entry.isDirectory()) {
-      // Recurse into subdirectories
       results.push(...scanDirectory(fullPath));
     } else if (entry.isFile() && entry.name.endsWith(".ts")) {
       const content = fs.readFileSync(fullPath, "utf-8");
@@ -87,6 +87,45 @@ function scanDirectory(dirPath: string): FileMetadata[] {
           domain: tags.domain ?? "unknown",
           useWhen: tags.useWhen ?? "",
           notWhen: tags.notWhen ?? "",
+        });
+      }
+    }
+  }
+
+  return results;
+}
+
+// @keywords satırını HTML yorumu formatında da okur: <!-- @keywords: ... -->
+const MD_KEYWORDS_PATTERN = /<!--\s*@keywords:\s*(.+?)\s*-->/;
+
+function scanMdDirectory(dirPath: string): FileMetadata[] {
+  const results: FileMetadata[] = [];
+
+  if (!fs.existsSync(dirPath)) return results;
+
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
+
+    if (entry.isDirectory()) {
+      results.push(...scanMdDirectory(fullPath));
+    } else if (entry.isFile() && entry.name.endsWith(".md")) {
+      const content = fs.readFileSync(fullPath, "utf-8");
+      const match = content.match(MD_KEYWORDS_PATTERN);
+
+      if (match) {
+        const keywords = match[1].split(",").map((k) => k.trim()).filter(Boolean);
+        const relativePath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+        // domain satırını da okumaya çalış: <!-- @domain: ... -->
+        const domainMatch = content.match(/<!--\s*@domain:\s*(.+?)\s*-->/);
+        results.push({
+          filePath: fullPath,
+          relativePath,
+          keywords,
+          domain: domainMatch ? domainMatch[1].trim() : "unknown",
+          useWhen: "",
+          notWhen: "",
         });
       }
     }
@@ -144,25 +183,29 @@ function generateMarkdownSection(
 function buildUpdatedKeywords(
   originalContent: string,
   craftFiles: FileMetadata[],
-  mindFiles: FileMetadata[]
+  mindFiles: FileMetadata[],
+  bridgeFiles: FileMetadata[],
+  promptFiles: FileMetadata[]
 ): string {
-  // Find the auto-generated section marker and replace it, or append
   const autoGenMarker = "<!-- AUTO-GENERATED: sync.ts -->";
   const autoGenEnd = "<!-- END AUTO-GENERATED -->";
 
   const craftSection = generateMarkdownSection("CRAFT", craftFiles);
   const mindSection = generateMarkdownSection("MIND", mindFiles);
+  const bridgeSection = generateMarkdownSection("BRIDGE", bridgeFiles);
+  const promptSection = generateMarkdownSection("PROMPT", promptFiles);
 
   const autoGenContent = [
     autoGenMarker,
     "",
     craftSection,
     mindSection,
+    bridgeSection,
+    promptSection,
     autoGenEnd,
   ].join("\n");
 
   if (originalContent.includes(autoGenMarker)) {
-    // Replace existing auto-gen section
     const startIdx = originalContent.indexOf(autoGenMarker);
     const endIdx = originalContent.indexOf(autoGenEnd);
 
@@ -175,7 +218,6 @@ function buildUpdatedKeywords(
     }
   }
 
-  // Append auto-gen section to end of file
   return originalContent.trimEnd() + "\n\n---\n\n" + autoGenContent + "\n";
 }
 
@@ -186,7 +228,7 @@ function sync(): SyncResult {
 
   console.log("🔄 Effikit sync starting...\n");
 
-  // Scan craft and mind directories
+  // Scan craft and mind directories (.ts files)
   const craftFiles: FileMetadata[] = [];
   const mindFiles: FileMetadata[] = [];
 
@@ -201,7 +243,6 @@ function sync(): SyncResult {
     const files = scanDirectory(dirPath);
     result.scanned += files.length;
 
-    // Count files without tags as skipped
     const allTs = getAllTsFiles(dirPath);
     result.skipped += allTs.length - files.length;
 
@@ -209,7 +250,26 @@ function sync(): SyncResult {
     if (dir === "mind") mindFiles.push(...files);
   }
 
-  result.indexed = craftFiles.length + mindFiles.length;
+  // Scan bridge and prompt directories (.md files)
+  const bridgeFiles: FileMetadata[] = [];
+  const promptFiles: FileMetadata[] = [];
+
+  for (const dir of SCAN_MD_DIRS) {
+    const dirPath = path.join(ROOT_DIR, dir);
+
+    if (!fs.existsSync(dirPath)) {
+      console.warn(`  ⚠️  Directory not found: ${dir}/`);
+      continue;
+    }
+
+    const files = scanMdDirectory(dirPath);
+    result.scanned += files.length;
+
+    if (dir === "bridge") bridgeFiles.push(...files);
+    if (dir === "prompt") promptFiles.push(...files);
+  }
+
+  result.indexed = craftFiles.length + mindFiles.length + bridgeFiles.length + promptFiles.length;
 
   // Read existing keywords.md
   let originalContent = "";
@@ -218,7 +278,7 @@ function sync(): SyncResult {
   }
 
   // Generate updated content
-  const updatedContent = buildUpdatedKeywords(originalContent, craftFiles, mindFiles);
+  const updatedContent = buildUpdatedKeywords(originalContent, craftFiles, mindFiles, bridgeFiles, promptFiles);
 
   // Write back
   fs.writeFileSync(KEYWORDS_FILE, updatedContent, "utf-8");
