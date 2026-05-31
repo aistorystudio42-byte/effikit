@@ -20,7 +20,7 @@ effikit/
   README.md         ← GitHub landing page.
   LICENSE           ← MIT license.
   │
-  ├── craft/        ← Ready TypeScript libraries (UI, UX, hooks, API, DB, auth, animation)
+  ├── craft/        ← Ready TypeScript libraries (UI, UX, hooks, API, DB, auth, animation, media)
   ├── mind/         ← Advanced algorithm libraries (recommendation, search, AI, graph...)
   ├── skills/       ← AI behavior directives for Claude (how to act in each domain)
   ├── bridge/       ← MCP server and external service integration guides
@@ -63,6 +63,7 @@ User asks for something
 | `craft/db/` | Query builder, schema, migrations | Working with database layer |
 | `craft/auth/` | Session, JWT tokens, permissions | Implementing auth or RBAC |
 | `craft/animation/` | Transitions, micro-interactions, scroll effects | Adding motion to UI |
+| `craft/media/` | Image, video, audio performance libraries | Lazy loading, video autoplay, audio API |
 
 **Files in each folder:**
 - `craft/ui/` → `ui.components.ts`, `ui.layout.ts`, `ui.tokens.ts`
@@ -72,6 +73,7 @@ User asks for something
 - `craft/db/` → `db.query.ts`, `db.schema.ts`, `db.migration.ts`
 - `craft/auth/` → `auth.session.ts`, `auth.token.ts`, `auth.permission.ts`
 - `craft/animation/` → `animation.transition.ts`, `animation.micro.ts`, `animation.scroll.ts`
+- `craft/media/` → `media.image.ts`, `media.video.ts`, `media.audio.ts`
 
 ---
 
