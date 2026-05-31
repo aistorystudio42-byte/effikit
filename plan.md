@@ -162,7 +162,7 @@ skills/ceo/
 
 ---
 
-## Step 2 — craft/media/ Library ⏳
+## Step 2 — craft/media/ Library ✅
 
 **Goal:** Add craft/media/ with 3 production-grade TypeScript libraries.
 
