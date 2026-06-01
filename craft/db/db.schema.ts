@@ -190,7 +190,9 @@ export function generateZodSchema<T extends SchemaColumns>(
   }
 
   const obj = z.object(shape);
-  return options.partial ? (obj.partial() as unknown as z.ZodObject<Record<string, ZodType>>) : obj;
+  // .partial() tüm alanları opsiyonel yapar; dönüş tipi yine bir ZodObject olduğu
+  // için doğrudan cast yeterli, "unknown" köprüsüne gerek yok.
+  return options.partial ? (obj.partial() as z.ZodObject<Record<string, ZodType>>) : obj;
 }
 
 // ─── Pre-built common schemas ─────────────────────────────────────────────────
