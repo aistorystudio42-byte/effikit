@@ -78,3 +78,45 @@ export interface EffikitStats {
   readonly totalKeywords: number;
   readonly sections: readonly SectionStat[];
 }
+
+// ── Etiket denetimi (tag audit) ──────────────────────────────────────────────
+// "İnsan unutur" sorununun panzehiri: indeksleme etiketsiz dosyayı sessizce
+// atlar (indexer.ts'teki `continue`). Audit katmanı o sessiz boşluğu görünür
+// kılar — sistem, unutulan etiketi kendisi yakalar ve raporlar.
+
+/** Bir dosyanın etiket sağlığında saptanan tek bir kusur. */
+export type TagDefect =
+  /** @keywords hiç yok — dosya indekslenemez, AI bu dosyayı asla bulamaz */
+  | "missing-keywords"
+  /** @keywords var ama boş/yalnız virgül — etiket gövdesi anlamsız */
+  | "empty-keywords"
+  /** @domain yok — dosyanın tek cümlelik tanımı eksik */
+  | "missing-domain"
+  /** @use-when yok — "ne zaman seçilmeli" sinyali eksik */
+  | "missing-use-when"
+  /** Tek bir keyword'e bağlı — kopyala-yapıştır şüphesi, zayıf erişilebilirlik */
+  | "thin-keywords";
+
+/** Tek bir dosyanın denetim bulgusu. */
+export interface TagAuditFinding {
+  readonly relativePath: string;
+  readonly section: EffikitSection;
+  /** En ağırdan en hafife sıralı kusur listesi */
+  readonly defects: readonly TagDefect[];
+  /** indekslenebilir mi? (en az bir geçerli keyword var mı) */
+  readonly indexable: boolean;
+}
+
+/** Tüm depo için toplu etiket sağlık raporu. */
+export interface TagAuditReport {
+  /** Taranan toplam dosya sayısı (uzantı eşleşen her dosya) */
+  readonly filesScanned: number;
+  /** Etiketi eksiksiz, kusursuz dosya sayısı */
+  readonly healthy: number;
+  /** @keywords yokluğundan indekslenemeyen — AI'nın asla göremeyeceği dosyalar */
+  readonly unindexable: number;
+  /** İndekslenir ama bir uyarı taşıyan dosya sayısı */
+  readonly warnings: number;
+  /** Yalnızca kusurlu dosyalar; sağlıklılar listede yer almaz */
+  readonly findings: readonly TagAuditFinding[];
+}

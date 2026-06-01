@@ -10,7 +10,7 @@ Artık her projeye `.effikit` klonlamana gerek yok. Bir kere kur — her projede
 
 Bir kodlama görevine başladığında, AI önce effikit'e sorar: *"bu iş için ne var?"* Server, akademik kalitede, tip-güvenli dosyaları **alaka skoruyla** sıralayıp döndürür. AI sıfırdan yazmak yerine kanıtlanmış koddan başlar.
 
-### 7 Tool
+### 8 Tool
 
 | Tool | Ne zaman çağrılır |
 |------|-------------------|
@@ -21,12 +21,14 @@ Bir kodlama görevine başladığında, AI önce effikit'e sorar: *"bu iş için
 | **`effikit_skill`** | Bir alanda uzman gibi düşünmek gerektiğinde (security, refactoring, persona...). |
 | **`effikit_manifest`** | Tüm effikit haritasına genel bakış. |
 | **`effikit_stats`** | Kapsam istatistikleri. |
+| **`effikit_audit`** | Etiket sağlığını denetle. Eksik/bozuk etiketli, indekslenemeyen dosyaları yakalar. |
 
 ### İçindeki zekâ
 
 - **Alaka motoru:** BM25-esinli IDF ağırlıklandırma + alan-ağırlıklı keyword eşleşmesi + fuzzy (Levenshtein) tolerans + mutlak skor tabanı.
 - **TR↔EN kavram köprüsü:** "oturum" → `session`, "kullanıcı girişi" → `login/auth`. Türkçe görev tanımı doğrudan İngilizce keyword'lere bağlanır.
 - **Çok-token cezası:** "fuzzy search" keyword'ünde yalnızca "search" geçen sorgu tam isabet sayılmaz — kısmi kredi alır. Tek yaygın sözcük dosyayı yapay olarak zirveye taşıyamaz.
+- **Öz-denetim:** `effikit_audit` tüm depoyu tarayıp etiketi eksik/bozuk dosyaları raporlar. Etiket disiplini geliştiriciye değil, sisteme bağlı — "insan unutur, sistem yakalar".
 
 ---
 
@@ -41,25 +43,11 @@ npm install
 
 ### 2. IDE'ne ekle
 
-Aşağıdaki config'i kendi IDE'nin dosyasına ekle. `EFFIKIT_ROOT` opsiyoneldir — verilmezse server kendi konumundan effikit kökünü otomatik bulur. Farklı bir effikit kopyasını işaret etmek istersen ayarla.
+10 farklı araç için (Claude Code, Claude Desktop, Cursor, Windsurf, Antigravity,
+VS Code, Zed, Cline, Roo Code, Gemini CLI) hazır, kopyalanabilir config blokları
+**[install.md](install.md)** içinde. Aracını seç, bloğu al, yolu düzelt.
 
-> **Yol notu:** `<EFFIKIT>` yerine effikit deposunun makinendeki tam yolunu yaz.
-> Örn. Windows: `C:/Users/RAMAZAN/Desktop/effikit`
-
-#### Claude Code (`.mcp.json` — proje kökünde) veya `claude mcp add`
-
-```json
-{
-  "mcpServers": {
-    "effikit": {
-      "command": "npx",
-      "args": ["tsx", "<EFFIKIT>/mcp/server.ts"]
-    }
-  }
-}
-```
-
-#### Claude Desktop (`claude_desktop_config.json`)
+Hızlı bakış — çoğu araç bu bloğu `mcpServers` altında kullanır:
 
 ```json
 {
@@ -72,44 +60,10 @@ Aşağıdaki config'i kendi IDE'nin dosyasına ekle. `EFFIKIT_ROOT` opsiyoneldir
 }
 ```
 
-#### Cursor (`.cursor/mcp.json`)
-
-```json
-{
-  "mcpServers": {
-    "effikit": {
-      "command": "npx",
-      "args": ["tsx", "<EFFIKIT>/mcp/server.ts"]
-    }
-  }
-}
-```
-
-#### VS Code (`.vscode/mcp.json`)
-
-```json
-{
-  "servers": {
-    "effikit": {
-      "command": "npx",
-      "args": ["tsx", "<EFFIKIT>/mcp/server.ts"]
-    }
-  }
-}
-```
-
-#### Windsurf (`~/.codeium/windsurf/mcp_config.json`)
-
-```json
-{
-  "mcpServers": {
-    "effikit": {
-      "command": "npx",
-      "args": ["tsx", "<EFFIKIT>/mcp/server.ts"]
-    }
-  }
-}
-```
+> **İstisnalar:** VS Code kök anahtarı `servers`, Zed ise `context_servers` kullanır
+> (ayrıntı [install.md](install.md)'de). `<EFFIKIT>` = effikit'in tam yolu, Windows'ta
+> bile `/` ile (ör. `C:/Users/RAMAZAN/Desktop/effikit`). `EFFIKIT_ROOT` ortam
+> değişkeniyle override edilebilir; verilmezse server kendi konumundan kökü bulur.
 
 ### 3. IDE'ni yeniden başlat
 

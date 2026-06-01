@@ -5,7 +5,7 @@
  * Effikit deposunu, MCP konuşan herhangi bir AI'nın (Claude Code, Cursor,
  * VS Code, Windsurf, Zed...) akıl yürütebileceği bir KEŞİF MOTORUNA çevirir.
  *
- * Yedi tool sunar; ikisi AI'nın ilk refleksi olacak şekilde tasarlandı:
+ * Sekiz tool sunar; ikisi AI'nın ilk refleksi olacak şekilde tasarlandı:
  *   - effikit_navigate : "şu görevi yapacağım" → en alakalı dosyalar
  *   - effikit_blueprint: karmaşık görev → katmanlı çok-dosyalı reçete
  *   - effikit_search   : serbest sorgu → skorlanmış aday listesi
@@ -13,6 +13,7 @@
  *   - effikit_skill    : domain → o domain'in uzman zihniyeti
  *   - effikit_manifest : tüm effikit haritası (ucuz, önbellekli)
  *   - effikit_stats    : kapsam istatistikleri (güven verir)
+ *   - effikit_audit    : etiket sağlığı denetimi (insan unutsa da sistem yakalar)
  *
  * Depo kökü: bu dosya effikit/mcp/ içinde olduğundan kök bir üst dizindir.
  * EFFIKIT_ROOT ortam değişkeniyle override edilebilir (uzaktan kurulum için).
@@ -25,10 +26,11 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as z from "zod";
 
-import { IndexCache } from "./lib/indexer.js";
+import { IndexCache, auditTags } from "./lib/indexer.js";
 import { search } from "./lib/scorer.js";
 import { buildBlueprint } from "./lib/blueprint.js";
 import {
+  presentAudit,
   presentBlueprint,
   presentFile,
   presentSearch,
@@ -264,6 +266,26 @@ server.registerTool(
   async () => {
     const index = indexCache.get();
     return textResult(presentStats(index));
+  }
+);
+
+// ── Tool 8: effikit_audit ───────────────────────────────────────────────────────
+// "İnsan unutur" sorununun panzehiri: etiket sağlığını sistem kendisi denetler.
+server.registerTool(
+  "effikit_audit",
+  {
+    title: "Effikit Audit",
+    description:
+      "Effikit'in etiket sağlığını denetle. Tüm depoyu tarayıp @keywords/@domain/" +
+      "@use-when etiketi EKSİK veya BOZUK dosyaları raporlar — yani AI'nın asla " +
+      "bulamayacağı (indekslenemeyen) dosyaları görünür kılar. Yeni dosya ekledikten " +
+      "veya effikit'i güncelledikten sonra çağır; etiket disiplinini insana değil " +
+      "sisteme yıkar. Sıfır kusur = kanıtlı temizlik.",
+    inputSchema: {},
+  },
+  async () => {
+    const report = auditTags(EFFIKIT_ROOT);
+    return textResult(presentAudit(report));
   }
 );
 

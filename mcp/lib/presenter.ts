@@ -15,7 +15,13 @@
  */
 
 import type { Blueprint } from "./blueprint.js";
-import type { EffikitEntry, EffikitIndex, ScoredMatch } from "./types.js";
+import type {
+  EffikitEntry,
+  EffikitIndex,
+  ScoredMatch,
+  TagAuditReport,
+  TagDefect,
+} from "./types.js";
 
 /** Bölüm → AI'ya o bölümle ne yapması gerektiğini söyleyen tek satırlık direktif. */
 const SECTION_DIRECTIVE: Record<string, string> = {
@@ -162,6 +168,76 @@ export function presentBlueprint(blueprint: Blueprint): string {
   ].join("\n");
 
   return head + layers + tail;
+}
+
+// ── Etiket denetim raporu ────────────────────────────────────────────────────
+/** Her kusur türünün insan-okunur açıklaması ve önerilen düzeltmesi. */
+const DEFECT_LABEL: Record<TagDefect, string> = {
+  "missing-keywords":
+    "❌ @keywords YOK — bu dosya indekslenemiyor, AI onu asla bulamaz",
+  "empty-keywords":
+    "❌ @keywords boş — etiket satırı var ama içi anlamsız",
+  "missing-domain": "⚠️ @domain yok — tek cümlelik tanım eksik",
+  "missing-use-when": "⚠️ @use-when yok — 'ne zaman seçilmeli' sinyali eksik",
+  "thin-keywords":
+    "⚠️ tek keyword — kopyala-yapıştır şüphesi, erişilebilirlik zayıf",
+};
+
+/**
+ * Etiket denetim raporunu, geliştiriciyi düzeltmeye iten net bir metne çevirir.
+ * "İnsan unutur" eleştirisinin somut cevabı: sistem boşluğu kendisi gösterir.
+ */
+export function presentAudit(report: TagAuditReport): string {
+  const { filesScanned, healthy, unindexable, warnings, findings } = report;
+
+  // Hiç kusur yoksa: bu da bir mesaj — sistem disipline güvenmiyor, kanıtlıyor.
+  if (findings.length === 0) {
+    return [
+      "# Effikit Etiket Denetimi · ✅ TEMİZ",
+      "",
+      `Taranan **${filesScanned} dosyanın tamamı** sağlıklı etiketlere sahip.`,
+      "",
+      "Her dosya indekslenebilir, her dosyada @keywords + @domain + @use-when var.",
+      "Bu rapor `effikit_audit` ile her an yeniden üretilebilir — etiket sağlığı",
+      "geliştirici disiplinine değil, sistemin kendisine bağlı.",
+    ].join("\n");
+  }
+
+  const head = [
+    "# Effikit Etiket Denetimi",
+    "",
+    `Taranan: **${filesScanned}** · Sağlıklı: **${healthy}** · ` +
+      `İndekslenemeyen: **${unindexable}** · Uyarı: **${warnings}**`,
+    "",
+    unindexable > 0
+      ? `> ⛔ **${unindexable} dosya indekslenemiyor** — etiketleri olmadığı için ` +
+        "AI bu dosyaları hiç göremiyor. Önce bunları düzelt."
+      : "> ✅ Her dosya indekslenebilir; aşağıdakiler yalnızca iyileştirme uyarısı.",
+    "",
+    "---",
+    "",
+  ].join("\n");
+
+  const body = findings
+    .map((f) => {
+      const lines = [`### ${f.relativePath}`];
+      if (!f.indexable) lines.push("**Durum:** indekslenemiyor — AI göremiyor");
+      for (const d of f.defects) lines.push(`- ${DEFECT_LABEL[d]}`);
+      return lines.join("\n");
+    })
+    .join("\n\n");
+
+  const tail = [
+    "",
+    "---",
+    "",
+    "**Düzeltme:** Her dosyanın başına eksiksiz etiket bloğu ekle:",
+    "`.ts` → `// @keywords a, b, c` / `// @domain ...` / `// @use-when ...`",
+    "`.md` → `<!-- @keywords: a, b, c -->` vb.",
+    "Düzelttikten sonra `effikit_audit`'i tekrar çağır — sistem otomatik doğrular.",
+  ].join("\n");
+
+  return head + body + tail;
 }
 
 /** Effikit istatistiklerini güven veren bir özet olarak sunar. */

@@ -19,18 +19,30 @@ import type {
   EffikitStats,
   SectionIntent,
   SectionStat,
+  TagAuditFinding,
+  TagAuditReport,
+  TagDefect,
 } from "./types.js";
 
-/** Hangi bölüm hangi uzantıyı taşır ve AI'ya hangi niyetle hizmet eder. */
+/**
+ * Hangi bölüm hangi uzantıyı taşır ve AI'ya hangi niyetle hizmet eder.
+ * `fullTags`: bu bölümde @domain + @use-when etiketleri ZORUNLU mu?
+ * craft/mind (kod) için evet — niyet katmanı kritik. skills/bridge/prompt (.md)
+ * tasarımı gereği yalnızca @keywords taşır; orada @domain aramak yanlış pozitif olur.
+ */
 const SECTION_CONFIG: Record<
   EffikitSection,
-  { readonly ext: ".ts" | ".md"; readonly intent: SectionIntent }
+  {
+    readonly ext: ".ts" | ".md";
+    readonly intent: SectionIntent;
+    readonly fullTags: boolean;
+  }
 > = {
-  craft: { ext: ".ts", intent: "code-to-adapt" },
-  mind: { ext: ".ts", intent: "code-to-adapt" },
-  skills: { ext: ".md", intent: "behavior" },
-  bridge: { ext: ".md", intent: "integration" },
-  prompt: { ext: ".md", intent: "template" },
+  craft: { ext: ".ts", intent: "code-to-adapt", fullTags: true },
+  mind: { ext: ".ts", intent: "code-to-adapt", fullTags: true },
+  skills: { ext: ".md", intent: "behavior", fullTags: false },
+  bridge: { ext: ".md", intent: "integration", fullTags: false },
+  prompt: { ext: ".md", intent: "template", fullTags: false },
 };
 
 const SECTIONS = Object.keys(SECTION_CONFIG) as EffikitSection[];
@@ -179,6 +191,117 @@ export function buildIndex(root: string): EffikitIndex {
     keywordMap: buildKeywordMap(entries),
     stats: computeStats(entries),
     builtAt: Date.now(),
+  };
+}
+
+// ── Etiket denetimi ──────────────────────────────────────────────────────────
+/**
+ * Tek bir dosyanın etiket sağlığını ölçer.
+ * Indeksleme etiketsiz dosyayı sessizce atladığı için (scanSection'daki
+ * `continue`), o sessiz boşluğu burada görünür kılıyoruz: dosya AI tarafından
+ * bulunamıyorsa bunu yutmak yerine kusur olarak raporluyoruz.
+ */
+function auditFile(
+  content: string,
+  relativePath: string,
+  section: EffikitSection,
+  tagSet: typeof TS_TAG | typeof MD_TAG,
+  fullTags: boolean
+): TagAuditFinding | null {
+  const rawKeywords = firstMatch(content, tagSet.keywords);
+  const keywords = parseKeywords(rawKeywords);
+  const hasKeywordTag = content.match(tagSet.keywords) !== null;
+
+  const defects: TagDefect[] = [];
+
+  // En ağır kusur önce: dosya hiç indekslenemiyor mu?
+  if (keywords.length === 0) {
+    // Etiket satırı hiç yok mu, yoksa var ama içi boş mu? Ayrı dertler.
+    defects.push(hasKeywordTag ? "empty-keywords" : "missing-keywords");
+  } else if (keywords.length === 1) {
+    // Tek keyword: çoğu zaman kopyala-yapıştır kalıntısı veya aceleci etiket.
+    // İndekslenir ama erişilebilirliği zayıf — uyarı seviyesi.
+    defects.push("thin-keywords");
+  }
+
+  // Niyet katmanı yalnızca craft/mind (kod) için zorunlu. skills/bridge/prompt
+  // tasarımı gereği sadece @keywords taşır — orada @domain aramak yanlış pozitif.
+  if (fullTags) {
+    if (!firstMatch(content, tagSet.domain)) defects.push("missing-domain");
+    if (!firstMatch(content, tagSet.useWhen)) defects.push("missing-use-when");
+  }
+
+  if (defects.length === 0) return null; // sağlıklı dosya — rapora girmez
+
+  return {
+    relativePath,
+    section,
+    defects,
+    indexable: keywords.length > 0,
+  };
+}
+
+/** Bir bölümü etiket sağlığı açısından tarar; yalnızca kusurlu dosyaları döndürür. */
+function auditSection(
+  root: string,
+  section: EffikitSection
+): { scanned: number; findings: TagAuditFinding[] } {
+  const sectionDir = path.join(root, section);
+  if (!fs.existsSync(sectionDir)) return { scanned: 0, findings: [] };
+
+  const { ext, fullTags } = SECTION_CONFIG[section];
+  const tagSet = ext === ".md" ? MD_TAG : TS_TAG;
+  const findings: TagAuditFinding[] = [];
+  let scanned = 0;
+
+  const walk = (dir: string): void => {
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        walk(full);
+      } else if (item.isFile() && item.name.endsWith(ext)) {
+        scanned++;
+        const content = fs.readFileSync(full, "utf-8");
+        const relativePath = path.relative(root, full).replace(/\\/g, "/");
+        const finding = auditFile(content, relativePath, section, tagSet, fullTags);
+        if (finding) findings.push(finding);
+      }
+    }
+  };
+
+  walk(sectionDir);
+  return { scanned, findings };
+}
+
+/**
+ * Tüm effikit deposunu etiket sağlığı açısından denetler.
+ *
+ * "İnsan unutur" eleştirisinin doğrudan cevabı: sistem, unutulan veya bozuk
+ * etiketleri kendisi yakalar ve raporlar — disipline güvenmek yerine.
+ * En ağır kusurlar (indekslenemeyen dosyalar) önce sıralanır.
+ */
+export function auditTags(root: string): TagAuditReport {
+  const allFindings: TagAuditFinding[] = [];
+  let filesScanned = 0;
+
+  for (const section of SECTIONS) {
+    const { scanned, findings } = auditSection(root, section);
+    filesScanned += scanned;
+    allFindings.push(...findings);
+  }
+
+  const unindexable = allFindings.filter((f) => !f.indexable).length;
+  const warnings = allFindings.length - unindexable;
+
+  // İndekslenemeyenler en üstte: AI'nın asla göremeyeceği dosyalar en kritik.
+  allFindings.sort((a, b) => Number(a.indexable) - Number(b.indexable));
+
+  return {
+    filesScanned,
+    healthy: filesScanned - allFindings.length,
+    unindexable,
+    warnings,
+    findings: allFindings,
   };
 }
 
