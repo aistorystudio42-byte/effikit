@@ -120,3 +120,60 @@ export interface TagAuditReport {
   /** Yalnızca kusurlu dosyalar; sağlıklılar listede yer almaz */
   readonly findings: readonly TagAuditFinding[];
 }
+
+// ── Cohesion Budget (Bütünlük Bütçesi) ───────────────────────────────────────
+// "Sınırsız büyüme sağlıksızdır" gerçeğinin mühendislik cevabı. Bir klasör tek
+// bir kavramı temsil etmeli; şiştikçe (i) AI'ya dönen aday sayısı bulanıklaşır,
+// (ii) klasörün tamamı context'e sığmaz hale gelir. Salt dosya sayısı yalan
+// söyler — asıl sınır, klasörün AI bağlamına yüklediği toplam yüktür.
+//
+// Karar dereceli: healthy → warn (yumuşak eşik, rehberlik) → violation (sert
+// eşik, build reddi). Eşikler deponun gerçek dağılımına göre kalibre edildi.
+
+/** Bir klasörün bütünlük durumu — dereceli karar. */
+export type CohesionVerdict =
+  /** Bütçe içinde, sağlıklı klasör */
+  | "healthy"
+  /** Yumuşak eşik aşıldı — bölünme düşünülmeli ama build engellenmez */
+  | "warn"
+  /** Sert eşik aşıldı — build REDDEDİLİR, klasör bölünmeli */
+  | "violation";
+
+/** Tek bir klasörün (section/group) bütünlük değerlendirmesi. */
+export interface CohesionAssessment {
+  /** "craft/auth" gibi klasör kimliği */
+  readonly path: string;
+  readonly section: EffikitSection;
+  readonly group: string;
+  /** Klasördeki indekslenmiş dosya sayısı */
+  readonly fileCount: number;
+  /** Klasörün toplam karakter ağırlığı (context maliyeti sezgisi) */
+  readonly totalChars: number;
+  /** Dereceli karar */
+  readonly verdict: CohesionVerdict;
+  /** Kararın insan-okunur gerekçesi (hangi sinyal hangi eşiği aştı) */
+  readonly reason: string;
+}
+
+/** Tüm depo için bütünlük bütçesi raporu. */
+export interface CohesionReport {
+  readonly assessments: readonly CohesionAssessment[];
+  /** Sert eşiği aşan klasör sayısı — >0 ise build reddedilir */
+  readonly violations: number;
+  /** Yumuşak eşiği aşan (uyarı) klasör sayısı */
+  readonly warnings: number;
+  /** Uygulanan eşikler — şeffaflık için raporlanır */
+  readonly thresholds: CohesionThresholds;
+}
+
+/** Bütçe eşikleri. Deponun gerçek dağılımına göre kalibre edilir. */
+export interface CohesionThresholds {
+  /** Bu dosya sayısına kadar sağlıklı (dahil) */
+  readonly healthyFiles: number;
+  /** Bu dosya sayısı ve üstü sert ihlal (build reddi) */
+  readonly violationFiles: number;
+  /** Bu karaktere kadar sağlıklı (dahil) */
+  readonly healthyChars: number;
+  /** Bu karakter ve üstü sert ihlal (build reddi) */
+  readonly violationChars: number;
+}

@@ -26,12 +26,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import * as z from "zod";
 
-import { IndexCache, auditTags } from "./lib/indexer.js";
+import { IndexCache, auditTags, reportCohesion } from "./lib/indexer.js";
 import { search } from "./lib/scorer.js";
 import { buildBlueprint } from "./lib/blueprint.js";
 import {
   presentAudit,
   presentBlueprint,
+  presentCohesion,
   presentFile,
   presentSearch,
   presentStats,
@@ -276,16 +277,19 @@ server.registerTool(
   {
     title: "Effikit Audit",
     description:
-      "Effikit'in etiket sağlığını denetle. Tüm depoyu tarayıp @keywords/@domain/" +
-      "@use-when etiketi EKSİK veya BOZUK dosyaları raporlar — yani AI'nın asla " +
-      "bulamayacağı (indekslenemeyen) dosyaları görünür kılar. Yeni dosya ekledikten " +
-      "veya effikit'i güncelledikten sonra çağır; etiket disiplinini insana değil " +
-      "sisteme yıkar. Sıfır kusur = kanıtlı temizlik.",
+      "Effikit'in sağlığını denetle: (1) etiket sağlığı — @keywords/@domain/" +
+      "@use-when EKSİK veya BOZUK, indekslenemeyen dosyalar; (2) Bütünlük Bütçesi " +
+      "— şişip AI'nın alaka skorunu ve context bütçesini bozma eşiğine yaklaşan " +
+      "klasörler. Yeni dosya ekledikten veya effikit'i güncelledikten sonra çağır. " +
+      "Disiplin insana değil sisteme bağlıdır; sert ihlalde effikit zaten başlamaz.",
     inputSchema: {},
   },
   async () => {
-    const report = auditTags(EFFIKIT_ROOT);
-    return textResult(presentAudit(report));
+    const tagReport = auditTags(EFFIKIT_ROOT);
+    const cohesion = reportCohesion(EFFIKIT_ROOT);
+    return textResult(
+      presentAudit(tagReport) + "\n\n---\n\n" + presentCohesion(cohesion)
+    );
   }
 );
 

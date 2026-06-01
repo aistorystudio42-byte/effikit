@@ -21,7 +21,7 @@ Bir kodlama görevine başladığında, AI önce effikit'e sorar: *"bu iş için
 | **`effikit_skill`** | Bir alanda uzman gibi düşünmek gerektiğinde (security, refactoring, persona...). |
 | **`effikit_manifest`** | Tüm effikit haritasına genel bakış. |
 | **`effikit_stats`** | Kapsam istatistikleri. |
-| **`effikit_audit`** | Etiket sağlığını denetle. Eksik/bozuk etiketli, indekslenemeyen dosyaları yakalar. |
+| **`effikit_audit`** | Sağlık denetimi: eksik/bozuk etiketler + Bütünlük Bütçesi (şişen klasörler). |
 
 ### İçindeki zekâ
 
@@ -29,6 +29,7 @@ Bir kodlama görevine başladığında, AI önce effikit'e sorar: *"bu iş için
 - **TR↔EN kavram köprüsü:** "oturum" → `session`, "kullanıcı girişi" → `login/auth`. Türkçe görev tanımı doğrudan İngilizce keyword'lere bağlanır.
 - **Çok-token cezası:** "fuzzy search" keyword'ünde yalnızca "search" geçen sorgu tam isabet sayılmaz — kısmi kredi alır. Tek yaygın sözcük dosyayı yapay olarak zirveye taşıyamaz.
 - **Öz-denetim:** `effikit_audit` tüm depoyu tarayıp etiketi eksik/bozuk dosyaları raporlar. Etiket disiplini geliştiriciye değil, sisteme bağlı — "insan unutur, sistem yakalar".
+- **Bütünlük Bütçesi (büyüme koruması):** Bir klasör şişip AI'nın alaka skorunu ve context bütçesini bozma eşiğine gelince sistem dereceli tepki verir: yumuşak eşikte uyarır, sert eşikte (≥7 dosya veya ≥80K karakter) `buildIndex` **build'i reddeder** — bozuk yapıyla effikit çalışmaz. Karar iki sinyalin (dosya sayısı + bağlam ağırlığı) en kötüsüne bakar; salt sayı tavanı değil. Büyüme sınırsız değil, **denetlenir**.
 
 ---
 

@@ -16,6 +16,7 @@
 
 import type { Blueprint } from "./blueprint.js";
 import type {
+  CohesionReport,
   EffikitEntry,
   EffikitIndex,
   ScoredMatch,
@@ -238,6 +239,49 @@ export function presentAudit(report: TagAuditReport): string {
   ].join("\n");
 
   return head + body + tail;
+}
+
+// ── Bütünlük Bütçesi raporu ──────────────────────────────────────────────────
+const COHESION_ICON: Record<string, string> = {
+  healthy: "✅",
+  warn: "⚠️",
+  violation: "⛔",
+};
+
+/**
+ * Bütünlük Bütçesi raporunu sunar. "Sınırsız büyüme sağlıksızdır" ilkesinin
+ * görünür yüzü: hangi klasör sağlıklı, hangisi şişme eşiğine yaklaşmış,
+ * hangisi build'i durduracak kadar büyümüş — gerekçesiyle.
+ */
+export function presentCohesion(report: CohesionReport): string {
+  const { assessments, violations, warnings, thresholds } = report;
+  const total = assessments.length;
+
+  const head = [
+    "## Bütünlük Bütçesi (büyüme denetimi)",
+    "",
+    `Klasör: **${total}** · İhlal: **${violations}** · Uyarı: **${warnings}**`,
+    `Eşik — sağlıklı: ≤${thresholds.healthyFiles} dosya & ` +
+      `≤${thresholds.healthyChars.toLocaleString("tr-TR")} karakter · ` +
+      `sert ihlal (build reddi): ≥${thresholds.violationFiles} dosya veya ` +
+      `≥${thresholds.violationChars.toLocaleString("tr-TR")} karakter.`,
+    "",
+    violations > 0
+      ? "> ⛔ **Sert ihlal var — bu haliyle effikit BAŞLAMAZ.** Aşağıdaki klasörleri böl."
+      : warnings > 0
+        ? "> ⚠️ İhlal yok ama bazı klasörler şişme eşiğine yaklaşıyor."
+        : "> ✅ Her klasör bütçe içinde. Büyüme sağlıklı, sınırsız değil — denetlenen.",
+  ].join("\n");
+
+  // Sağlıklı klasörleri tek tek listelemek gürültü; yalnızca dikkat isteyenleri göster.
+  const flagged = assessments.filter((a) => a.verdict !== "healthy");
+  if (flagged.length === 0) return head;
+
+  const body = flagged
+    .map((a) => `${COHESION_ICON[a.verdict]} **${a.path}** — ${a.reason}`)
+    .join("\n\n");
+
+  return [head, "", "---", "", body].join("\n");
 }
 
 /** Effikit istatistiklerini güven veren bir özet olarak sunar. */

@@ -12,6 +12,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { tokenSet } from "./tokenizer.js";
+import {
+  assessCohesion,
+  CohesionViolationError,
+} from "./cohesion.js";
 import type {
   EffikitEntry,
   EffikitIndex,
@@ -180,10 +184,27 @@ function computeStats(entries: readonly EffikitEntry[]): EffikitStats {
 }
 
 /** Effikit kökünü tam tarar ve değişmez bir indeks döndürür. */
-export function buildIndex(root: string): EffikitIndex {
+/**
+ * Effikit kökünü tam tarar ve değişmez bir indeks döndürür.
+ *
+ * `enforce` (varsayılan true): Bütünlük Bütçesi sert eşiğini aşan bir klasör
+ * varsa CohesionViolationError fırlatır → server BAŞLAMAYI REDDEDER. "Koda
+ * gömülü engelleme" budur: sınırsız büyüme effikit'i çalışmaz hale getirir.
+ * Yalnızca raporlama amaçlı çağrılarda (audit) enforce=false geçilir; o zaman
+ * ihlaller hata yerine rapora bilgi olarak yansır.
+ */
+export function buildIndex(root: string, enforce = true): EffikitIndex {
   const entries: EffikitEntry[] = [];
   for (const section of SECTIONS) {
     entries.push(...scanSection(root, section));
+  }
+
+  // ── Bütünlük Bütçesi: koda gömülü, dereceli büyüme koruması ──────────────
+  // Sağlıklı/uyarı klasörler sorunsuz geçer; yalnızca SERT eşiği aşan klasör
+  // build'i durdurur. Eşikler deponun gerçek dağılımına göre kalibre edildi.
+  const cohesion = assessCohesion(entries);
+  if (enforce && cohesion.violations > 0) {
+    throw new CohesionViolationError(cohesion);
   }
 
   return {
@@ -303,6 +324,17 @@ export function auditTags(root: string): TagAuditReport {
     warnings,
     findings: allFindings,
   };
+}
+
+/**
+ * Bütünlük Bütçesi raporunu ENFORCE ETMEDEN üretir (audit/raporlama için).
+ * buildIndex sert ihlalde fırlatır; bu fonksiyon fırlatmaz, böylece ihlal
+ * olsa bile rapor görüntülenebilir ve kullanıcı neyi böleceğini görür.
+ */
+export function reportCohesion(root: string) {
+  // enforce=false: ihlal varsa bile build çökmesin, entries'i alalım.
+  const index = buildIndex(root, false);
+  return assessCohesion(index.entries);
 }
 
 /**
