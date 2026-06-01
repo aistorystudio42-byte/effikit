@@ -1,5 +1,5 @@
 /**
- * @keywords    scroll animation, parallax, reveal on scroll, sticky, progress, intersection, scroll-driven
+ * @keywords    scroll animation, parallax effect, reveal on scroll, sticky header animation, scroll progress bar, scroll-driven animation, animate when element scrolls into view
  * @domain      Scroll Animations
  * @use-when    Animating elements based on scroll position: reveals, parallax, progress indicators, sticky headers
  * @not-when    Simple page transitions — use animation.transition.ts; hover effects — use animation.micro.ts

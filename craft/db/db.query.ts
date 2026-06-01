@@ -1,5 +1,5 @@
 /**
- * @keywords    query, sql, select, where, join, filter, param, builder, prepared statement, dynamic query
+ * @keywords    sql query builder, dynamic sql, prepared statement, parameter binding, where clause builder, join builder, query composition, sql injection-safe params
  * @domain      Database Query
  * @use-when    Building dynamic SQL queries with type safety, parameter binding, and query composition
  * @not-when    You're using an ORM like Prisma or Drizzle that already generates SQL — use their query builders

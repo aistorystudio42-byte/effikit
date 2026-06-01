@@ -31,22 +31,33 @@ effikit/
 
 ## Decision Tree — Where to Look?
 
+`keywords.md` is a 3-layer funnel. Walk the layers in order — each one narrows the target.
+
 ```
 User asks for something
         │
         ▼
-1. Check keywords.md → does a keyword match?
-        │
-   YES ──────────────────► Go to that file, adapt to project
-        │
-       NO
+LAYER 1 · INTENT   → "What are they TRYING to do?"  → narrows to an area (craft/api, mind/ranking…)
         │
         ▼
-2. Browse by category below → find closest match
-        │
+LAYER 2 · SCENARIO → match the concrete trigger      → lands on the EXACT file
+        │            ("user types in search box" → mind/search/search.query.ts)
         ▼
-3. If nothing fits → write from scratch
+LAYER 3 · DISAMBIG → two files still feel close?      → tie-breaker table decides
+        │            ("cache": HTTP→api.cache / eviction→caching.strategy)
+        ▼
+   Found it ─────────► Read the file, adapt to the project, write into the project
+        │
+   Nothing fits ─────► Browse the category tables below → still nothing → write from scratch
 ```
+
+**The generic-term rule:** if your search word is broad (`cache`, `retry`, `score`,
+`validation`, `prompt`, `animation`), do NOT expect a direct hit — those are intentionally
+not lookup keys. Drop to Layer 3, or qualify the term ("HTTP response cache", "job retry").
+
+**The four-area rule:** the same word can appear in `craft/`, `mind/`, `skills/`, `bridge/`, `prompt/`.
+Decide which you want first: **code to adapt** (craft/mind), **how Claude should think** (skills),
+**external tool usage** (bridge), or **text to paste** (prompt).
 
 ---
 

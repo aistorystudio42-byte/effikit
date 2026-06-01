@@ -1,5 +1,5 @@
 /**
- * @keywords    diversity, deduplication, MMR, maximal marginal relevance, category balance, novelty, serendipity
+ * @keywords    MMR maximal marginal relevance, feed diversity algorithm, prevent category flooding, echo chamber prevention, inject novelty, serendipity in ranked list
  * @domain      Discovery Diversity
  * @use-when    Preventing echo chambers and category flooding in feeds; injecting novelty into ranked lists
  * @not-when    You need raw relevance ranking — diversity post-processing comes after ranking

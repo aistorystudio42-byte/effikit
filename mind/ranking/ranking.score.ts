@@ -1,5 +1,5 @@
 /**
- * @keywords    ELO, TrueSkill, Bayesian rating, ranking score, competitive rating, skill estimation
+ * @keywords    ELO rating, TrueSkill, Bayesian average rating, competitive skill rating, leaderboard rating, matchmaking score, player skill estimation
  * @domain      Ranking Score
  * @use-when    Building competitive ranking systems: leaderboards, matchmaking, content quality rating
  * @not-when    Simple sort by count — this is for systems that need statistically robust rankings

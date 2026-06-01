@@ -1,4 +1,4 @@
-<!-- @keywords: growth loops, viral coefficient, retention, PLG, product-led growth, activation, north star metric, growth model, open source growth, developer acquisition -->
+<!-- @keywords: design a growth loop, viral coefficient math, product-led growth tactics, D1 D7 D30 retention, activation rate optimization, referral loop mechanics -->
 
 # Marketing — Growth Loops, Not Growth Hacks
 

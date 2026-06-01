@@ -1,5 +1,5 @@
 /**
- * @keywords    time decay, score decay, freshness, half-life, exponential decay, temporal ranking
+ * @keywords    time-based score decay, exponential half-life decay, trending hot score, freshness decay over time, gravity ranking, age-based score reduction
  * @domain      Ranking Decay
  * @use-when    Scores need to decrease over time: trending content, hot posts, activity scores
  * @not-when    Scores should be permanent — use ranking.score.ts for static point systems

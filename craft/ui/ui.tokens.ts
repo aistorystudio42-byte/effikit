@@ -1,5 +1,5 @@
 /**
- * @keywords    color, token, theme, typography, font, spacing, radius, shadow, palette, design system, design tokens
+ * @keywords    design token values, color palette tokens, spacing scale, typography scale, border radius tokens, shadow tokens, theme variables, design system constants
  * @domain      Design Tokens
  * @use-when    You need consistent design values across the app: colors, spacing scale, font sizes, shadows
  * @not-when    You need component logic or layout structure — tokens are pure values, not components

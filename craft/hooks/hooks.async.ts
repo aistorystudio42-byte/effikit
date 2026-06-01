@@ -1,5 +1,5 @@
 /**
- * @keywords    fetch, useQuery, useSWR, loading, retry, abort, async hook, data fetching, polling, mutation
+ * @keywords    useFetch hook, useAsync, useQuery hook, data fetching hook, loading error state, request retry hook, abort on unmount, polling hook, optimistic mutation, react async
  * @domain      Async Data Hooks
  * @use-when    Fetching data from APIs with loading/error/retry states, polling, or optimistic mutations
  * @not-when    You're already using React Query or SWR — those cover the same ground more fully

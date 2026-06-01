@@ -1,5 +1,5 @@
 /**
- * @keywords    session, cookie, refresh token, expire, logout, next-auth, session storage, persist session
+ * @keywords    user session lifecycle, session cookie, session expiry, auto refresh session, logout clear session, next-auth session, persist auth state, idle timeout
  * @domain      Auth Session
  * @use-when    Managing user sessions: storing, refreshing, validating, and clearing authentication state
  * @not-when    JWT signing/verification — use auth.token.ts; OAuth flows — use your auth provider's SDK

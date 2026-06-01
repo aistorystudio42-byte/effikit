@@ -1,4 +1,4 @@
-<!-- @keywords: positioning, category creation, owning a word, reframing competition, pricing signal, competitive differentiation, Effikit positioning, ChatGPT comparison, Cursor comparison, market category -->
+<!-- @keywords: strategic positioning decision, own a category as founder, category creation strategy, reframe competition, pricing as strategic signal, where to compete, Effikit vs ChatGPT vs Cursor strategy -->
 
 # CEO — If You're Not First, Be Different
 

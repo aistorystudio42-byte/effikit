@@ -1,5 +1,5 @@
 /**
- * @keywords    schema, model, table, type, zod, prisma, drizzle, field, column, relation, validation
+ * @keywords    database schema, typed model, table definition, zod schema, column types, model relations, runtime schema validation, prisma drizzle alternative
  * @domain      Database Schema
  * @use-when    Defining typed database models, runtime validation schemas, and table column definitions
  * @not-when    You're already using Prisma or Drizzle — they provide their own schema DSLs

@@ -1,4 +1,4 @@
-<!-- @keywords: prompt engineering, system prompt, few-shot, chain of thought, Claude, GPT, LLM prompting -->
+<!-- @keywords: how to write a good prompt, prompt engineering techniques, system prompt design, few-shot prompting, chain of thought guidance, improve a prompt -->
 
 # AI — Prompt Engineering
 

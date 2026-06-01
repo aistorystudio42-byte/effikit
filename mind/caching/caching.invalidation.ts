@@ -1,5 +1,5 @@
 /**
- * @keywords    cache invalidation, dependency tracking, tag-based invalidation, versioning, purge, stale
+ * @keywords    event-driven cache invalidation, tag-based purge, invalidate related entries on data change, cache dependency graph, versioned cache bust
  * @domain      Caching Invalidation
  * @use-when    Invalidating related cache entries when underlying data changes, using tags or dependencies
  * @not-when    Simple TTL expiry is sufficient — this is for event-driven invalidation

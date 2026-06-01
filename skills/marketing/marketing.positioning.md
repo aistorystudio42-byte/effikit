@@ -1,4 +1,4 @@
-<!-- @keywords: positioning, category design, competitive moat, messaging hierarchy, feature positioning, positioning statement, market category, differentiation, developer tool positioning -->
+<!-- @keywords: write positioning statement, messaging hierarchy, how to phrase product positioning, positioning copy, frame product against alternatives, differentiation messaging -->
 
 # Marketing — Own a Category, Not Just a Feature
 

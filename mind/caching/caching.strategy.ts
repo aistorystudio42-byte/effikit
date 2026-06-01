@@ -1,5 +1,5 @@
 /**
- * @keywords    LRU, LFU, TTL, cache eviction, in-memory cache, FIFO, ARC, cache policy
+ * @keywords    LRU cache, LFU cache, cache eviction policy, in-memory key-value cache, FIFO eviction, ARC policy, bounded cache with max size
  * @domain      Caching Strategy
  * @use-when    Implementing in-memory caches with eviction policies: LRU, LFU, TTL, or hybrid
  * @not-when    You need distributed caching across nodes — use Redis for that

@@ -1,5 +1,5 @@
 /**
- * @keywords    boost, promote, pinning, sponsored, priority, score boost, manual override
+ * @keywords    pin item to top, promote content, sponsored placement, editorial boost, manual rank override, A/B test boost, force item position
  * @domain      Ranking Boost
  * @use-when    Applying business rules, editorial picks, sponsored content, or A/B test boosts to a ranked list
  * @not-when    You need algorithmic scoring — run ranking first, then apply boosts as post-processing

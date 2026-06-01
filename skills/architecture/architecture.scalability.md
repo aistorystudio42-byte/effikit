@@ -1,4 +1,4 @@
-<!-- @keywords: scalability, system design, load balancing, caching, horizontal scaling, bottlenecks, capacity -->
+<!-- @keywords: system-level scalability design, capacity planning, identify bottlenecks, horizontal scaling architecture, load balancing strategy, scale system design -->
 
 # Circuit breaker: fail fast if backend is down
 

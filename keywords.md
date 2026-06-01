@@ -1,220 +1,213 @@
 # Effikit Keywords Index
-> Keyword → file mapping engine. Scan this to find the right file fast.
-> Format: keywords | file path | one-line description
+> Precision targeting engine. Read ONE keyword → land on the EXACT file.
+>
+> **How to use this file (in order):**
+> 1. **Layer 1 — Intent.** Start here. What is the user TRYING to do? → narrows to a section.
+> 2. **Layer 2 — Scenario.** Match the concrete situation → lands on the exact file.
+> 3. **Layer 3 — Disambiguation.** If two files feel close, this table breaks the tie.
+> 4. **Per-file keyword tables** (auto-generated, bottom) → confirm with the file's own `@keywords`.
+>
+> Rule of this index: **one keyword maps to at most 2 files.** If a term feels generic
+> (e.g. "cache", "retry", "validation", "score"), it is intentionally NOT a lookup key —
+> use the qualified scenario phrase instead ("HTTP response cache", "job retry", "sanitize user input").
 
 ---
 
-## CRAFT — TypeScript Code Libraries
+## LAYER 1 — Intent Router
+> "What am I trying to do right now?" Pick the row, jump to the area.
 
-### UI
-| Keywords | File | Description |
-|----------|------|-------------|
-| card, modal, dialog, input, dropdown, button, badge, avatar, tooltip, popover, react component | `craft/ui/ui.components.ts` | Ready-made React UI components |
-| grid, flex, layout, container, responsive, breakpoint, column, row, sidebar, wrapper | `craft/ui/ui.layout.ts` | Grid system and responsive layout utilities |
-| color, token, theme, typography, font, spacing, radius, shadow, palette, design system | `craft/ui/ui.tokens.ts` | Design tokens: colors, typography, spacing scales |
-
-### UX
-| Keywords | File | Description |
-|----------|------|-------------|
-| drag, drop, gesture, swipe, click, touch, pointer, interaction, dnd | `craft/ux/ux.interaction.ts` | Gesture, drag-drop, click and touch interaction systems |
-| loading, skeleton, spinner, error state, success, toast, feedback, empty state | `craft/ux/ux.feedback.ts` | Loading, skeleton, error and success state management |
-| aria, keyboard nav, screen reader, focus trap, tab order, accessibility, a11y | `craft/ux/ux.accessibility.ts` | ARIA roles, keyboard navigation, screen reader support |
-
-### Hooks
-| Keywords | File | Description |
-|----------|------|-------------|
-| useState, useReducer, state machine, zustand, context, global state, atom | `craft/hooks/hooks.state.ts` | Advanced state management hooks |
-| fetch, useQuery, useSWR, loading, retry, abort, async hook | `craft/hooks/hooks.async.ts` | Async fetch, loading, error, retry hooks |
-| useEffect, mount, unmount, resize, intersection, observer, scroll, debounce | `craft/hooks/hooks.lifecycle.ts` | Mount, unmount, resize, intersection observer hooks |
-
-### API
-| Keywords | File | Description |
-|----------|------|-------------|
-| axios, fetch, http, request, header, timeout, interceptor, middleware, api client | `craft/api/api.request.ts` | HTTP request management with headers, timeout, interceptors |
-| error handling, api error, 4xx, 5xx, error boundary, classify, catch | `craft/api/api.error.ts` | API error catching, classification and management |
-| cache, stale, revalidate, ttl, invalidate, cache-first, network-first | `craft/api/api.cache.ts` | Response caching with stale-while-revalidate strategy |
-
-### Database
-| Keywords | File | Description |
-|----------|------|-------------|
-| query, sql, select, where, join, filter, param, builder, prepared statement | `craft/db/db.query.ts` | Query builder with parameter management and optimization |
-| schema, model, table, type, zod, prisma, drizzle, field, column, relation | `craft/db/db.schema.ts` | Table/model definitions with full type safety |
-| migration, seed, rollback, version, alter, up, down, changelog | `craft/db/db.migration.ts` | Migration system with versioning and rollback support |
-
-### Auth
-| Keywords | File | Description |
-|----------|------|-------------|
-| session, cookie, refresh token, expire, logout, next-auth, session storage | `craft/auth/auth.session.ts` | Session lifecycle, refresh, expiry management |
-| jwt, token, sign, verify, decode, payload, secret, bearer, encode | `craft/auth/auth.token.ts` | JWT creation, signing, verification and decoding |
-| rbac, role, permission, policy, can, cannot, guard, acl, access control | `craft/auth/auth.permission.ts` | Role-based access control and policy engine |
-
-### Animation
-| Keywords | File | Description |
-|----------|------|-------------|
-| page transition, route animation, enter, exit, fade, slide, mount animation | `craft/animation/animation.transition.ts` | Page and component transition animations |
-| hover, micro interaction, button animation, focus animation, ripple | `craft/animation/animation.micro.ts` | Hover, click, focus micro-interaction effects |
-| scroll animation, parallax, reveal on scroll, sticky, progress | `craft/animation/animation.scroll.ts` | Scroll-based animations and parallax systems |
-
-### Media
-| Keywords | File | Description |
-|----------|------|-------------|
-| image loading, lazy load, progressive image, blur hash, responsive image, srcset, WebP, AVIF, CLS prevention, aspect ratio, image preloader | `craft/media/media.image.ts` | Progressive loading, lazy images, responsive srcset, CLS prevention |
-| video player, autoplay, IntersectionObserver autoplay, bandwidth detection, picture-in-picture, video progress, buffered ranges, iOS video, mobile video | `craft/media/media.video.ts` | Full video player, scroll autoplay, PiP, bandwidth quality switching |
-| Web Audio API, AudioContext, audio visualizer, AnalyserNode, spatial audio, PannerNode, AudioWorklet, microphone recorder, SoundBoard, crossfade | `craft/media/media.audio.ts` | AudioContext lifecycle, visualizer, recorder, spatial audio, worklets |
+| If the user is trying to… | Go to area |
+|---------------------------|------------|
+| Build/visualize something on screen (components, layout, motion, media) | `craft/ui`, `craft/animation`, `craft/media` |
+| Wire up React behavior (state, data fetching, lifecycle, gestures, feedback) | `craft/hooks`, `craft/ux` |
+| Talk to a backend / handle data transport (HTTP, errors, response cache) | `craft/api` |
+| Persist or model data (queries, schema, migrations) | `craft/db` |
+| Authenticate or authorize users | `craft/auth` |
+| Rank, recommend, score, or personalize items | `mind/recommendation`, `mind/ranking`, `mind/discovery`, `mind/personalization` |
+| Search or match text | `mind/search` |
+| Make a programmatic decision / stay resilient | `mind/decision` |
+| Move data in real time / handle concurrency | `mind/realtime` |
+| Model relationships or traverse a network | `mind/graph` |
+| Cache or memoize for performance | `mind/optimization`, `mind/caching` |
+| Run heavy math / optimize / benchmark | `mind/optimization` |
+| Encrypt, validate input, or audit security (in code) | `mind/security` |
+| Build an AI feature in code (prompts, context, pipelines) | `mind/ai` |
+| **Change how Claude behaves** for a domain (guidance, not code) | `skills/*` |
+| Integrate an external service / MCP | `bridge/*` |
+| Get a ready-made prompt to paste | `prompt/*` |
 
 ---
 
-## MIND — Algorithm Libraries
+## LAYER 2 — Scenario Router
+> Concrete trigger → exact file. These are the fast path; they win over generic terms.
 
-### Recommendation
-| Keywords | File | Description |
-|----------|------|-------------|
-| collaborative filtering, user-based, item-based, recommend, similar users | `mind/recommendation/recommendation.engine.ts` | Collaborative and content-based recommendation engine |
-| score, weight, multi-criteria, ranking score, rate, relevance | `mind/recommendation/recommendation.scoring.ts` | Weighted scoring and multi-criteria decision system |
-| filter output, diversity, deduplication, rule engine, blacklist | `mind/recommendation/recommendation.filter.ts` | Rule-based output filtering and diversity balancing |
+### "The user is on a page and…"
+| Scenario | File |
+|----------|------|
+| …types into a search box → parse/normalize the raw string | `mind/search/search.query.ts` |
+| …searches and we must tolerate typos | `mind/search/search.fuzzy.ts` |
+| …searches a large text corpus, need an index | `mind/search/search.index.ts` |
+| …scrolls and elements should reveal/parallax | `craft/animation/animation.scroll.ts` |
+| …scrolls a feed that loads more (pagination/cursor) | `mind/discovery/discovery.feed.ts` |
+| …scrolls past a video that should autoplay | `craft/media/media.video.ts` |
+| …an image enters viewport and should lazy-load with blur-up | `craft/media/media.image.ts` |
+| …hovers/clicks a button and it should feel tactile | `craft/animation/animation.micro.ts` |
+| …drags an item or swipes | `craft/ux/ux.interaction.ts` |
+| …is waiting on async work (spinner/skeleton/toast) | `craft/ux/ux.feedback.ts` |
+| …navigates between pages/routes (enter/exit motion) | `craft/animation/animation.transition.ts` |
 
-### Discovery
-| Keywords | File | Description |
-|----------|------|-------------|
-| feed, content stream, pagination, cursor, infinite scroll | `mind/discovery/discovery.feed.ts` | Content feed management with sorting and pagination |
-| multi-factor ranking, boost, surface, promote, trending | `mind/discovery/discovery.ranking.ts` | Multi-factor content ranking and promotion system |
-| diversity, novelty, dedup, avoid repetition, content mix | `mind/discovery/discovery.diversity.ts` | Repetition prevention and content diversity balancing |
+### "I'm fetching / transporting data and…"
+| Scenario | File |
+|----------|------|
+| …need a typed HTTP client with interceptors + timeout | `craft/api/api.request.ts` |
+| …need to cache HTTP responses (stale-while-revalidate) | `craft/api/api.cache.ts` |
+| …need to normalize/classify HTTP errors | `craft/api/api.error.ts` |
+| …need a React hook for loading/error/retry around a fetch | `craft/hooks/hooks.async.ts` |
 
-### Decision
-| Keywords | File | Description |
-|----------|------|-------------|
-| decision tree, if-else logic, traversal, node, branch, leaf | `mind/decision/decision.tree.ts` | Decision tree structure and traversal algorithm |
-| weighted priority, multi-criteria, AHP, score decision | `mind/decision/decision.weight.ts` | Weighted priority and multi-criteria decision system |
-| fallback, alternative, retry, backup plan, graceful degradation | `mind/decision/decision.fallback.ts` | Fallback path and graceful degradation manager |
+### "I'm working with stored data and…"
+| Scenario | File |
+|----------|------|
+| …building dynamic SQL safely | `craft/db/db.query.ts` |
+| …defining typed models + runtime schema | `craft/db/db.schema.ts` |
+| …versioning the schema (migrate/rollback) | `craft/db/db.migration.ts` |
 
-### Optimization
-| Keywords | File | Description |
-|----------|------|-------------|
-| genetic algorithm, simulated annealing, gradient descent, minimize, maximize | `mind/optimization/optimization.algorithm.ts` | Genetic algorithm, SA, and gradient descent implementations |
-| memoize, cache computation, dynamic programming, expensive call | `mind/optimization/optimization.cache.ts` | Computation memoization and caching strategies |
-| benchmark, profile, measure, compare, ops/sec, performance test | `mind/optimization/optimization.benchmark.ts` | Performance measurement and benchmarking tools |
+### "I need to rank / recommend and…"
+| Scenario | File |
+|----------|------|
+| …suggest items from user behavior (collaborative/content) | `mind/recommendation/recommendation.engine.ts` |
+| …blend many signals into ONE score | `mind/recommendation/recommendation.scoring.ts` |
+| …filter/dedup/blacklist the result list | `mind/recommendation/recommendation.filter.ts` |
+| …rank a feed by freshness + engagement | `mind/discovery/discovery.ranking.ts` |
+| …stop one category from flooding the feed (MMR) | `mind/discovery/discovery.diversity.ts` |
+| …give players/items a competitive rating (ELO/TrueSkill) | `mind/ranking/ranking.score.ts` |
+| …make scores fade over time (trending/hot) | `mind/ranking/ranking.decay.ts` |
+| …pin/promote/sponsor an item to the top | `mind/ranking/ranking.boost.ts` |
 
-### Ranking
-| Keywords | File | Description |
-|----------|------|-------------|
-| elo, trueskill, bayesian, rating, leaderboard, skill rating | `mind/ranking/ranking.score.ts` | ELO, TrueSkill, Bayesian average score calculation |
-| decay, time-based, freshness, recency, age, half-life, score decay | `mind/ranking/ranking.decay.ts` | Time-based score decay and freshness mechanism |
-| boost, promote, pin, sticky, priority override, manual rank | `mind/ranking/ranking.boost.ts` | Boost rules and priority override engine |
+### "I need performance / caching and…"
+| Scenario | File |
+|----------|------|
+| …memoize an expensive pure function | `mind/optimization/optimization.cache.ts` |
+| …build a bounded in-memory cache (LRU/LFU/TTL) | `mind/caching/caching.strategy.ts` |
+| …invalidate related cache entries when data changes | `mind/caching/caching.invalidation.ts` |
+| …coordinate L1+L2 (memory + Redis) tiers | `mind/caching/caching.layer.ts` |
+| …cache HTTP responses on the client | `craft/api/api.cache.ts` |
 
-### Search
-| Keywords | File | Description |
-|----------|------|-------------|
-| query parse, tokenize, normalize, stop words, stemming | `mind/search/search.query.ts` | Query parsing, tokenization and normalization |
-| fuzzy search, levenshtein, jaro-winkler, typo tolerance, approximate match | `mind/search/search.fuzzy.ts` | Fuzzy matching with Levenshtein and Jaro-Winkler |
-| inverted index, full text search, tfidf, term frequency, search index | `mind/search/search.index.ts` | Inverted index structure and fast text search |
+### "I'm doing security (in code) and…"
+| Scenario | File |
+|----------|------|
+| …encrypt/decrypt data (AES/RSA, Web Crypto) | `mind/security/security.encrypt.ts` |
+| …sanitize/validate untrusted input at a boundary | `mind/security/security.validate.ts` |
+| …log and detect anomalous security events | `mind/security/security.audit.ts` |
 
-### Personalization
-| Keywords | File | Description |
-|----------|------|-------------|
-| user profile, preference, taste, build profile, update profile | `mind/personalization/personalization.profile.ts` | User profile construction and update system |
-| behavior tracking, click, view, dwell time, event, pattern | `mind/personalization/personalization.behavior.ts` | Behavior tracking and pattern analysis |
-| adapt, dynamic content, learn, adjust, personalize, tailor | `mind/personalization/personalization.adapt.ts` | Dynamic content adaptation and learning system |
+### "I'm building an AI feature (in code) and…"
+| Scenario | File |
+|----------|------|
+| …assemble prompt templates programmatically | `mind/ai/ai.prompt.ts` |
+| …manage token budget / conversation memory / RAG context | `mind/ai/ai.context.ts` |
+| …orchestrate multi-step (parallel/sequential) AI calls | `mind/ai/ai.pipeline.ts` |
 
-### Realtime
-| Keywords | File | Description |
-|----------|------|-------------|
-| websocket, socket, live, sync, broadcast, subscribe, realtime | `mind/realtime/realtime.sync.ts` | WebSocket-based real-time synchronization |
-| queue, job, task queue, priority queue, retry, backoff, worker | `mind/realtime/realtime.queue.ts` | Job queue with priority and retry management |
-| conflict, merge, crdt, operational transform, concurrent edit | `mind/realtime/realtime.conflict.ts` | Conflict detection, resolution and merge strategies |
+---
 
-### Graph
-| Keywords | File | Description |
-|----------|------|-------------|
-| relation, edge, node, directed, undirected, graph, adjacency | `mind/graph/graph.relation.ts` | Relation graph definition with directed/undirected support |
-| bfs, dfs, dijkstra, shortest path, traverse, walk, explore | `mind/graph/graph.traverse.ts` | BFS, DFS, Dijkstra pathfinding algorithms |
-| cluster, community detection, group, louvain, connected components | `mind/graph/graph.cluster.ts` | Community detection and clustering algorithms |
+## LAYER 3 — Disambiguation
+> When two files share a fuzzy concept, this is the tie-breaker.
+> Format: ambiguous term → **pick this** when… / **pick that** when…
 
-### Caching
-| Keywords | File | Description |
-|----------|------|-------------|
-| lru, lfu, ttl, eviction, cache strategy, least recently used | `mind/caching/caching.strategy.ts` | LRU, LFU, TTL-based caching algorithm implementations |
-| cache invalidation, dependency, purge, tag-based, bust cache | `mind/caching/caching.invalidation.ts` | Cache invalidation rules and dependency management |
-| multi-layer cache, l1, l2, memory cache, redis, cache hierarchy | `mind/caching/caching.layer.ts` | Multi-layer cache architecture and management |
+| Fuzzy term | Pick A when… | Pick B when… |
+|------------|--------------|--------------|
+| **cache** | client HTTP responses → `craft/api/api.cache.ts` | algorithm/in-memory eviction → `mind/caching/caching.strategy.ts` (or memoize a fn → `mind/optimization/optimization.cache.ts`) |
+| **retry** | inside a React fetch hook → `craft/hooks/hooks.async.ts` | a job in a queue → `mind/realtime/realtime.queue.ts` (or resilience/fallback chain → `mind/decision/decision.fallback.ts`) |
+| **score / scoring** | blend signals for a recommendation → `mind/recommendation/recommendation.scoring.ts` | competitive rating (ELO) → `mind/ranking/ranking.score.ts` (or weighted decision → `mind/decision/decision.weight.ts`) |
+| **boost / decay / freshness** | one ranking concern in a feed pipeline → `mind/discovery/discovery.ranking.ts` | a dedicated decay curve → `mind/ranking/ranking.decay.ts` / a manual pin → `mind/ranking/ranking.boost.ts` |
+| **diversity / dedup** | feed novelty algorithm (MMR) → `mind/discovery/discovery.diversity.ts` | post-process a recommendation list → `mind/recommendation/recommendation.filter.ts` |
+| **multi-criteria** | choosing among options (AHP/pairwise) → `mind/decision/decision.weight.ts` | scoring recommendation items → `mind/recommendation/recommendation.scoring.ts` |
+| **intersection observer** | generic React lifecycle hook → `craft/hooks/hooks.lifecycle.ts` | image/video viewport loading → `craft/media/*` / scroll reveal → `craft/animation/animation.scroll.ts` |
+| **validation** | runtime DB model/schema shape → `craft/db/db.schema.ts` | untrusted input / injection defense → `mind/security/security.validate.ts` |
+| **queue** | in-process job queue (code) → `mind/realtime/realtime.queue.ts` | distributed (Redis/SQS) → use `bridge/*`, not Effikit |
+| **prompt** | programmatic template engine (code) → `mind/ai/ai.prompt.ts` | how-to write prompts (guidance) → `skills/ai/` | 
+| **prompt (ready text)** | paste-ready prompt template → `prompt/ai/` | — |
+| **refactor** | mechanical how-to (extract/rename) → `skills/refactoring/` | judgment on what's wrong + antipatterns → `skills/code-critic/` |
+| **positioning** | strategic decision (founder view) → `skills/ceo/` | the actual message/copy wording → `skills/marketing/` |
+| **growth** | growth equation + unit economics (founder) → `skills/ceo/` | growth loops + viral/retention tactics → `skills/marketing/` |
+| **scalability** | app-level (queue/worker/rate-limit) → `skills/backend/` | system-level (capacity/load balancing) → `skills/architecture/` |
+| **performance** | frontend Core Web Vitals → `skills/performance/performance.frontend.md` | DB query tuning → `skills/performance/performance.database.md` / backend throughput → `skills/performance/performance.backend.md` |
+| **encryption** | working code (Web Crypto) → `mind/security/security.encrypt.ts` | guidance/decisions → `skills/security/` / a ready prompt → `prompt/security/` |
+| **animation** | working React code → `craft/animation/*` | Framer Motion API → `bridge/framermotion/` / GSAP timelines → `bridge/gsap/` |
 
-### Security
-| Keywords | File | Description |
-|----------|------|-------------|
-| aes, rsa, encrypt, decrypt, cipher, key, iv, crypto | `mind/security/security.encrypt.ts` | AES and RSA encryption/decryption implementations |
-| validate, sanitize, xss, sql injection, input, parse safe | `mind/security/security.validate.ts` | Input validation, sanitization and safe parsing |
-| audit log, trail, anomaly, detect, monitor, suspicious | `mind/security/security.audit.ts` | Audit trail, anomaly detection and logging system |
-
-### AI
-| Keywords | File | Description |
-|----------|------|-------------|
-| prompt template, chain, few-shot, system prompt, prompt builder | `mind/ai/ai.prompt.ts` | Prompt engineering, template and chain management |
-| context window, summarize, memory, long context, truncate | `mind/ai/ai.context.ts` | Context window management and memory system |
-| ai pipeline, parallel ai, chain models, workflow, streaming | `mind/ai/ai.pipeline.ts` | AI workflow, parallel processing and chaining system |
+> **Cross-layer rule:** `craft/` and `mind/` = **code you adapt**. `skills/` = **how Claude should think**.
+> `bridge/` = **external tool usage**. `prompt/` = **text you paste**. Same word can live in all four —
+> the layer you're in decides which one you want.
 
 ---
 
 ## SKILLS — AI Behavior Directives
+> Guidance for how Claude should act. Not code. (sync.ts does not scan skills/ — keep this table current by hand.)
 
 | Keywords | Folder |
 |----------|--------|
-| react, component, jsx, tsx, styling, css, tailwind, state management | `skills/frontend/` |
-| node, express, fastify, server, architecture, service, pattern | `skills/backend/` |
-| rest, graphql, endpoint, route, validation, openapi, swagger | `skills/api/` |
-| schema design, query optimization, index, normalization, orm | `skills/database/` |
-| debug, bug, error, log, stack trace, reproduce, breakpoint | `skills/debugging/` |
-| security, vulnerability, owasp, xss, csrf, auth security | `skills/security/` |
-| test, unit test, integration test, e2e, jest, vitest, coverage | `skills/testing/` |
-| refactor, clean code, dry, solid, rename, extract, simplify | `skills/refactoring/` |
-| design system, ui design, color theory, spacing, typography | `skills/design/` |
-| ai, llm, claude, openai, prompt engineering, embeddings | `skills/ai/` |
-| ci/cd, docker, deploy, pipeline, github actions, monitoring | `skills/devops/` |
-| code review, pr review, feedback, checklist, standards | `skills/code-review/` |
-| docs, documentation, readme, jsdoc, changelog, comment | `skills/documentation/` |
-| architecture, system design, microservice, monolith, event-driven | `skills/architecture/` |
-| performance, optimize, speed, lighthouse, profiling, bundle | `skills/performance/` |
-| accessibility, wcag, aria, keyboard, screen reader | `skills/accessibility/` |
-| creative, brainstorm, ideate, edison, disney, shakespeare, dali | `skills/creativity/` |
-| art, artistic, da vinci, beethoven, picasso, michelangelo | `skills/art/` |
-| science, physics, einstein, newton, feynman, tesla | `skills/science/` |
-| productivity, focus, speed, workflow, efficiency, boost | `skills/performance-boost/` |
-| image, video, audio, lazy loading, blur hash, WebP, AVIF, srcset, media optimization, Core Web Vitals, LCP | `skills/media/` |
-| copywriting, AIDA, headline, CTA, positioning, growth loops, storytelling, viral coefficient, brand story | `skills/marketing/` |
-| code critic, antipatterns, refactor, strangler fig, coding standards, code review surgery | `skills/code-critic/` |
-| first principles, socratic method, logical fallacies, debiasing, pre-mortem, cognitive bias, reasoning | `skills/reasoning/` |
-| TypeScript advanced, conditional types, infer, branded types, discriminated unions, ts-morph, tsc performance | `skills/typescript-expert/` |
-| strategy, Porter's five forces, network effects, growth model, positioning category, CEO, moat | `skills/ceo/` |
+| react component guidance, jsx, styling decisions, frontend state, frontend performance | `skills/frontend/` |
+| backend architecture, service layering, repository pattern, backend scalability patterns | `skills/backend/` |
+| REST endpoint design, API versioning, API auth, API documentation, request validation guidance | `skills/api/` |
+| schema design guidance, query optimization advice, normalization, indexing strategy | `skills/database/` |
+| how to debug, bug finding strategy, read logs, reproduce bug, production debugging, async race conditions | `skills/debugging/` |
+| security guidance, OWASP, auth security, input security advice, encryption decisions, security audit checklist | `skills/security/` |
+| testing strategy, unit test, integration test, e2e, coverage thresholds | `skills/testing/` |
+| how to refactor, extract method, rename, code smells, mechanical cleanup | `skills/refactoring/` |
+| design system thinking, typography, color, responsive, UX guidance | `skills/design/` |
+| how to write prompts, AI context guidance, AI pipeline design, AI evaluation/evals | `skills/ai/` |
+| CI/CD, Docker, infrastructure, monitoring/observability guidance | `skills/devops/` |
+| code review checklist, review feedback, review standards, perf/security review lens | `skills/code-review/` |
+| README, code comments, API docs, changelog writing | `skills/documentation/` |
+| architecture patterns, architecture decisions, diagrams, system-level scalability | `skills/architecture/` |
+| frontend/backend/database performance tuning, monitoring, profiling lens | `skills/performance/` |
+| semantic HTML, ARIA guidance, keyboard nav, color contrast, a11y testing | `skills/accessibility/` |
+| brainstorm/ideate persona — Edison, Disney, Shakespeare, constraints | `skills/creativity/` |
+| artistic persona — Da Vinci, Beethoven, Picasso, Michelangelo | `skills/art/` |
+| scientist persona — Einstein, Newton, Feynman, Tesla | `skills/science/` |
+| focus, deep work, developer velocity, quality mindset, workflow | `skills/performance-boost/` |
+| media perf guidance — image/video/audio optimization, Core Web Vitals lens | `skills/media/` |
+| copywriting, AIDA headline/CTA, positioning MESSAGE, growth LOOP tactics, storytelling | `skills/marketing/` |
+| code critique — antipatterns, strangler-fig refactor judgment, what's wrong + standards | `skills/code-critic/` |
+| first principles, Socratic questioning, logical fallacies, debiasing/pre-mortem | `skills/reasoning/` |
+| advanced TS types, TS design patterns, ts-morph compiler, tsc performance | `skills/typescript-expert/` |
+| business STRATEGY, Porter's forces, network effects, growth EQUATION, positioning DECISION | `skills/ceo/` |
+
+> **marketing vs ceo:** `skills/ceo/` = the strategic *decision* (where to compete, the growth equation).
+> `skills/marketing/` = the *expression* of it (the message, the loop, the copy). See Layer 3.
 
 ---
 
 ## BRIDGE — External Service Guides
+> Each folder has setup / workflows / bestpractices. Match the service name.
 
 | Keywords | Folder |
 |----------|--------|
-| github, repo, branch, pull request, issue, actions, git | `bridge/github/` |
-| vercel, deploy, preview, domain, env var, serverless | `bridge/vercel/` |
-| supabase, postgres, rls, storage, realtime, supabase auth | `bridge/supabase/` |
-| figma, design, tokens, component export, style | `bridge/figma/` |
-| three.js, threjs, 3d, webgl, scene, mesh, geometry, physics | `bridge/threjs/` |
-| framer motion, framermotion, animate, motion, spring | `bridge/framermotion/` |
-| wolfram, wolframalpha, math, equation, physics, calculate | `bridge/wolframalpha/` |
-| shadcn, shadcn/ui, radix, component library, theming | `bridge/shadcn/` |
-| gsap, timeline, scrolltrigger, tween, greensock | `bridge/gsap/` |
+| github, repo, branch, pull request, issue, git actions | `bridge/github/` |
+| vercel, deploy, preview deployment, domain, env var, serverless | `bridge/vercel/` |
+| supabase, postgres + rls, supabase storage/realtime/auth | `bridge/supabase/` |
+| figma, design tokens, component export, design handoff | `bridge/figma/` |
+| three.js, threjs, 3d, webgl, scene, mesh, r3f | `bridge/threjs/` |
+| framer motion, motion component, spring, layout animation | `bridge/framermotion/` |
+| wolfram, wolframalpha, computational math/physics query | `bridge/wolframalpha/` |
+| shadcn, shadcn/ui, radix, component library theming | `bridge/shadcn/` |
+| gsap, greensock, timeline, scrolltrigger, tween | `bridge/gsap/` |
 
 ---
 
-## PROMPT — Template Files
+## PROMPT — Ready-to-Paste Templates
+> Text you hand to an LLM. Not code, not guidance. Match the task.
 
 | Keywords | Folder |
 |----------|--------|
-| generate code, write code, implement feature, code prompt | `prompt/code/` |
-| debug prompt, find bug, error analysis, fix issue | `prompt/debug/` |
-| review code, audit, quality check, security review prompt | `prompt/review/` |
-| architect, system design, diagram, adr, decision | `prompt/architecture/` |
-| plan, sprint, roadmap, task breakdown, estimate | `prompt/planning/` |
-| database prompt, schema, query, migration prompt | `prompt/database/` |
-| security audit, pentest prompt, vulnerability, threat model | `prompt/security/` |
-| performance prompt, slow, optimize, profiling | `prompt/performance/` |
-| ui design prompt, wireframe, component design | `prompt/design/` |
-| ai prompt, llm integration, pipeline prompt | `prompt/ai/` |
+| generate code prompt, implement feature prompt, refactor/test/typescript prompt | `prompt/code/` |
+| diagnose bug prompt, log analysis prompt, memory leak prompt, network debug prompt | `prompt/debug/` |
+| code review prompt, architecture/security/database/UX review prompt | `prompt/review/` |
+| system design prompt, diagram prompt, ADR prompt, migration/patterns/scalability prompt | `prompt/architecture/` |
+| task breakdown prompt, project/release planning prompt, decision/comms prompt | `prompt/planning/` |
+| DB design prompt, query/migration/optimization/search prompt | `prompt/database/` |
+| security audit prompt, pentest prompt, auth/encryption/monitoring prompt | `prompt/security/` |
+| performance analysis prompt, frontend/backend/database/monitoring perf prompt | `prompt/performance/` |
+| UI component design prompt, design system/UX/animation/copywriting prompt | `prompt/design/` |
+| prompt engineering prompt, AI integration/agents/context/optimization prompt | `prompt/ai/` |
 
 ---
 
@@ -229,39 +222,39 @@
 | Keywords | File | Use When |
 |----------|------|----------|
 | hover, micro interaction, button animation, focus animation, ripple, spring, bounce, magnetic | `craft/animation/animation.micro.ts` | Adding tactile feel to buttons, inputs, cards — hover lifts, click feedback, focus rings, ripples |
-| scroll animation, parallax, reveal on scroll, sticky, progress, intersection, scroll-driven | `craft/animation/animation.scroll.ts` | Animating elements based on scroll position: reveals, parallax, progress indicators, sticky headers |
+| scroll animation, parallax effect, reveal on scroll, sticky header animation, scroll progress bar, scroll-driven animation, animate when element scrolls into view | `craft/animation/animation.scroll.ts` | Animating elements based on scroll position: reveals, parallax, progress indicators, sticky headers |
 | page transition, route animation, enter, exit, fade, slide, mount animation, framer, css transition | `craft/animation/animation.transition.ts` | Animating page changes, component mount/unmount, modal open/close, or route transitions |
 
 ### craft/api
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| cache, stale, revalidate, ttl, invalidate, cache-first, network-first, swr, request cache | `craft/api/api.cache.ts` | Caching API responses to reduce network requests, implementing stale-while-revalidate, or offline-first patterns |
+| HTTP response cache, stale-while-revalidate, swr cache, revalidate fetch, cache-first, network-first, request deduplication, client-side fetch cache, offline-first data | `craft/api/api.cache.ts` | Caching API responses to reduce network requests, implementing stale-while-revalidate, or offline-first patterns |
 | error handling, api error, 4xx, 5xx, error boundary, classify, catch, normalize, error map | `craft/api/api.error.ts` | Normalizing and classifying HTTP errors, mapping status codes to user messages, building error boundaries |
-| axios, fetch, http, request, header, timeout, interceptor, middleware, api client, retry, base url | `craft/api/api.request.ts` | Building a typed HTTP client layer with interceptors, timeout, auth headers, and retry logic |
+| http client, axios alternative, request interceptor, auth header injection, request timeout, base url config, typed api client, fetch wrapper, request middleware | `craft/api/api.request.ts` | Building a typed HTTP client layer with interceptors, timeout, auth headers, and retry logic |
 
 ### craft/auth
 
 | Keywords | File | Use When |
 |----------|------|----------|
 | rbac, role, permission, policy, can, cannot, guard, acl, access control, authorization | `craft/auth/auth.permission.ts` | Implementing role-based access control, feature flags per role, or resource-level authorization |
-| session, cookie, refresh token, expire, logout, next-auth, session storage, persist session | `craft/auth/auth.session.ts` | Managing user sessions: storing, refreshing, validating, and clearing authentication state |
-| jwt, token, sign, verify, decode, payload, secret, bearer, encode, refresh token, claims | `craft/auth/auth.token.ts` | Creating, signing, verifying, and decoding JWT tokens; managing token rotation |
+| user session lifecycle, session cookie, session expiry, auto refresh session, logout clear session, next-auth session, persist auth state, idle timeout | `craft/auth/auth.session.ts` | Managing user sessions: storing, refreshing, validating, and clearing authentication state |
+| jwt sign, jwt verify, jwt decode, jwt payload claims, bearer token, token signing secret, encode token, token rotation, parse jwt | `craft/auth/auth.token.ts` | Creating, signing, verifying, and decoding JWT tokens; managing token rotation |
 
 ### craft/db
 
 | Keywords | File | Use When |
 |----------|------|----------|
 | migration, seed, rollback, version, alter, up, down, changelog, database version | `craft/db/db.migration.ts` | Running schema migrations in order, tracking applied migrations, and rolling back failed ones |
-| query, sql, select, where, join, filter, param, builder, prepared statement, dynamic query | `craft/db/db.query.ts` | Building dynamic SQL queries with type safety, parameter binding, and query composition |
-| schema, model, table, type, zod, prisma, drizzle, field, column, relation, validation | `craft/db/db.schema.ts` | Defining typed database models, runtime validation schemas, and table column definitions |
+| sql query builder, dynamic sql, prepared statement, parameter binding, where clause builder, join builder, query composition, sql injection-safe params | `craft/db/db.query.ts` | Building dynamic SQL queries with type safety, parameter binding, and query composition |
+| database schema, typed model, table definition, zod schema, column types, model relations, runtime schema validation, prisma drizzle alternative | `craft/db/db.schema.ts` | Defining typed database models, runtime validation schemas, and table column definitions |
 
 ### craft/hooks
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| fetch, useQuery, useSWR, loading, retry, abort, async hook, data fetching, polling, mutation | `craft/hooks/hooks.async.ts` | Fetching data from APIs with loading/error/retry states, polling, or optimistic mutations |
-| useEffect, mount, unmount, resize, intersection, observer, scroll, debounce, throttle, event listener | `craft/hooks/hooks.lifecycle.ts` | Responding to DOM events, viewport changes, element visibility, or managing effect cleanup |
+| useFetch hook, useAsync, useQuery hook, data fetching hook, loading error state, request retry hook, abort on unmount, polling hook, optimistic mutation, react async | `craft/hooks/hooks.async.ts` | Fetching data from APIs with loading/error/retry states, polling, or optimistic mutations |
+| useMount hook, useUnmount, useResizeObserver hook, useIntersectionObserver hook, useEventListener, useDebounce hook, useThrottle hook, useScrollPosition, effect cleanup, react lifecycle | `craft/hooks/hooks.lifecycle.ts` | Responding to DOM events, viewport changes, element visibility, or managing effect cleanup |
 | useState, useReducer, state machine, zustand, context, global state, atom, immer, history, undo | `craft/hooks/hooks.state.ts` | You need advanced state patterns: state machines, undo/redo, derived state, shared atoms |
 
 ### craft/media
@@ -269,8 +262,8 @@
 | Keywords | File | Use When |
 |----------|------|----------|
 | Web Audio API, AudioContext, audio player, audio visualizer, AnalyserNode, spatial audio, PannerNode, AudioWorklet, MediaRecorder, audio recorder, microphone, crossfade, waveform, frequency data, SoundBoard, mobile audio | `craft/media/media.audio.ts` | Web Audio API: visualizers, players with crossfade, spatial audio, real-time microphone processing, audio worklets, or multi-sound boards |
-| image loading, lazy load, progressive image, blur hash, responsive image, srcset, WebP, AVIF, CLS prevention, aspect ratio, image preloader, bandwidth-aware, IntersectionObserver, placeholder | `craft/media/media.image.ts` | Loading images with performance constraints: lazy load, blur-up placeholders, responsive srcset, format detection, CLS prevention |
-| video player, autoplay, IntersectionObserver, bandwidth detection, picture-in-picture, video progress, buffered ranges, NetworkInformation, prefers-reduced-motion, iOS Safari, mobile video, preload strategy, HLS, video chapters | `craft/media/media.video.ts` | Any video that needs autoplay on scroll, bandwidth-aware quality, PiP toggle, buffered progress, or iOS inline playback |
+| lazy load image, progressive image, blur hash placeholder, responsive image srcset, WebP AVIF detection, image CLS prevention, aspect ratio box, image preloader, bandwidth-aware images, image fade-in on load | `craft/media/media.image.ts` | Loading images with performance constraints: lazy load, blur-up placeholders, responsive srcset, format detection, CLS prevention |
+| video player hook, autoplay on scroll, video bandwidth detection, picture-in-picture toggle, video buffered progress, NetworkInformation API, iOS Safari inline video, mobile video autoplay, video preload strategy, hero video | `craft/media/media.video.ts` | Any video that needs autoplay on scroll, bandwidth-aware quality, PiP toggle, buffered progress, or iOS inline playback |
 
 ### craft/ui
 
@@ -278,14 +271,14 @@
 |----------|------|----------|
 | card, modal, dialog, input, dropdown, button, badge, avatar, tooltip, popover, react component, ui | `craft/ui/ui.components.ts` | You need ready-made, accessible React components: cards, modals, inputs, dropdowns, badges |
 | grid, flex, layout, container, responsive, breakpoint, column, row, sidebar, wrapper, stack | `craft/ui/ui.layout.ts` | Building page structure, responsive grids, container widths, or flex/stack layouts |
-| color, token, theme, typography, font, spacing, radius, shadow, palette, design system, design tokens | `craft/ui/ui.tokens.ts` | You need consistent design values across the app: colors, spacing scale, font sizes, shadows |
+| design token values, color palette tokens, spacing scale, typography scale, border radius tokens, shadow tokens, theme variables, design system constants | `craft/ui/ui.tokens.ts` | You need consistent design values across the app: colors, spacing scale, font sizes, shadows |
 
 ### craft/ux
 
 | Keywords | File | Use When |
 |----------|------|----------|
 | aria, keyboard nav, screen reader, focus trap, tab order, accessibility, a11y, wcag, focus management | `craft/ux/ux.accessibility.ts` | Building accessible modals, menus, comboboxes, or any interactive UI that must work for keyboard/screen reader users |
-| loading, skeleton, spinner, error state, success, toast, feedback, empty state, progress | `craft/ux/ux.feedback.ts` | Communicating async state to users: loading indicators, skeletons, toasts, empty states |
+| loading indicator, skeleton screen, spinner, toast notification, error state ui, empty state ui, success feedback, progress indicator | `craft/ux/ux.feedback.ts` | Communicating async state to users: loading indicators, skeletons, toasts, empty states |
 | drag, drop, gesture, swipe, click, touch, pointer, interaction, dnd, long press, pan | `craft/ux/ux.interaction.ts` | Building drag-and-drop lists, swipe gestures, long-press actions, or touch-friendly interactions |
 
 
@@ -299,31 +292,31 @@
 |----------|------|----------|
 | context window, token budget, conversation memory, summarization, sliding window, RAG context | `mind/ai/ai.context.ts` | Managing AI conversation context: token budgeting, memory compression, RAG document injection |
 | AI pipeline, workflow, parallel, sequential, map-reduce, agent, tool use, orchestration | `mind/ai/ai.pipeline.ts` | Orchestrating multi-step AI workflows: parallel calls, sequential chains, map-reduce over documents |
-| prompt engineering, template, chain, few-shot, system prompt, instruction, Claude, GPT | `mind/ai/ai.prompt.ts` | Building reusable, composable prompt templates with variable interpolation and chain management |
+| prompt template engine, programmatic prompt builder, variable interpolation in prompts, compose prompt chains in code, reusable prompt objects, few-shot template assembly | `mind/ai/ai.prompt.ts` | Building reusable, composable prompt templates with variable interpolation and chain management |
 
 ### mind/caching
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| cache invalidation, dependency tracking, tag-based invalidation, versioning, purge, stale | `mind/caching/caching.invalidation.ts` | Invalidating related cache entries when underlying data changes, using tags or dependencies |
-| multi-layer cache, L1 L2 cache, write-through, write-back, read-through, cache hierarchy | `mind/caching/caching.layer.ts` | Building a multi-tier cache (L1 in-memory + L2 Redis/file) with consistent read/write policies |
-| LRU, LFU, TTL, cache eviction, in-memory cache, FIFO, ARC, cache policy | `mind/caching/caching.strategy.ts` | Implementing in-memory caches with eviction policies: LRU, LFU, TTL, or hybrid |
+| event-driven cache invalidation, tag-based purge, invalidate related entries on data change, cache dependency graph, versioned cache bust | `mind/caching/caching.invalidation.ts` | Invalidating related cache entries when underlying data changes, using tags or dependencies |
+| multi-tier cache, L1 L2 cache hierarchy, in-memory plus Redis cache, write-through write-back policy, read-through cache, tiered cache coordination | `mind/caching/caching.layer.ts` | Building a multi-tier cache (L1 in-memory + L2 Redis/file) with consistent read/write policies |
+| LRU cache, LFU cache, cache eviction policy, in-memory key-value cache, FIFO eviction, ARC policy, bounded cache with max size | `mind/caching/caching.strategy.ts` | Implementing in-memory caches with eviction policies: LRU, LFU, TTL, or hybrid |
 
 ### mind/decision
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| fallback, circuit breaker, retry, alternative path, degraded mode, resilience, backup strategy | `mind/decision/decision.fallback.ts` | Building resilient systems that need graceful degradation when primary paths fail |
+| circuit breaker, graceful degradation, multi-level fallback chain, degraded mode, resilience pattern, backup strategy when primary fails, retry with fallback | `mind/decision/decision.fallback.ts` | Building resilient systems that need graceful degradation when primary paths fail |
 | decision tree, traversal, rule tree, branching logic, if-else tree, classification | `mind/decision/decision.tree.ts` | Building configurable branching logic trees for routing, classification, or rule evaluation |
-| weighted decision, priority, AHP, analytic hierarchy process, multi-criteria, pairwise comparison | `mind/decision/decision.weight.ts` | Ranking or selecting among alternatives using weighted criteria and priority scoring |
+| AHP analytic hierarchy process, pairwise comparison matrix, weighted decision criteria, choose among alternatives, priority weighting, multi-criteria decision analysis | `mind/decision/decision.weight.ts` | Ranking or selecting among alternatives using weighted criteria and priority scoring |
 
 ### mind/discovery
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| diversity, deduplication, MMR, maximal marginal relevance, category balance, novelty, serendipity | `mind/discovery/discovery.diversity.ts` | Preventing echo chambers and category flooding in feeds; injecting novelty into ranked lists |
+| MMR maximal marginal relevance, feed diversity algorithm, prevent category flooding, echo chamber prevention, inject novelty, serendipity in ranked list | `mind/discovery/discovery.diversity.ts` | Preventing echo chambers and category flooding in feeds; injecting novelty into ranked lists |
 | feed, content stream, pagination, cursor, infinite scroll, timeline, content ordering | `mind/discovery/discovery.feed.ts` | Building a paginated or cursor-based content feed with sorting and filtering |
-| ranking, multi-factor, boost, decay, freshness, engagement, wilson score, bayesian | `mind/discovery/discovery.ranking.ts` | Building a multi-factor content ranking system with freshness decay, engagement signals and boosts |
+| feed ranking pipeline, multi-factor content ranking, combine freshness and engagement, wilson score ranking, rank feed items, engagement-based ordering | `mind/discovery/discovery.ranking.ts` | Building a multi-factor content ranking system with freshness decay, engagement signals and boosts |
 
 ### mind/graph
 
@@ -339,7 +332,7 @@
 |----------|------|----------|
 | genetic algorithm, simulated annealing, gradient descent, optimization, metaheuristic, evolution | `mind/optimization/optimization.algorithm.ts` | Solving combinatorial or continuous optimization problems without closed-form solutions |
 | benchmark, profiling, performance measurement, throughput, latency, percentile, flamegraph | `mind/optimization/optimization.benchmark.ts` | Measuring and comparing function performance: latency, throughput, memory, CPU cycles |
-| memoization, cache, computation cache, lazy evaluation, trie cache, dependency tracking | `mind/optimization/optimization.cache.ts` | Caching expensive pure function results to avoid redundant computation |
+| function memoization, memoize pure function, computation cache, lazy evaluation, trie-based memo, cache expensive calculation, dynamic programming memo | `mind/optimization/optimization.cache.ts` | Caching expensive pure function results to avoid redundant computation |
 
 ### mind/personalization
 
@@ -353,16 +346,16 @@
 
 | Keywords | File | Use When |
 |----------|------|----------|
-| boost, promote, pinning, sponsored, priority, score boost, manual override | `mind/ranking/ranking.boost.ts` | Applying business rules, editorial picks, sponsored content, or A/B test boosts to a ranked list |
-| time decay, score decay, freshness, half-life, exponential decay, temporal ranking | `mind/ranking/ranking.decay.ts` | Scores need to decrease over time: trending content, hot posts, activity scores |
-| ELO, TrueSkill, Bayesian rating, ranking score, competitive rating, skill estimation | `mind/ranking/ranking.score.ts` | Building competitive ranking systems: leaderboards, matchmaking, content quality rating |
+| pin item to top, promote content, sponsored placement, editorial boost, manual rank override, A/B test boost, force item position | `mind/ranking/ranking.boost.ts` | Applying business rules, editorial picks, sponsored content, or A/B test boosts to a ranked list |
+| time-based score decay, exponential half-life decay, trending hot score, freshness decay over time, gravity ranking, age-based score reduction | `mind/ranking/ranking.decay.ts` | Scores need to decrease over time: trending content, hot posts, activity scores |
+| ELO rating, TrueSkill, Bayesian average rating, competitive skill rating, leaderboard rating, matchmaking score, player skill estimation | `mind/ranking/ranking.score.ts` | Building competitive ranking systems: leaderboards, matchmaking, content quality rating |
 
 ### mind/realtime
 
 | Keywords | File | Use When |
 |----------|------|----------|
 | conflict resolution, CRDT, operational transform, merge, concurrent edit, last-write-wins | `mind/realtime/realtime.conflict.ts` | Resolving concurrent edits in collaborative systems: shared documents, forms, state |
-| queue, job queue, priority queue, retry, dead letter, task scheduling, worker | `mind/realtime/realtime.queue.ts` | Building an in-process job queue with priorities, retries, and concurrency control |
+| in-process job queue, priority job queue, job retry with backoff, dead letter queue, task scheduling, concurrency-limited worker pool | `mind/realtime/realtime.queue.ts` | Building an in-process job queue with priorities, retries, and concurrency control |
 | WebSocket, real-time sync, presence, live updates, channel, pub-sub, broadcast | `mind/realtime/realtime.sync.ts` | Building real-time collaboration, live feeds, or presence systems over WebSocket |
 
 ### mind/recommendation
@@ -370,8 +363,8 @@
 | Keywords | File | Use When |
 |----------|------|----------|
 | recommendation, collaborative filtering, content-based, cosine similarity, user-item matrix, hybrid engine | `mind/recommendation/recommendation.engine.ts` | Building a recommendation system that suggests items to users based on behavior and preferences |
-| filter, rule engine, output filtering, diversity, deduplication, blacklist, post-processing | `mind/recommendation/recommendation.filter.ts` | Post-processing recommendation results: dedup, diversity enforcement, business rules, blacklists |
-| scoring, weighted score, multi-criteria, normalization, ranking score, utility function | `mind/recommendation/recommendation.scoring.ts` | You need to combine multiple signals (relevance, recency, popularity, quality) into a single score |
+| recommendation post-processing, output rule engine, blacklist filter, remove already-seen items, business rule filtering, dedup recommendation results | `mind/recommendation/recommendation.filter.ts` | Post-processing recommendation results: dedup, diversity enforcement, business rules, blacklists |
+| combine signals into score, weighted scoring formula, blend relevance recency popularity, score normalization, utility function, multi-signal ranking score | `mind/recommendation/recommendation.scoring.ts` | You need to combine multiple signals (relevance, recency, popularity, quality) into a single score |
 
 ### mind/search
 
@@ -387,7 +380,7 @@
 |----------|------|----------|
 | audit log, event trail, anomaly detection, security monitoring, tamper-proof, SIEM | `mind/security/security.audit.ts` | Recording, storing, and analyzing security-relevant events: logins, permission changes, data access |
 | AES, RSA, encryption, decryption, Web Crypto, symmetric, asymmetric, PBKDF2, key derivation | `mind/security/security.encrypt.ts` | Encrypting sensitive data using Web Crypto API: AES-GCM for symmetric, RSA-OAEP for asymmetric |
-| input validation, sanitization, XSS prevention, SQL injection, schema validation, content security | `mind/security/security.validate.ts` | Validating and sanitizing user input at system boundaries to prevent injection attacks |
+| sanitize user input, runtime input validation, XSS sanitization, injection prevention at boundary, safe parse untrusted data, escape dangerous input | `mind/security/security.validate.ts` | Validating and sanitizing user input at system boundaries to prevent injection attacks |
 
 
 ## BRIDGE — Auto-Generated Index

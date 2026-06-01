@@ -1,5 +1,5 @@
 /**
- * @keywords    filter, rule engine, output filtering, diversity, deduplication, blacklist, post-processing
+ * @keywords    recommendation post-processing, output rule engine, blacklist filter, remove already-seen items, business rule filtering, dedup recommendation results
  * @domain      Recommendation Filter
  * @use-when    Post-processing recommendation results: dedup, diversity enforcement, business rules, blacklists
  * @not-when    You need to generate scores — use recommendation.engine.ts or recommendation.scoring.ts

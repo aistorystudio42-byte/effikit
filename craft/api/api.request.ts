@@ -1,5 +1,5 @@
 /**
- * @keywords    axios, fetch, http, request, header, timeout, interceptor, middleware, api client, retry, base url
+ * @keywords    http client, axios alternative, request interceptor, auth header injection, request timeout, base url config, typed api client, fetch wrapper, request middleware
  * @domain      API Request
  * @use-when    Building a typed HTTP client layer with interceptors, timeout, auth headers, and retry logic
  * @not-when    Simple one-off fetches — the native fetch() is fine for those

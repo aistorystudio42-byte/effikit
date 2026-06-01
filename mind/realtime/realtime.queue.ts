@@ -1,5 +1,5 @@
 /**
- * @keywords    queue, job queue, priority queue, retry, dead letter, task scheduling, worker
+ * @keywords    in-process job queue, priority job queue, job retry with backoff, dead letter queue, task scheduling, concurrency-limited worker pool
  * @domain      Realtime Queue
  * @use-when    Building an in-process job queue with priorities, retries, and concurrency control
  * @not-when    You need distributed queuing across processes — use Redis/BullMQ/SQS for that

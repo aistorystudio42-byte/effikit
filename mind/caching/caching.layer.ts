@@ -1,5 +1,5 @@
 /**
- * @keywords    multi-layer cache, L1 L2 cache, write-through, write-back, read-through, cache hierarchy
+ * @keywords    multi-tier cache, L1 L2 cache hierarchy, in-memory plus Redis cache, write-through write-back policy, read-through cache, tiered cache coordination
  * @domain      Caching Layer
  * @use-when    Building a multi-tier cache (L1 in-memory + L2 Redis/file) with consistent read/write policies
  * @not-when    A single-level cache is sufficient — don't add layers you won't need

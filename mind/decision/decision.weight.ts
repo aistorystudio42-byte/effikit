@@ -1,5 +1,5 @@
 /**
- * @keywords    weighted decision, priority, AHP, analytic hierarchy process, multi-criteria, pairwise comparison
+ * @keywords    AHP analytic hierarchy process, pairwise comparison matrix, weighted decision criteria, choose among alternatives, priority weighting, multi-criteria decision analysis
  * @domain      Decision Weight
  * @use-when    Ranking or selecting among alternatives using weighted criteria and priority scoring
  * @not-when    You need binary yes/no branching logic — use decision.tree.ts instead

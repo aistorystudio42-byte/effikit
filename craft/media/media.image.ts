@@ -1,5 +1,5 @@
 /**
- * @keywords    image loading, lazy load, progressive image, blur hash, responsive image, srcset, WebP, AVIF, CLS prevention, aspect ratio, image preloader, bandwidth-aware, IntersectionObserver, placeholder
+ * @keywords    lazy load image, progressive image, blur hash placeholder, responsive image srcset, WebP AVIF detection, image CLS prevention, aspect ratio box, image preloader, bandwidth-aware images, image fade-in on load
  * @domain      Media — Image
  * @use-when    Loading images with performance constraints: lazy load, blur-up placeholders, responsive srcset, format detection, CLS prevention
  * @not-when    Simple <img> tags with no performance requirements — this library adds complexity only worth it for LCP/CLS-sensitive images

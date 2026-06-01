@@ -1,5 +1,5 @@
 /**
- * @keywords    prompt engineering, template, chain, few-shot, system prompt, instruction, Claude, GPT
+ * @keywords    prompt template engine, programmatic prompt builder, variable interpolation in prompts, compose prompt chains in code, reusable prompt objects, few-shot template assembly
  * @domain      AI Prompt
  * @use-when    Building reusable, composable prompt templates with variable interpolation and chain management
  * @not-when    One-off prompts — this is for systematic prompt management across a product

@@ -1,5 +1,5 @@
 /**
- * @keywords    loading, skeleton, spinner, error state, success, toast, feedback, empty state, progress
+ * @keywords    loading indicator, skeleton screen, spinner, toast notification, error state ui, empty state ui, success feedback, progress indicator
  * @domain      UX Feedback
  * @use-when    Communicating async state to users: loading indicators, skeletons, toasts, empty states
  * @not-when    Static UI — this handles dynamic feedback states only

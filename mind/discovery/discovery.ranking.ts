@@ -1,5 +1,5 @@
 /**
- * @keywords    ranking, multi-factor, boost, decay, freshness, engagement, wilson score, bayesian
+ * @keywords    feed ranking pipeline, multi-factor content ranking, combine freshness and engagement, wilson score ranking, rank feed items, engagement-based ordering
  * @domain      Discovery Ranking
  * @use-when    Building a multi-factor content ranking system with freshness decay, engagement signals and boosts
  * @not-when    You just need to sort by a single field — plain Array.sort is sufficient

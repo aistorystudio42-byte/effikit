@@ -1,5 +1,5 @@
 /**
- * @keywords    input validation, sanitization, XSS prevention, SQL injection, schema validation, content security
+ * @keywords    sanitize user input, runtime input validation, XSS sanitization, injection prevention at boundary, safe parse untrusted data, escape dangerous input
  * @domain      Security Validate
  * @use-when    Validating and sanitizing user input at system boundaries to prevent injection attacks
  * @not-when    Internal function arguments between trusted modules — only validate at external boundaries

@@ -1,5 +1,5 @@
 /**
- * @keywords    fallback, circuit breaker, retry, alternative path, degraded mode, resilience, backup strategy
+ * @keywords    circuit breaker, graceful degradation, multi-level fallback chain, degraded mode, resilience pattern, backup strategy when primary fails, retry with fallback
  * @domain      Decision Fallback
  * @use-when    Building resilient systems that need graceful degradation when primary paths fail
  * @not-when    Simple try-catch is sufficient — use this for multi-level fallback chains with retry and circuit breaking

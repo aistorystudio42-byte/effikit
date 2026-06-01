@@ -1,5 +1,5 @@
 /**
- * @keywords    scoring, weighted score, multi-criteria, normalization, ranking score, utility function
+ * @keywords    combine signals into score, weighted scoring formula, blend relevance recency popularity, score normalization, utility function, multi-signal ranking score
  * @domain      Recommendation Scoring
  * @use-when    You need to combine multiple signals (relevance, recency, popularity, quality) into a single score
  * @not-when    You need full collaborative filtering — use recommendation.engine.ts instead

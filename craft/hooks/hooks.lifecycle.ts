@@ -1,5 +1,5 @@
 /**
- * @keywords    useEffect, mount, unmount, resize, intersection, observer, scroll, debounce, throttle, event listener
+ * @keywords    useMount hook, useUnmount, useResizeObserver hook, useIntersectionObserver hook, useEventListener, useDebounce hook, useThrottle hook, useScrollPosition, effect cleanup, react lifecycle
  * @domain      Lifecycle Hooks
  * @use-when    Responding to DOM events, viewport changes, element visibility, or managing effect cleanup
  * @not-when    Data fetching — use hooks.async.ts; simple state — use plain useState

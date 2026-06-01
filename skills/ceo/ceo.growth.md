@@ -1,4 +1,4 @@
-<!-- @keywords: growth model, growth equation, unit economics, retention, activation moment, north star metric, sustainable growth, open source growth, PLG, growth system -->
+<!-- @keywords: growth equation acquisition activation retention, unit economics, choose north star metric, sustainable growth strategy, growth model from founder view, business growth system -->
 
 # CEO — Sustainable Growth Is a System, Not a Campaign
 

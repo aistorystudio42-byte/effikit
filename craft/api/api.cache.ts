@@ -1,5 +1,5 @@
 /**
- * @keywords    cache, stale, revalidate, ttl, invalidate, cache-first, network-first, swr, request cache
+ * @keywords    HTTP response cache, stale-while-revalidate, swr cache, revalidate fetch, cache-first, network-first, request deduplication, client-side fetch cache, offline-first data
  * @domain      API Cache
  * @use-when    Caching API responses to reduce network requests, implementing stale-while-revalidate, or offline-first patterns
  * @not-when    Server-side rendering cache or database query cache — this is for client-side HTTP response caching

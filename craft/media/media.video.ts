@@ -1,5 +1,5 @@
 /**
- * @keywords    video player, autoplay, IntersectionObserver, bandwidth detection, picture-in-picture, video progress, buffered ranges, NetworkInformation, prefers-reduced-motion, iOS Safari, mobile video, preload strategy, HLS, video chapters
+ * @keywords    video player hook, autoplay on scroll, video bandwidth detection, picture-in-picture toggle, video buffered progress, NetworkInformation API, iOS Safari inline video, mobile video autoplay, video preload strategy, hero video
  * @domain      Media — Video
  * @use-when    Any video that needs autoplay on scroll, bandwidth-aware quality, PiP toggle, buffered progress, or iOS inline playback
  * @not-when    Simple decorative backgrounds with autoplay and muted — a plain <video autoPlay muted playsInline> is enough

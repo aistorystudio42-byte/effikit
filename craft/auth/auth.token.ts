@@ -1,5 +1,5 @@
 /**
- * @keywords    jwt, token, sign, verify, decode, payload, secret, bearer, encode, refresh token, claims
+ * @keywords    jwt sign, jwt verify, jwt decode, jwt payload claims, bearer token, token signing secret, encode token, token rotation, parse jwt
  * @domain      Auth Token
  * @use-when    Creating, signing, verifying, and decoding JWT tokens; managing token rotation
  * @not-when    Session storage or persistence — use auth.session.ts; OAuth flows — use provider SDKs

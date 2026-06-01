@@ -1,4 +1,4 @@
-<!-- @keywords: scalability, horizontal scaling, queue, worker, caching, rate limiting, load balancing -->
+<!-- @keywords: backend scalability patterns, offload to queue and worker, rate limiting implementation, application-level caching, scale a node backend -->
 
 # Backend — Scalability Patterns
 

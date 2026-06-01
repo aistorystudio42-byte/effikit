@@ -1,5 +1,5 @@
 /**
- * @keywords    memoization, cache, computation cache, lazy evaluation, trie cache, dependency tracking
+ * @keywords    function memoization, memoize pure function, computation cache, lazy evaluation, trie-based memo, cache expensive calculation, dynamic programming memo
  * @domain      Optimization Cache
  * @use-when    Caching expensive pure function results to avoid redundant computation
  * @not-when    You need HTTP-level or database-level caching — use craft/api/api.cache.ts instead
