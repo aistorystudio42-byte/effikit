@@ -65,24 +65,73 @@ Every `craft/` and `mind/` file is fully typed (zero `any`), exports all functio
 
 Effikit isn't installed into your app — it lives alongside your project so your AI assistant can read it.
 
-### Claude Code users (recommended)
+### Claude Code users — MCP (recommended, fastest)
 
-**1. Clone Effikit into your project as a hidden folder:**
+The MCP server turns Effikit into a real-time discovery engine. Your AI calls tools instead of reading static files, which saves tokens and returns higher-quality matches.
+
+**1. Clone Effikit:**
 
 ```bash
 git clone https://github.com/aistorystudio42-byte/effikit.git .effikit
 ```
 
-**2. Add this to your global `~/.claude/CLAUDE.md`** so Claude consults Effikit before writing anything:
+**2. Install MCP dependencies:**
+
+```bash
+cd .effikit/mcp && npm install
+```
+
+**3. Add to your project `.mcp.json`** (or global `~/.claude/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "effikit": {
+      "command": "npx",
+      "args": ["tsx", ".effikit/mcp/server.ts"]
+    }
+  }
+}
+```
+
+**4. Add to your global `~/.claude/CLAUDE.md`:**
 
 ```markdown
-## Effikit — Primary Toolkit
-Before any task:
-1. Read .effikit/navigation.md
-2. Scan .effikit/keywords.md
-3. Find the relevant file and adapt its content into the project
-4. Never write from scratch before checking Effikit
-5. Never modify files inside .effikit — read, adapt, write into your project
+## Effikit — Primary Toolkit (MCP)
+Before any task, call effikit_navigate with what you want to build.
+Use effikit_blueprint for full-feature builds.
+Use effikit_read to get the file content, then adapt it into the project.
+Never modify files inside .effikit — read, adapt, write into your project.
+```
+
+That's it. Claude will call `effikit_navigate` automatically before every coding task and get scored, relevant results in milliseconds — no manual file reading required.
+
+**Available MCP tools:**
+
+| Tool | When to call |
+|------|-------------|
+| `effikit_navigate` | Before every coding task — returns top matches scored by relevance |
+| `effikit_blueprint` | For full-feature builds — returns a layered recipe (skill + code + prompt) |
+| `effikit_search` | Free-form search by keyword or phrase |
+| `effikit_read` | Read a specific file's full content + adaptation directive |
+| `effikit_skill` | Activate expert mindset for a domain (security, refactoring, Einstein...) |
+| `effikit_manifest` | View the full map of all sections and files |
+| `effikit_stats` | Coverage statistics |
+| `effikit_audit` | Tag health + cohesion budget check — run after adding files |
+
+### CLI — without AI
+
+If you prefer terminal access without an AI client:
+
+```bash
+# Find and copy the most relevant file into your current directory
+npx tsx .effikit/cli/index.ts add "infinite scroll"
+
+# List scored candidates without copying
+npx tsx .effikit/cli/index.ts search "jwt auth"
+
+# Browse the full catalogue
+npx tsx .effikit/cli/index.ts list
 ```
 
 ### Other AI tools
@@ -92,7 +141,7 @@ Point your assistant at the cloned folder and instruct it to read `navigation.md
 ### Verify it works
 
 Ask your assistant: *"Using Effikit, give me a production-ready debounce hook."*
-If it opens [craft/hooks/](craft/hooks/) and adapts the real implementation instead of inventing one, you're set.
+If it calls `effikit_navigate` with `"debounce hook"` and adapts the real implementation instead of inventing one, you're set.
 
 ---
 
@@ -148,10 +197,24 @@ Plus: decisive language, real working examples, clear opinionated stance.
 **After adding any file, regenerate the keyword index:**
 
 ```bash
-npx ts-node sync.ts
+npx tsx sync.ts
 ```
 
-`sync.ts` scans every `@keywords` tag across `craft/`, `mind/`, `skills/`, and `prompt/`, then rebuilds `keywords.md` automatically. Run it after every addition.
+`sync.ts` scans every `@keywords` tag across `craft/`, `mind/`, `skills/`, and `prompt/`, then rebuilds `keywords.md` automatically.
+
+If you installed the dev dependencies (`npm install` in the root), a Husky pre-commit hook handles this automatically — `sync.ts` runs and stages `keywords.md` on every commit that touches `craft/` or `mind/`.
+
+**Audit after adding:**
+
+```bash
+# Via MCP (recommended — full report in your AI client)
+# call: effikit_audit
+
+# Via CLI
+cd .effikit/mcp && npx tsx server.ts  # then call effikit_audit from your AI
+```
+
+The audit catches missing `@keywords` tags, empty tag bodies, and folders approaching the cohesion budget limit — before they silently break discoverability.
 
 **Folder size rule:** each `craft/`/`mind/` folder holds exactly 3 files; each `skills/` folder holds exactly 4; each `prompt/` folder holds exactly 5. Keep folders focused — split a domain rather than overfilling one.
 
@@ -166,8 +229,9 @@ npx ts-node sync.ts
 
 **PR process:**
 1. Fork, branch, add your file(s) following the header standard
-2. Run `npx ts-node sync.ts` and commit the updated `keywords.md`
-3. Open a PR describing what the file does and *when it should be used*
+2. Run `npx tsx sync.ts` and commit the updated `keywords.md` (the Husky hook does this automatically if you installed dev deps)
+3. Open a PR — the `effikit-audit` GitHub Action will verify tag health and cohesion budget automatically
+4. A PR description should explain what the file does and *when it should be used*
 
 **Accepted:** generic, reusable, genuinely better than what an AI writes cold.
 **Rejected:** project-specific glue, untyped code, vague "it depends" guidance, near-duplicates of existing files.

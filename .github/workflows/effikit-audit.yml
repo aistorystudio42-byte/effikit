@@ -1,0 +1,99 @@
+name: Effikit Audit
+
+on:
+  pull_request:
+    paths:
+      - 'craft/**'
+      - 'mind/**'
+      - 'skills/**'
+      - 'bridge/**'
+      - 'prompt/**'
+      - 'sync.ts'
+      - 'mcp/**'
+  push:
+    branches:
+      - main
+
+jobs:
+  audit:
+    name: Etiket Sağlığı & Bütünlük Denetimi
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repo'yu çek
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mcp/package.json
+
+      - name: MCP bağımlılıklarını kur
+        working-directory: mcp
+        run: npm ci
+
+      - name: Effikit Audit çalıştır
+        working-directory: mcp
+        run: |
+          npx tsx --tsconfig tsconfig.json - <<'EOF'
+          import { auditTags, reportCohesion } from "./lib/indexer.js";
+          import { presentAudit, presentCohesion } from "./lib/presenter.js";
+          import * as path from "node:path";
+          import * as url from "node:url";
+
+          const root = path.resolve(url.fileURLToPath(import.meta.url), "..", "..");
+
+          const tagReport = auditTags(root);
+          const cohesion  = reportCohesion(root);
+
+          console.log(presentAudit(tagReport));
+          console.log("\n---\n");
+          console.log(presentCohesion(cohesion));
+
+          // İndekslenemeyen dosya varsa CI'ı başarısız say
+          if (tagReport.unindexable > 0) {
+            console.error(
+              `\n❌ ${tagReport.unindexable} dosya @keywords etiketi eksik — CI başarısız.`
+            );
+            process.exit(1);
+          }
+
+          // Bütünlük ihlali varsa CI'ı başarısız say
+          if (cohesion.violations > 0) {
+            console.error(
+              `\n❌ ${cohesion.violations} klasör bütünlük bütçesini aşıyor — CI başarısız.`
+            );
+            process.exit(1);
+          }
+
+          console.log("\n✅ Effikit sağlıklı.");
+          EOF
+        env:
+          EFFIKIT_ROOT: ${{ github.workspace }}
+
+  typecheck:
+    name: TypeScript Tip Kontrolü
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repo'yu çek
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: tsx kur
+        run: npm install -g tsx typescript
+
+      - name: MCP tip kontrolü
+        working-directory: mcp
+        run: |
+          npm ci
+          npm run typecheck
+
+      - name: sync.ts tip kontrolü
+        run: npx tsc --noEmit --target ES2022 --module NodeNext --moduleResolution NodeNext --strict sync.ts || true

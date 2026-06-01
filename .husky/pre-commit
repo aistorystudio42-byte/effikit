@@ -1,0 +1,20 @@
+#!/usr/bin/env sh
+# .husky/pre-commit — Effikit otomatik sync hook
+#
+# craft/ veya mind/ altında .ts dosyası değiştiğinde sync.ts çalıştırır
+# ve keywords.md'yi güncellenmiş haliyle commit'e ekler.
+# Bu sayede "sync.ts çalıştırmayı unuttum" sorunu ortadan kalkar.
+
+. "$(dirname -- "$0")/_/husky.sh"
+
+# craft/ veya mind/ altında değişiklik var mı?
+CHANGED=$(git diff --cached --name-only | grep -E '^(craft|mind)/.*\.ts$' || true)
+
+if [ -n "$CHANGED" ]; then
+  echo "[effikit] craft/mind değişikliği algılandı → sync.ts çalıştırılıyor..."
+  npx tsx sync.ts
+
+  # Güncellenmiş keywords.md'yi commit'e ekle
+  git add keywords.md
+  echo "[effikit] keywords.md güncellendi ve stage'e eklendi."
+fi
