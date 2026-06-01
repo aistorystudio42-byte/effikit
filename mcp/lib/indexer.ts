@@ -1,0 +1,223 @@
+/**
+ * indexer.ts — Effikit deposunu bellek-içi aranabilir bir katoloğa dönüştürür.
+ *
+ * Tasarım kararları:
+ * - Tarama BİR KEZ yapılır, sonuç bellekte tutulur (mtime ile invalidate edilir).
+ *   MCP server uzun ömürlü bir süreçtir; her sorguda disk taramak savurganlık olur.
+ * - Hem .ts (craft/mind) hem .md (skills/bridge/prompt) etiket formatları okunur.
+ *   sync.ts'in çıkarım mantığıyla bilinçli olarak uyumlu — tek doğruluk kaynağı.
+ * - Ters indeks (keyword → entries) skorlayıcının O(1) aday toplamasını sağlar.
+ */
+
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { tokenSet } from "./tokenizer.js";
+import type {
+  EffikitEntry,
+  EffikitIndex,
+  EffikitSection,
+  EffikitStats,
+  SectionIntent,
+  SectionStat,
+} from "./types.js";
+
+/** Hangi bölüm hangi uzantıyı taşır ve AI'ya hangi niyetle hizmet eder. */
+const SECTION_CONFIG: Record<
+  EffikitSection,
+  { readonly ext: ".ts" | ".md"; readonly intent: SectionIntent }
+> = {
+  craft: { ext: ".ts", intent: "code-to-adapt" },
+  mind: { ext: ".ts", intent: "code-to-adapt" },
+  skills: { ext: ".md", intent: "behavior" },
+  bridge: { ext: ".md", intent: "integration" },
+  prompt: { ext: ".md", intent: "template" },
+};
+
+const SECTIONS = Object.keys(SECTION_CONFIG) as EffikitSection[];
+
+// ── Etiket çıkarım kalıpları ────────────────────────────────────────────────
+// .ts:  // @keywords a, b, c        .md:  <!-- @keywords: a, b, c -->
+const TS_TAG = {
+  keywords: /@keywords\s+(.+)/,
+  domain: /@domain\s+(.+)/,
+  useWhen: /@use-when\s+(.+)/,
+  notWhen: /@not-when\s+(.+)/,
+} as const;
+
+const MD_TAG = {
+  keywords: /<!--\s*@keywords:\s*(.+?)\s*-->/,
+  domain: /<!--\s*@domain:\s*(.+?)\s*-->/,
+  useWhen: /<!--\s*@use-when:\s*(.+?)\s*-->/,
+  notWhen: /<!--\s*@not-when:\s*(.+?)\s*-->/,
+} as const;
+
+function firstMatch(content: string, re: RegExp): string {
+  const m = content.match(re);
+  return m && m[1] ? m[1].trim() : "";
+}
+
+function parseKeywords(raw: string): string[] {
+  return raw
+    .split(",")
+    .map((k) => k.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/** Bir bölümün dosyalarını özyinelemeli tarar ve EffikitEntry'lere dönüştürür. */
+function scanSection(
+  root: string,
+  section: EffikitSection
+): EffikitEntry[] {
+  const sectionDir = path.join(root, section);
+  if (!fs.existsSync(sectionDir)) return [];
+
+  const { ext } = SECTION_CONFIG[section];
+  const isMd = ext === ".md";
+  const tagSet = isMd ? MD_TAG : TS_TAG;
+  const entries: EffikitEntry[] = [];
+
+  const walk = (dir: string): void => {
+    for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, item.name);
+      if (item.isDirectory()) {
+        walk(full);
+      } else if (item.isFile() && item.name.endsWith(ext)) {
+        const content = fs.readFileSync(full, "utf-8");
+        const keywords = parseKeywords(firstMatch(content, tagSet.keywords));
+        if (keywords.length === 0) continue; // etiketsiz dosya indekslenmez
+
+        const relativePath = path
+          .relative(root, full)
+          .replace(/\\/g, "/");
+        const parts = relativePath.split("/");
+        const group = parts[1] ?? section;
+        const fileName = parts[parts.length - 1] ?? item.name;
+        const name = fileName.replace(/\.(ts|md)$/, "");
+
+        const domain = firstMatch(content, tagSet.domain) || name;
+        const useWhen = firstMatch(content, tagSet.useWhen);
+        const notWhen = firstMatch(content, tagSet.notWhen);
+
+        // Gövde sinyali: keyword + domain + useWhen + dosya adı + içerik başlığı.
+        // Tüm içeriği token'lamak pahalı ve gürültülü; en sinyalli kısımları alıyoruz.
+        const signalText = [
+          keywords.join(" "),
+          domain,
+          useWhen,
+          name,
+          content.slice(0, 1200), // dosya başı: başlık + ilk açıklama bloğu
+        ].join(" ");
+
+        entries.push({
+          relativePath,
+          absolutePath: full,
+          section,
+          group,
+          name,
+          keywords,
+          domain,
+          useWhen,
+          notWhen,
+          content,
+          sizeChars: content.length,
+          bodyTokens: tokenSet(signalText),
+        });
+      }
+    }
+  };
+
+  walk(sectionDir);
+  return entries;
+}
+
+/** keyword → entries ters indeksi kurar. */
+function buildKeywordMap(
+  entries: readonly EffikitEntry[]
+): Map<string, EffikitEntry[]> {
+  const map = new Map<string, EffikitEntry[]>();
+  for (const entry of entries) {
+    for (const kw of entry.keywords) {
+      const bucket = map.get(kw);
+      if (bucket) bucket.push(entry);
+      else map.set(kw, [entry]);
+    }
+  }
+  return map;
+}
+
+function computeStats(entries: readonly EffikitEntry[]): EffikitStats {
+  const sections: SectionStat[] = SECTIONS.map((section) => {
+    const inSection = entries.filter((e) => e.section === section);
+    const groups = new Set(inSection.map((e) => e.group));
+    return {
+      section,
+      intent: SECTION_CONFIG[section].intent,
+      groups: groups.size,
+      files: inSection.length,
+    };
+  });
+
+  const allKeywords = new Set<string>();
+  for (const e of entries) for (const k of e.keywords) allKeywords.add(k);
+
+  return {
+    totalFiles: entries.length,
+    totalKeywords: allKeywords.size,
+    sections,
+  };
+}
+
+/** Effikit kökünü tam tarar ve değişmez bir indeks döndürür. */
+export function buildIndex(root: string): EffikitIndex {
+  const entries: EffikitEntry[] = [];
+  for (const section of SECTIONS) {
+    entries.push(...scanSection(root, section));
+  }
+
+  return {
+    entries,
+    keywordMap: buildKeywordMap(entries),
+    stats: computeStats(entries),
+    builtAt: Date.now(),
+  };
+}
+
+/**
+ * Önbellekli indeks sağlayıcı.
+ * Tarama maliyetini amortize eder; deponun en güncel mtime'ı değişirse
+ * (yeni dosya, düzenleme) otomatik yeniden tarar. MCP server'ı yeniden
+ * başlatmaya gerek kalmaz.
+ */
+export class IndexCache {
+  private cached: EffikitIndex | null = null;
+  private lastSignature = "";
+
+  constructor(private readonly root: string) {}
+
+  /** Dizin ağacındaki en yeni mtime'ı tarar — ucuz değişiklik imzası. */
+  private signature(): string {
+    let newest = 0;
+    const visit = (dir: string): void => {
+      if (!fs.existsSync(dir)) return;
+      for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, item.name);
+        if (item.isDirectory()) {
+          visit(full);
+        } else {
+          const m = fs.statSync(full).mtimeMs;
+          if (m > newest) newest = m;
+        }
+      }
+    };
+    for (const s of SECTIONS) visit(path.join(this.root, s));
+    return String(newest);
+  }
+
+  get(): EffikitIndex {
+    const sig = this.signature();
+    if (this.cached && sig === this.lastSignature) return this.cached;
+    this.cached = buildIndex(this.root);
+    this.lastSignature = sig;
+    return this.cached;
+  }
+}
