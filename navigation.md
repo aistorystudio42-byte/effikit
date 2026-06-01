@@ -9,6 +9,30 @@ Effikit is a personal developer toolkit — a library of ready-to-use TypeScript
 
 ---
 
+## Two Ways to Use Effikit
+
+**1. MCP Server (preferred — works in any AI tool).** If the Effikit MCP server is
+connected, you have these tools available and should reach for them FIRST:
+
+| Tool | Call it when… |
+|------|---------------|
+| `effikit_navigate` | Starting ANY coding task. Describe the task → get the most relevant files. |
+| `effikit_blueprint` | Building a whole feature → get a layered, multi-file recipe. |
+| `effikit_search` | Looking for a specific keyword/concept. |
+| `effikit_read` | Reading the full content of a suggested file. |
+| `effikit_skill` | Needing an expert mindset for a domain (security, refactoring, a persona…). |
+| `effikit_manifest` / `effikit_stats` | Getting the full map / coverage overview. |
+
+Reflex: **task → `effikit_navigate` → `effikit_read` → adapt into the project.**
+Setup for 10 tools (Cursor, VS Code, Windsurf, Antigravity, Zed, Cline…) lives in
+[mcp/install.md](mcp/install.md).
+
+**2. Manual file reading (fallback).** If the MCP server is NOT connected, read this
+file and `keywords.md` directly, locate the file by keyword, then open and adapt it.
+Same destination, one extra step.
+
+---
+
 ## Directory Map
 
 ```
@@ -20,6 +44,7 @@ effikit/
   README.md         ← GitHub landing page.
   LICENSE           ← MIT license.
   │
+  ├── mcp/          ← MCP server: turns Effikit into a discovery engine any AI can query
   ├── craft/        ← Ready TypeScript libraries (UI, UX, hooks, API, DB, auth, animation, media)
   ├── mind/         ← Advanced algorithm libraries (recommendation, search, AI, graph...)
   ├── skills/       ← AI behavior directives for Claude (how to act in each domain)
