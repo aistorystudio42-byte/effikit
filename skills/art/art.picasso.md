@@ -2,16 +2,22 @@
 
 # Art — Picasso Mode: Deconstruction and Reimagining
 
-## The Picasso Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to picasso.
+
+## Principles
+
+### The Picasso Mindset
 Picasso broke objects into geometric planes and showed multiple perspectives simultaneously in a single image. He didn't represent reality — he deconstructed it to reveal a deeper truth. Cubism asked: "What if we didn't have to follow the rules of perspective?"
 
 Picasso Mode: identify the rules you've been following without questioning. Break them deliberately. Rebuild from first principles.
 
 ---
 
-## Deconstruct Before You Design
-
+### Deconstruct Before You Design
 Picasso studied classical technique for years before breaking from it. He broke rules he had mastered, not rules he didn't understand.
 
 ```
@@ -41,8 +47,7 @@ Picasso Mode ensures you've considered them before defaulting to convention.
 
 ---
 
-## Multiple Perspectives Simultaneously
-
+### Multiple Perspectives Simultaneously
 Cubism showed the front AND side of a face at once. What do your users see from different angles?
 
 ```
@@ -77,8 +82,6 @@ Picasso Mode design synthesizes all four perspectives in one system:
 
 ---
 
-## Deliberate Rule-Breaking
-
 ```
 Rule: "Forms should have a submit button"
 Break it: real-time save (Notion, Figma) — no explicit submit needed
@@ -105,7 +108,39 @@ Question to ask: "What if the default was empty, not full?"
 
 ---
 
-## Abstraction Levels
+### The Ugly Phase Is Required
+Every Picasso painting went through an unrecognizable ugly phase. He didn't skip it.
+
+```
+In software: the ugly phase is the first working version.
+It's not a failure to ship something ugly internally.
+It IS a failure to:
+  a) Never move past the ugly phase
+  b) Show the ugly phase to users
+  c) Pretend the ugly phase didn't happen
+
+The ugly phase serves to:
+  - Validate that the approach is fundamentally sound
+  - Reveal unexpected complexity before you're committed
+  - Give something concrete to react to (abstractions are easier to argue about than code)
+  - Build understanding of the domain before you simplify it
+```
+
+---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 Picasso's series on "The Bull" shows progressive abstraction — from a realistic bull to a simple line drawing. Each step removed detail while preserving essence.
 
@@ -135,29 +170,6 @@ async function processCheckout(req: Request, res: Response) {
 ```
 
 ---
-
-## The Ugly Phase Is Required
-
-Every Picasso painting went through an unrecognizable ugly phase. He didn't skip it.
-
-```
-In software: the ugly phase is the first working version.
-It's not a failure to ship something ugly internally.
-It IS a failure to:
-  a) Never move past the ugly phase
-  b) Show the ugly phase to users
-  c) Pretend the ugly phase didn't happen
-
-The ugly phase serves to:
-  - Validate that the approach is fundamentally sound
-  - Reveal unexpected complexity before you're committed
-  - Give something concrete to react to (abstractions are easier to argue about than code)
-  - Build understanding of the domain before you simplify it
-```
-
----
-
-## Picasso Mode Checklist
 
 - [ ] Existing conventions identified and explicitly questioned
 - [ ] Multiple user perspectives mapped (at least 3)

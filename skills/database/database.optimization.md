@@ -2,8 +2,15 @@
 
 # Database — Performance Optimization
 
-## Finding the Problem First
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to optimization.
+
+## Principles
+
+### Finding the Problem First
 Never optimize what you haven't measured. The three diagnostic tools:
 
 ```sql
@@ -44,8 +51,7 @@ ORDER BY n_distinct DESC;
 
 ---
 
-## Index Tuning
-
+### Index Tuning
 ### Identifying Unused Indexes
 ```sql
 -- Indexes that haven't been used — candidates for removal
@@ -98,8 +104,7 @@ SELECT * FROM users WHERE LOWER(email) = 'alice@example.com';
 
 ---
 
-## Query Optimization Patterns
-
+### Query Optimization Patterns
 ### Push Filters Down — Reduce Rows Early
 ```sql
 -- Wrong: Join everything, then filter
@@ -148,8 +153,7 @@ WHERE user_id IN (SELECT user_id FROM vip_users)
 
 ---
 
-## Table Maintenance
-
+### Table Maintenance
 ```sql
 -- VACUUM: Reclaims space from dead rows (runs automatically, but may need manual trigger after bulk deletes)
 VACUUM ANALYZE orders;
@@ -173,8 +177,7 @@ ORDER BY dead_pct DESC;
 
 ---
 
-## Connection Pooling
-
+### Connection Pooling
 Each database connection consumes ~5-10MB RAM. With 100 app instances each opening 10 connections, that's 1000 connections on the DB.
 
 ```typescript
@@ -209,7 +212,19 @@ setInterval(() => {
 
 ---
 
-## Optimization Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Slow queries identified via `pg_stat_statements`
 - [ ] All heavily queried foreign keys have indexes

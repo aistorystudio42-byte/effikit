@@ -19,8 +19,9 @@ The most dangerous antipatterns are the ones that feel clever at write time. "Cl
 
 ---
 
-## 10 Most Dangerous TypeScript Antipatterns
+## Principles
 
+### 10 Most Dangerous TypeScript Antipatterns
 ### 1. The `any` Escape Hatch
 ```ts
 // BEFORE — type safety abandoned
@@ -155,7 +156,19 @@ function updateUserPermissions(user: User, role: Role): User {
 
 ---
 
-## Premature Abstraction Detection
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 Ask these questions before creating an abstraction:
 1. Does this code currently appear in 3+ distinct places? (2 is not enough)
@@ -165,8 +178,6 @@ Ask these questions before creating an abstraction:
 If any answer is "no" — don't abstract yet. Copy-paste is cheaper than the wrong abstraction.
 
 ---
-
-## Example in Action
 
 Identify and fix 3 critical antipatterns in realistic snippet:
 

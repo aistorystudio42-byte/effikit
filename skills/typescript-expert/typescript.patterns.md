@@ -19,8 +19,9 @@ The two most powerful TypeScript-native patterns are discriminated unions and ex
 
 ---
 
-## Discriminated Unions as State Machines
+## Principles
 
+### Discriminated Unions as State Machines
 ```ts
 // Invalid states are impossible to represent
 type PaymentState =
@@ -56,8 +57,7 @@ function handlePaymentState(state: PaymentState): void {
 
 ---
 
-## Builder Pattern
-
+### Builder Pattern
 Type-safe builder that prevents calling `.build()` before required fields are set:
 
 ```ts
@@ -97,8 +97,7 @@ const q = new QueryBuilder()
 
 ---
 
-## Result Type (No Thrown Exceptions)
-
+### Result Type (No Thrown Exceptions)
 ```ts
 type Result<T, E extends Error = Error> =
   | { ok: true; value: T }
@@ -136,8 +135,7 @@ console.log(result.value.name);
 
 ---
 
-## Opaque Types for Domain Safety
-
+### Opaque Types for Domain Safety
 ```ts
 // Stronger than branded types — forces using constructor functions
 type Opaque<T, K extends string> = T & { readonly __opaque: K };
@@ -168,6 +166,18 @@ const final = applyDiscount(price, disc); // OK
 ```
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
 ## Example in Action
 

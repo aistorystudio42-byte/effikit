@@ -1,17 +1,21 @@
 <!-- @keywords: Docker, containers, docker-compose, Kubernetes, orchestration, environment, deployment -->
 
-# DevOps — Docker and Container Management
+# Kubernetes probes
 
-## Container Philosophy
+## Core Philosophy
 
 Containers solve "works on my machine" — the runtime environment is packaged with the code. Every environment (local, staging, production) runs the same image. Differences between environments come only from configuration, not from installed software.
 
 ---
 
-## Docker Compose for Local Development
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to docker.
+
+## Principles
+
+### Docker Compose for Local Development
 ```yaml
-# docker-compose.yml
 version: '3.9'
 
 services:
@@ -77,8 +81,6 @@ volumes:
 ```
 
 ```yaml
-# docker-compose.override.yml — local overrides not committed
-# (add to .gitignore)
 services:
   api:
     environment:
@@ -88,31 +90,26 @@ services:
 
 ---
 
-## Multi-Target Dockerfile
-
+### Multi-Target Dockerfile
 ```dockerfile
 FROM node:20-alpine AS base
 WORKDIR /app
 COPY package*.json ./
 
-# Development — includes devDependencies, hot reload
 FROM base AS development
 RUN npm install
 COPY . .
 EXPOSE 3000 9229
 CMD ["npm", "run", "dev"]
 
-# Test — same as dev but runs tests
 FROM development AS test
 CMD ["npm", "test"]
 
-# Builder — compiles TypeScript
 FROM base AS builder
 RUN npm ci
 COPY . .
 RUN npm run build && npm prune --production
 
-# Production — minimal, secure
 FROM node:20-alpine AS production
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
@@ -129,33 +126,19 @@ CMD ["node", "dist/main.js"]
 
 ---
 
-## Container Security
-
+### Container Security
 ```dockerfile
-# Security baseline for every container:
 
-# 1. Use specific digest, not "latest" tag (prevents supply chain attacks)
 FROM node:20.11.0-alpine3.19@sha256:abc123... AS base
 
-# 2. Non-root user (don't run as root)
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
-# 3. Read-only filesystem where possible
-# docker run --read-only --tmpfs /tmp myapp
-
-# 4. No secrets in image layers
-# Wrong: ENV API_KEY=secret123  ← baked into image forever
-# Correct: pass at runtime via --env-file or secret management
-
-# 5. Minimal base image
 FROM node:20-alpine  # NOT node:20 (2x smaller, fewer vulnerabilities)
 
-# 6. .dockerignore — don't copy secrets/unnecessary files
 ```
 
 ```
-# .dockerignore
 .git
 .github
 node_modules
@@ -171,10 +154,8 @@ docs/
 
 ---
 
-## Docker Image Optimization
-
+### Docker Image Optimization
 ```dockerfile
-# Layer caching — put rarely changing layers first
 COPY package*.json ./         # changes rarely → cache hit most of the time
 RUN npm ci                    # cached when package.json unchanged
 COPY . .                      # changes often → only this layer rebuilds
@@ -182,23 +163,18 @@ RUN npm run build
 ```
 
 ```bash
-# Analyze image size
 docker images myapp
 docker history myapp --format "{{.Size}}\t{{.CreatedBy}}"
 
-# Dive — interactive image layer explorer
 docker run --rm -it wagoodman/dive:latest myapp
 
-# Check for vulnerabilities in image
 docker scout cves myapp
-# or
 trivy image myapp
 ```
 
 ---
 
-## Health Checks and Readiness
-
+### Health Checks and Readiness
 ```typescript
 // Health check endpoint — must respond quickly
 // Checks: is the app running and can serve requests?
@@ -226,7 +202,6 @@ app.get('/ready', async (req, res) => {
 ```
 
 ```yaml
-# Kubernetes probes
 livenessProbe:
   httpGet:
     path: /health
@@ -246,7 +221,19 @@ readinessProbe:
 
 ---
 
-## Docker Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Multi-stage build (dev/prod stages separate)
 - [ ] Non-root user in production image

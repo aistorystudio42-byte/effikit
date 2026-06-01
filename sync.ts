@@ -30,7 +30,7 @@ interface SyncResult {
 
 // ─── Config ──────────────────────────────────────────────────────────────────
 
-const ROOT_DIR = path.resolve(__dirname);
+const ROOT_DIR = process.cwd();
 const KEYWORDS_FILE = path.join(ROOT_DIR, "keywords.md");
 const SCAN_DIRS = ["craft", "mind"];
 const SCAN_MD_DIRS = ["bridge", "prompt"];

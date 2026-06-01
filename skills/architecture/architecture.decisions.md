@@ -2,7 +2,15 @@
 
 # Architecture — Decision Making and Trade-offs
 
-## How to Make Architecture Decisions
+## Core Philosophy
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to decisions.
+
+## Principles
+
+## Decision Framework
 
 Architecture decisions are irreversible in the short term — they shape the system for years. The decision process matters as much as the decision itself.
 
@@ -17,8 +25,6 @@ Good decision process:
 ```
 
 ---
-
-## Common Architecture Trade-offs
 
 ### Consistency vs Availability (CAP Theorem)
 
@@ -77,8 +83,6 @@ Example: order checkout
 
 ---
 
-## Database Architecture Decisions
-
 ### When to Denormalize
 
 ```
@@ -119,8 +123,6 @@ Rule: Don't split the database before you've outgrown one.
 ```
 
 ---
-
-## API Architecture Decisions
 
 ### REST vs GraphQL vs gRPC
 
@@ -167,8 +169,6 @@ Don't put business logic in the gateway.
 
 ---
 
-## Scalability Decision Points
-
 ```
 Level 1: Optimize the single instance
   - Profile and fix slow queries
@@ -199,8 +199,6 @@ Level 5: Sharding / partitioning
 
 ---
 
-## Architecture Decision Checklist
-
 - [ ] Problem stated in terms of forces in tension (not just "what tech to pick")
 - [ ] Alternatives documented with reasons rejected
 - [ ] Constraints explicit (team size, scale, budget, timeline)
@@ -208,3 +206,16 @@ Level 5: Sharding / partitioning
 - [ ] Decision recorded as ADR (who decided, when, why)
 - [ ] Review date set (revisit if context changes significantly)
 - [ ] Team alignment achieved before implementation begins
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
+```

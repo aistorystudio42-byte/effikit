@@ -2,16 +2,22 @@
 
 # Backend — Input Validation and Data Integrity
 
-## Why Validation at the Boundary Matters
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to validation.
+
+## Principles
+
+### Why Validation at the Boundary Matters
 Every piece of data that enters your system from the outside is untrusted. A well-typed TypeScript codebase still accepts garbage at runtime if the boundary isn't guarded. Validation at the entry point (HTTP request, message queue consumer, file upload) prevents corrupt data from ever reaching business logic.
 
 Validate once, at the boundary. Inside the system, trust the types.
 
 ---
 
-## Schema Validation with Zod
-
+### Schema Validation with Zod
 Zod provides runtime validation that produces TypeScript types — no duplication between type definition and validation logic.
 
 ```typescript
@@ -46,8 +52,7 @@ const dto = result.data; // Fully typed, validated
 
 ---
 
-## Validation Middleware
-
+### Validation Middleware
 Centralizing validation in middleware keeps controllers clean.
 
 ```typescript
@@ -87,8 +92,7 @@ router.get(
 
 ---
 
-## Common Validation Schemas
-
+### Common Validation Schemas
 ```typescript
 // Pagination
 const PaginationSchema = z.object({
@@ -135,8 +139,7 @@ const CreateOrderSchema = z.object({
 
 ---
 
-## Sanitization
-
+### Sanitization
 Validation checks format; sanitization removes dangerous content.
 
 ```typescript
@@ -175,8 +178,6 @@ const safeFilePath = (userInput: string, baseDir: string): string => {
 
 ---
 
-## Business Rule Validation
-
 Schema validation handles format; business rules validate domain logic.
 
 ```typescript
@@ -207,7 +208,13 @@ class OrderValidator {
 
 ---
 
-## Validation Error Response Format
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
 
 Consistent error format enables frontend to handle errors generically.
 
@@ -235,7 +242,7 @@ interface ValidationErrorResponse {
 
 ---
 
-## Checklist
+## Example in Action
 
 - [ ] All external inputs validated with a schema (HTTP body, query, params)
 - [ ] TypeScript types derived from schemas (not duplicated)

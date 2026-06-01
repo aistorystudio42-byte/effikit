@@ -2,8 +2,15 @@
 
 # Refactoring — Naming and Readability
 
-## Naming Is Design
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to naming.
+
+## Principles
+
+### Naming Is Design
 Good names eliminate the need for comments. If a function needs a comment to explain what it does, the function is either too complex or poorly named. The goal is code that reads like prose.
 
 ```
@@ -20,8 +27,7 @@ A name should NOT:
 
 ---
 
-## Variable Naming
-
+### Variable Naming
 ```typescript
 // ✗ Too vague
 const data = await fetch('/api/users');
@@ -58,8 +64,7 @@ if (order.flags & OrderFlags.EXPRESS) { ... }
 
 ---
 
-## Function Naming
-
+### Function Naming
 ```typescript
 // Functions should be verbs or verb phrases
 
@@ -92,8 +97,7 @@ const users = await fetchUsersFromExternalApi(); // async, external
 
 ---
 
-## Class and Type Naming
-
+### Class and Type Naming
 ```typescript
 // Classes: nouns, PascalCase
 class UserRepository { ... }     // ✓
@@ -123,8 +127,7 @@ interface ProcessOrderCommand { orderId: string; }
 
 ---
 
-## Avoid These Patterns
-
+### Avoid These Patterns
 ```typescript
 // Manager / Handler / Processor — too generic, reveals nothing
 class DataManager { ... }    // → UserRepository? ProductCatalog?
@@ -157,8 +160,6 @@ class UserService {
 
 ---
 
-## Naming at Scale: Consistency Rules
-
 ```typescript
 // Establish conventions and stick to them:
 
@@ -188,8 +189,7 @@ async function fetchUser(id: string): Promise<User> { ... }
 
 ---
 
-## Rename Refactoring Process
-
+### Rename Refactoring Process
 1. Identify the poor name
 2. Understand exactly what it represents
 3. Choose a name that reveals intent without context
@@ -197,3 +197,22 @@ async function fetchUser(id: string): Promise<User> { ... }
 5. Run tests — ensure nothing broke
 
 For TypeScript: use `F2` rename in VS Code or `tsc --noEmit` to verify no broken references.
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
+```

@@ -1,28 +1,32 @@
 <!-- @keywords: changelog, release notes, versioning, semantic versioning, release management -->
 
-# Documentation — Changelog and Release Management
+# - Update SDK documentation
 
-## Why a Changelog Matters
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to changelog.
+
+## Principles
+
+### Why a Changelog Matters
 A changelog is a curated, human-readable record of changes. Unlike git log — which records every commit — a changelog records changes that matter to users and other developers. It answers: "What changed, and does it affect me?"
 
 ---
 
-## Keep a Changelog Format
-
+### Keep a Changelog Format
 ```markdown
-# Changelog
 
 All notable changes to this project are documented here.
 Format: [Semantic Versioning](https://semver.org)
 
-## [Unreleased]
+### [Unreleased]
 Changes staged but not yet released go here.
 
 ---
 
-## [2.3.0] — 2024-03-15
-
+### [2.3.0] — 2024-03-15
 ### Added
 - User avatar upload (`POST /api/users/:id/avatar`)
 - Coupon stacking: multiple coupons can now be applied to a single order
@@ -49,16 +53,14 @@ Changes staged but not yet released go here.
 
 ---
 
-## [2.2.1] — 2024-02-20
-
+### [2.2.1] — 2024-02-20
 ### Fixed
 - Fixed: checkout fails when cart has more than 50 items
 - Fixed: race condition when two users claim the last unit of a product simultaneously
 
 ---
 
-## [2.2.0] — 2024-02-01
-
+### [2.2.0] — 2024-02-01
 ### Breaking Changes
 
 > ⚠️ **Breaking:** These changes require client updates.
@@ -79,8 +81,7 @@ Changes staged but not yet released go here.
 
 ---
 
-## [2.1.0] — 2024-01-10
-
+### [2.1.0] — 2024-01-10
 ### Added
 - Two-factor authentication (TOTP via authenticator apps)
 - `POST /api/auth/2fa/setup` — initiate 2FA setup
@@ -90,63 +91,22 @@ Changes staged but not yet released go here.
 
 ---
 
-## Semantic Versioning Decision Guide
-
-```
-MAJOR (2.0.0): Breaking change — existing integrations may break
-  - Removing or renaming an endpoint
-  - Changing field names or types in responses
-  - Changing authentication mechanism
-  - Removing support for a parameter
-
-MINOR (2.1.0): New functionality, backward compatible
-  - Adding new endpoints
-  - Adding new optional fields to responses
-  - Adding new optional query parameters
-  - Adding new enum values (if clients use allow-lists)
-
-PATCH (2.1.1): Bug fixes, no API change
-  - Fixing incorrect calculation results
-  - Fixing validation that was too strict
-  - Performance improvements
-  - Documentation fixes
-
-Security patches: use PATCH for non-breaking, MINOR for behavioral changes
-```
-
----
-
-## Release Process
-
+### Release Process
 ```bash
-# 1. Update CHANGELOG.md — move [Unreleased] to the new version
-# 2. Bump version in package.json
 npm version minor  # or major / patch
 
-# 3. Commit version bump
 git add package.json CHANGELOG.md
 git commit -m "chore: release v2.3.0"
 
-# 4. Tag the release
 git tag -a v2.3.0 -m "Release v2.3.0"
 
-# 5. Push with tags
 git push origin main --tags
 
-# 6. GitHub Release — create from tag
-# Include: changelog section for this version
-# Attach: build artifacts if applicable
-
-# 7. Notify consumers (if public API)
-# - Email / announcement to API users
-# - Update status page
-# - Update SDK documentation
 ```
 
 ---
 
-## Generating Changelog from Commits
-
+### Generating Changelog from Commits
 ```javascript
 // Conventional Commits → auto-generate changelog
 // Using: conventional-changelog-cli or release-it
@@ -177,11 +137,10 @@ git push origin main --tags
 
 ---
 
-## Deprecation Notice Template
-
+### Deprecation Notice Template
 ```markdown
-## Deprecation Notice: `GET /api/v1/users/:id/profile`
 
+### Deprecation Notice: `GET /api/v1/users/:id/profile`
 **Deprecated:** 2024-03-01
 **Removal date:** 2024-09-01 (6 months notice)
 
@@ -197,7 +156,39 @@ The `Sunset` response header will be set to `2024-09-01` on this endpoint until 
 
 ---
 
-## Changelog Checklist
+## Decision Framework
+
+```
+MAJOR (2.0.0): Breaking change — existing integrations may break
+  - Removing or renaming an endpoint
+  - Changing field names or types in responses
+  - Changing authentication mechanism
+  - Removing support for a parameter
+
+MINOR (2.1.0): New functionality, backward compatible
+  - Adding new endpoints
+  - Adding new optional fields to responses
+  - Adding new optional query parameters
+  - Adding new enum values (if clients use allow-lists)
+
+PATCH (2.1.1): Bug fixes, no API change
+  - Fixing incorrect calculation results
+  - Fixing validation that was too strict
+  - Performance improvements
+  - Documentation fixes
+
+Security patches: use PATCH for non-breaking, MINOR for behavioral changes
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] `[Unreleased]` section updated with every merged PR
 - [ ] Breaking changes clearly marked with ⚠️ and migration guide linked

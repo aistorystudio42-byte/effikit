@@ -132,7 +132,9 @@ export class DecisionTree<C = Record<string, unknown>, R = unknown> {
     }
 
     if (node.type === "split") {
-      return Object.values(node.branches).flatMap((b) => this.getLeafLabels(b, seen));
+      const branches = Object.values(node.branches);
+      if (node.defaultBranch) branches.push(node.defaultBranch);
+      return branches.flatMap((b) => this.getLeafLabels(b, seen));
     }
 
     return [];

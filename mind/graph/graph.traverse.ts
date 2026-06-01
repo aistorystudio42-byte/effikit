@@ -258,6 +258,7 @@ export function findCycles<N, E>(graph: Graph<N, E>): string[][] {
       }
 
       stack.pop();
+      visited.delete(current);
     };
 
     dfsForCycles(start);

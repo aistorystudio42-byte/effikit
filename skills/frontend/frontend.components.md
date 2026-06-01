@@ -10,8 +10,13 @@ Two opposing forces shape component design: too small creates unnecessary abstra
 
 ---
 
-## Component Hierarchy
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to components.
+
+## Principles
+
+### Component Hierarchy
 ### 1. Primitive Components
 Wrappers around base HTML elements that add styling and accessibility layers.
 
@@ -80,8 +85,7 @@ const UserProfileContainer = ({ userId }: { userId: string }) => {
 
 ---
 
-## Props Design
-
+### Props Design
 ### Decision Tree: Which Prop Type?
 
 ```
@@ -116,8 +120,7 @@ If props are passed more than 3 levels deep, consider Context or state managemen
 
 ---
 
-## Composition Patterns
-
+### Composition Patterns
 ### Slot Pattern
 ```tsx
 interface CardProps {
@@ -149,7 +152,7 @@ Custom hooks are often preferred over HOCs — hooks are more testable.
 
 ---
 
-## Performance Decisions
+## Decision Framework
 
 ### When to Use memo?
 ```tsx
@@ -176,7 +179,7 @@ const fullName = useMemo(() => `${first} ${last}`, [first, last]);
 
 ---
 
-## Error State Design
+## Anti-Patterns
 
 Every component should support three states: **loading**, **error**, **success**.
 
@@ -192,7 +195,7 @@ Error Boundary usage: Isolate critical UI sections. Prevent the entire app from 
 
 ---
 
-## Checklist
+## Example in Action
 
 Before shipping a component, ask:
 - [ ] Does this component do exactly one thing?

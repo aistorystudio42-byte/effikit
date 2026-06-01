@@ -2,14 +2,20 @@
 
 # Database — Query Writing and Optimization
 
-## Query Thinking: Set Operations, Not Loops
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to queries.
+
+## Principles
+
+### Query Thinking: Set Operations, Not Loops
 SQL operates on sets. The moment you think "I'll loop through rows and check each one," you've likely found a query that will be 10–1000x slower than it needs to be. Describe what data you want, not how to retrieve it.
 
 ---
 
-## EXPLAIN ANALYZE — Reading Execution Plans
-
+### EXPLAIN ANALYZE — Reading Execution Plans
 Before optimizing, understand what the database is actually doing.
 
 ```sql
@@ -36,8 +42,7 @@ Buffers: hit=50 read=5000   → Too many disk reads, consider caching or index
 
 ---
 
-## JOINs
-
+### JOINs
 ```sql
 -- INNER JOIN: only matching rows from both sides
 SELECT p.title, u.name as author
@@ -67,8 +72,7 @@ WHERE o.status = 'completed'
 
 ---
 
-## CTEs — Common Table Expressions
-
+### CTEs — Common Table Expressions
 CTEs improve readability for complex queries. Modern PostgreSQL optimizes them well.
 
 ```sql
@@ -107,8 +111,7 @@ LIMIT 100;
 
 ---
 
-## Window Functions — Analytics Without Subqueries
-
+### Window Functions — Analytics Without Subqueries
 ```sql
 -- Rank users by order count within each country
 SELECT
@@ -143,8 +146,7 @@ FROM order_status_history;
 
 ---
 
-## Aggregation Patterns
-
+### Aggregation Patterns
 ```sql
 -- Group and filter with HAVING
 SELECT
@@ -174,8 +176,7 @@ ORDER BY month;
 
 ---
 
-## N+1 Query Problem
-
+### N+1 Query Problem
 The most common performance killer in ORMs.
 
 ```typescript
@@ -202,8 +203,7 @@ posts.forEach(p => { p.author = authorMap.get(p.authorId); });
 
 ---
 
-## Pagination
-
+### Pagination
 ```sql
 -- Offset pagination — simple, but slow for deep pages
 SELECT * FROM posts
@@ -223,7 +223,19 @@ LIMIT 20;
 
 ---
 
-## Query Optimization Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Slow queries identified via `pg_stat_statements` or slow query log
 - [ ] `EXPLAIN ANALYZE` run on every query touching > 10k rows

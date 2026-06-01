@@ -1,9 +1,16 @@
 <!-- @keywords: scalability, system design, load balancing, caching, horizontal scaling, bottlenecks, capacity -->
 
-# Architecture — Scalability Design
+# Circuit breaker: fail fast if backend is down
 
-## Scalability vs Performance
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to scalability.
+
+## Principles
+
+### Scalability vs Performance
 ```
 Performance:   how fast a single request is processed
 Scalability:   how the system handles more requests / more data
@@ -19,8 +26,7 @@ Goal: both. Start with performance, then design for scale.
 
 ---
 
-## Identifying Bottlenecks Before They Happen
-
+### Identifying Bottlenecks Before They Happen
 ```typescript
 // Capacity planning questions for every component:
 
@@ -45,7 +51,110 @@ Goal: both. Start with performance, then design for scale.
 
 ---
 
-## Caching Architecture
+### Read Scaling
+```typescript
+// Read replicas — route read queries to replica, writes to primary
+class DatabaseRouter {
+  constructor(
+    private readonly primary: Pool,    // writes
+    private readonly replica: Pool,    // reads
+  ) {}
+
+  async query<T>(sql: string, params: unknown[], options: { write?: boolean } = {}): Promise<T[]> {
+    const pool = options.write ? this.primary : this.replica;
+    const result = await pool.query(sql, params);
+    return result.rows;
+  }
+}
+
+// Usage in repository
+class ProductRepository {
+  async findById(id: string): Promise<Product | null> {
+    return this.db.query('SELECT * FROM products WHERE id = $1', [id]);
+    // Routed to replica automatically (default = read)
+  }
+
+  async create(data: CreateProductDto): Promise<Product> {
+    return this.db.query('INSERT INTO products ...', [...], { write: true });
+    // Explicitly routed to primary
+  }
+}
+```
+
+---
+
+### Write Scaling — Command Queue Pattern
+```typescript
+// Decouple write acceptance from write execution
+// Accept writes instantly, process asynchronously
+
+class OrderController {
+  async createOrder(req: Request, res: Response) {
+    // Validate input synchronously
+    const dto = CreateOrderSchema.parse(req.body);
+
+    // Enqueue the write — don't wait for DB
+    const jobId = await this.orderQueue.add('create-order', {
+      userId: req.user.id,
+      dto,
+      requestId: req.requestId,
+    });
+
+    // Return 202 Accepted — tell client where to check status
+    res.status(202).json({
+      jobId,
+      statusUrl: `/api/jobs/${jobId}`,
+      estimatedWait: '< 5 seconds',
+    });
+  }
+}
+
+// Worker: processes queue at its own pace
+class OrderWorker {
+  @Process('create-order')
+  async process(job: Job<CreateOrderJobData>): Promise<void> {
+    await this.orderService.createOrder(job.data.dto, job.data.userId);
+  }
+}
+```
+
+---
+
+### Load Balancing
+```yaml
+upstream api_backend {
+  least_conn;                    # route to least-busy instance
+  server api-1:3000 weight=1;
+  server api-2:3000 weight=1;
+  server api-3:3000 weight=1;
+
+  keepalive 32;
+}
+
+server {
+  listen 443 ssl;
+
+  location /api/ {
+    proxy_pass http://api_backend;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Request-ID $request_id;
+    proxy_read_timeout 30s;
+
+    proxy_next_upstream error timeout http_502 http_503;
+    proxy_next_upstream_tries 2;
+  }
+
+  location /static/ {
+    proxy_pass https://cdn.myapp.com;
+    proxy_cache_valid 200 30d;
+    add_header Cache-Control "public, max-age=2592000, immutable";
+  }
+}
+```
+
+---
+
+## Decision Framework
 
 ```typescript
 // Multi-level cache strategy
@@ -95,79 +204,6 @@ class ProductCacheService {
 
 ---
 
-## Read Scaling
-
-```typescript
-// Read replicas — route read queries to replica, writes to primary
-class DatabaseRouter {
-  constructor(
-    private readonly primary: Pool,    // writes
-    private readonly replica: Pool,    // reads
-  ) {}
-
-  async query<T>(sql: string, params: unknown[], options: { write?: boolean } = {}): Promise<T[]> {
-    const pool = options.write ? this.primary : this.replica;
-    const result = await pool.query(sql, params);
-    return result.rows;
-  }
-}
-
-// Usage in repository
-class ProductRepository {
-  async findById(id: string): Promise<Product | null> {
-    return this.db.query('SELECT * FROM products WHERE id = $1', [id]);
-    // Routed to replica automatically (default = read)
-  }
-
-  async create(data: CreateProductDto): Promise<Product> {
-    return this.db.query('INSERT INTO products ...', [...], { write: true });
-    // Explicitly routed to primary
-  }
-}
-```
-
----
-
-## Write Scaling — Command Queue Pattern
-
-```typescript
-// Decouple write acceptance from write execution
-// Accept writes instantly, process asynchronously
-
-class OrderController {
-  async createOrder(req: Request, res: Response) {
-    // Validate input synchronously
-    const dto = CreateOrderSchema.parse(req.body);
-
-    // Enqueue the write — don't wait for DB
-    const jobId = await this.orderQueue.add('create-order', {
-      userId: req.user.id,
-      dto,
-      requestId: req.requestId,
-    });
-
-    // Return 202 Accepted — tell client where to check status
-    res.status(202).json({
-      jobId,
-      statusUrl: `/api/jobs/${jobId}`,
-      estimatedWait: '< 5 seconds',
-    });
-  }
-}
-
-// Worker: processes queue at its own pace
-class OrderWorker {
-  @Process('create-order')
-  async process(job: Job<CreateOrderJobData>): Promise<void> {
-    await this.orderService.createOrder(job.data.dto, job.data.userId);
-  }
-}
-```
-
----
-
-## Database Sharding Decision
-
 ```
 Don't shard until you have to. Signs you need sharding:
   - Write throughput exceeds what primary can handle
@@ -196,45 +232,13 @@ Alternative to sharding: Vertical partitioning
 
 ---
 
-## Load Balancing
+## Anti-Patterns
 
-```yaml
-# Nginx load balancer configuration
-upstream api_backend {
-  least_conn;                    # route to least-busy instance
-  server api-1:3000 weight=1;
-  server api-2:3000 weight=1;
-  server api-3:3000 weight=1;
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
-  # Health check: remove from rotation if /health fails
-  keepalive 32;
-}
-
-server {
-  listen 443 ssl;
-
-  location /api/ {
-    proxy_pass http://api_backend;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Request-ID $request_id;
-    proxy_read_timeout 30s;
-
-    # Circuit breaker: fail fast if backend is down
-    proxy_next_upstream error timeout http_502 http_503;
-    proxy_next_upstream_tries 2;
-  }
-
-  location /static/ {
-    proxy_pass https://cdn.myapp.com;
-    proxy_cache_valid 200 30d;
-    add_header Cache-Control "public, max-age=2592000, immutable";
-  }
-}
-```
-
----
-
-## Scalability Checklist
+## Example in Action
 
 - [ ] App is stateless (no in-process session, no local file storage)
 - [ ] Cache layer in place for hot read data (Redis)

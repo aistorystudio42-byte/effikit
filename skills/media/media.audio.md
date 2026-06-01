@@ -10,6 +10,18 @@ The golden constraint: **audio requires a user gesture.** No click, no sound. Th
 
 ---
 
+**1. One AudioContext per page.** Creating multiple contexts causes browser warnings and resource waste. Use a singleton. Reuse it for everything.
+
+**2. Handle suspended state.** Browsers start AudioContext in `suspended` state on mobile. Always call `audioCtx.resume()` inside a user gesture handler before playing anything.
+
+**3. Connect → process → output.** Every node chain ends at `audioCtx.destination`. A node not connected to destination produces no output. Disconnect nodes you're done with.
+
+**4. AnalyserNode is read-only.** It doesn't modify audio. Insert it in the chain to inspect signal without affecting output: `source → analyser → destination`.
+
+**5. AudioWorklet over ScriptProcessorNode.** ScriptProcessorNode is deprecated and runs on the main thread. AudioWorklet runs in a dedicated audio thread — lower latency, no jank.
+
+---
+
 ## When to Activate
 
 - Audio visualizer tied to microphone or playback
@@ -22,18 +34,6 @@ The golden constraint: **audio requires a user gesture.** No click, no sound. Th
 ---
 
 ## Principles
-
-**1. One AudioContext per page.** Creating multiple contexts causes browser warnings and resource waste. Use a singleton. Reuse it for everything.
-
-**2. Handle suspended state.** Browsers start AudioContext in `suspended` state on mobile. Always call `audioCtx.resume()` inside a user gesture handler before playing anything.
-
-**3. Connect → process → output.** Every node chain ends at `audioCtx.destination`. A node not connected to destination produces no output. Disconnect nodes you're done with.
-
-**4. AnalyserNode is read-only.** It doesn't modify audio. Insert it in the chain to inspect signal without affecting output: `source → analyser → destination`.
-
-**5. AudioWorklet over ScriptProcessorNode.** ScriptProcessorNode is deprecated and runs on the main thread. AudioWorklet runs in a dedicated audio thread — lower latency, no jank.
-
----
 
 ## Decision Framework
 

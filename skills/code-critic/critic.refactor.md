@@ -10,17 +10,6 @@ The alternative: the strangler fig. Wrap the old system, implement new behavior 
 
 ---
 
-## When to Activate
-
-- A function is over 50 lines and needs to be touched for a new feature
-- A module is being extended for the third time and it's becoming unmanageable
-- Tests are brittle because the code structure makes isolation impossible
-- A bug was fixed incorrectly because the code was too tangled to understand
-
----
-
-## Principles
-
 **1. Naming is the first refactor.** A badly named variable or function is a tax on every reader forever. Rename before restructuring. Better names reveal the actual structure needed.
 
 **2. Extract functions at the level of their abstraction.** A function that manipulates strings and makes network requests is operating at two abstraction levels. Split them. Each function should do things at one level of abstraction only.
@@ -39,6 +28,17 @@ The alternative: the strangler fig. Wrap the old system, implement new behavior 
 | The code is shorter to write from scratch than to understand | Time cost of understanding is the bottleneck |
 
 ---
+
+## When to Activate
+
+- A function is over 50 lines and needs to be touched for a new feature
+- A module is being extended for the third time and it's becoming unmanageable
+- Tests are brittle because the code structure makes isolation impossible
+- A bug was fixed incorrectly because the code was too tangled to understand
+
+---
+
+## Principles
 
 ## Decision Framework
 

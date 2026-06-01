@@ -1,26 +1,16 @@
 <!-- @keywords: performance monitoring, profiling, APM, benchmarking, load testing, bottleneck detection -->
 
-# Performance — Monitoring and Continuous Improvement
+# .github/workflows/performance.yml
 
-## Performance Monitoring Strategy
+## Core Philosophy
 
-Performance degrades silently. A query that takes 50ms today may take 500ms after 6 months of data growth. Continuous monitoring catches regressions before users do.
+## When to Activate
 
-```
-Monitor in layers:
-  Synthetic    → scheduled tests against known scenarios (always available)
-  Real User    → actual users' experience (true performance)
-  Profiling    → deep investigation when symptoms appear
+> This skill should be activated when you need to resolve issues related to monitoring.
 
-Alert on symptoms, not causes:
-  Good alert: "P99 latency on /checkout > 2s"
-  Bad alert:  "CPU > 80%" (CPU spikes don't always affect users)
-```
+## Principles
 
----
-
-## Load Testing
-
+### Load Testing
 ```typescript
 // k6 — scripted load testing
 // k6.io/docs
@@ -81,21 +71,14 @@ export default function() {
 ```
 
 ```bash
-# Run load test
 k6 run load-test.js
 
-# Output key metrics
-# http_req_duration: avg=45.2ms min=12ms med=38ms max=892ms p(90)=89ms p(95)=120ms p(99)=342ms
-# http_reqs: 15240 (50.8/s)
-# http_req_failed: 0.02%
 ```
 
 ---
 
-## Continuous Performance Testing in CI
-
+### Continuous Performance Testing in CI
 ```yaml
-# .github/workflows/performance.yml
 name: Performance Tests
 
 on:
@@ -131,8 +114,7 @@ jobs:
 
 ---
 
-## Profiling in Production
-
+### Profiling in Production
 ```typescript
 // Clinic.js: non-invasive production profiling
 
@@ -164,8 +146,7 @@ setTimeout(() => {
 
 ---
 
-## Performance Regression Detection
-
+### Performance Regression Detection
 ```typescript
 // Track performance baselines and alert on regression
 
@@ -201,8 +182,7 @@ class PerformanceTracker {
 
 ---
 
-## APM Integration
-
+### APM Integration
 ```typescript
 // Datadog APM — automatic instrumentation
 import 'dd-trace/init'; // must be first import
@@ -231,7 +211,30 @@ async function processCheckout(orderId: string) {
 
 ---
 
-## Performance Monitoring Checklist
+## Decision Framework
+
+Performance degrades silently. A query that takes 50ms today may take 500ms after 6 months of data growth. Continuous monitoring catches regressions before users do.
+
+```
+Monitor in layers:
+  Synthetic    → scheduled tests against known scenarios (always available)
+  Real User    → actual users' experience (true performance)
+  Profiling    → deep investigation when symptoms appear
+
+Alert on symptoms, not causes:
+  Good alert: "P99 latency on /checkout > 2s"
+  Bad alert:  "CPU > 80%" (CPU spikes don't always affect users)
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] P50/P95/P99 latency tracked per endpoint in production
 - [ ] Error rate tracked and alerted (threshold: > 1%)

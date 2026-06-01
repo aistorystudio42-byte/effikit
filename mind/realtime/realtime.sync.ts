@@ -104,6 +104,8 @@ export class SyncClient {
       setTimeout(() => {
         if (this.pendingAcks.has(msg.id)) {
           this.pendingAcks.delete(msg.id);
+          // Remove from queue to prevent phantom writes after timeout
+          this.messageQueue = this.messageQueue.filter(m => m.id !== msg.id);
           reject(new Error(`Publish ack timeout for message ${msg.id}`));
         }
       }, 5000);
@@ -206,6 +208,9 @@ export class SyncClient {
   private resubscribeAll(): void {
     for (const channel of this.subscriptions.keys()) {
       this.ws!.send(JSON.stringify(this.buildMessage("subscribe", { channel })));
+    }
+    for (const channel of this.presenceHandlers.keys()) {
+      this.ws!.send(JSON.stringify(this.buildMessage("presence", { channel })));
     }
   }
 

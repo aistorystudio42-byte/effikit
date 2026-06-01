@@ -2,14 +2,20 @@
 
 # Refactoring — TypeScript Type Safety
 
-## Types as Documentation
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to typescript.
+
+## Principles
+
+### Types as Documentation
 TypeScript types are not just compiler checks — they're the most reliable documentation your codebase has. When a function's type signature tells you everything about inputs and outputs, comments become redundant.
 
 ---
 
-## Eliminating `any`
-
+### Eliminating `any`
 `any` is a type safety escape hatch. Every `any` is a hole in your type system where runtime errors can hide.
 
 ```typescript
@@ -41,8 +47,7 @@ async function fetchUsers(): Promise<ApiResponse<User[]>> {
 
 ---
 
-## Discriminated Unions — Eliminate Invalid States
-
+### Discriminated Unions — Eliminate Invalid States
 ```typescript
 // ✗ Multiple booleans — can create impossible combinations
 interface Request {
@@ -73,8 +78,7 @@ function render(state: RequestState<User>) {
 
 ---
 
-## Branded Types — Prevent ID Mix-ups
-
+### Branded Types — Prevent ID Mix-ups
 ```typescript
 // ✗ All IDs are strings — easy to pass the wrong one
 function getOrderByUserId(userId: string): Promise<Order[]> { ... }
@@ -100,8 +104,7 @@ const user = await getUser(orderId); // ✗ TypeScript error: OrderId is not Use
 
 ---
 
-## Utility Types
-
+### Utility Types
 ```typescript
 // Partial — all fields optional (useful for update DTOs)
 type UpdateUserDto = Partial<Pick<User, 'name' | 'bio' | 'avatarUrl'>>;
@@ -135,8 +138,7 @@ const invalid: Endpoint = 'FETCH /users'; // ✗
 
 ---
 
-## Generic Constraints
-
+### Generic Constraints
 ```typescript
 // ✗ Too permissive
 function getProperty<T, K>(obj: T, key: K): any { ... }
@@ -167,8 +169,7 @@ class UserRepository implements Repository<User, UserId> {
 
 ---
 
-## Type Narrowing Patterns
-
+### Type Narrowing Patterns
 ```typescript
 // Type guards — create reusable narrowing functions
 function isUser(value: unknown): value is User {
@@ -210,7 +211,19 @@ function handleStatus(status: OrderStatus): string {
 
 ---
 
-## TypeScript Refactoring Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] No `any` in business logic code
 - [ ] All API boundaries use `unknown` + Zod parsing

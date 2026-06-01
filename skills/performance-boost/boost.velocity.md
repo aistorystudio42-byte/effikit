@@ -2,8 +2,15 @@
 
 # Performance Boost — Velocity and Shipping Speed
 
-## Velocity vs Busyness
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to velocity.
+
+## Principles
+
+### Velocity vs Busyness
 Velocity is measured by value shipped per week — not lines of code written, tickets closed, or hours worked. A developer who ships one critical feature per week has higher velocity than one who closes 20 tickets of low-impact bug fixes.
 
 ```
@@ -25,8 +32,7 @@ Velocity multipliers:
 
 ---
 
-## The Small PR Discipline
-
+### The Small PR Discipline
 ```
 PR size rule: < 400 lines changed per PR (excluding generated files)
   
@@ -49,36 +55,7 @@ The 1-hour rule:
 
 ---
 
-## Decision Speed
-
-Slow decisions kill velocity as surely as bad code. Most decisions are reversible — treat them as such.
-
-```
-Decision types:
-  Type 1: Irreversible (database architecture, public API contracts, security model)
-  Type 2: Reversible (implementation details, UI layout, naming, technology choice within a module)
-
-  Type 1 → slow down, gather input, document tradeoffs
-  Type 2 → decide in < 1 hour, ship, course-correct with data
-
-The mistake: treating Type 2 decisions like Type 1.
-  "Should we use a Map or an object for this cache?"
-  → This is Type 2. Pick one. Ship. Change it in 10 minutes if wrong.
-
-The 2-minute rule for Type 2:
-  If you can't decide in 2 minutes, flip a coin.
-  Both options are fine — you're burning real time picking between them.
-
-The bias toward action:
-  A shipped imperfect solution beats a perfect unshipped one.
-  Shipping creates feedback. Feedback creates improvement.
-  Not shipping creates nothing.
-```
-
----
-
-## Parallelizing Work
-
+### Parallelizing Work
 ```
 Wrong: work sequentially, then wait
   Engineer A: implements feature (3 days)
@@ -102,8 +79,7 @@ Technical parallelization:
 
 ---
 
-## Unblocking Yourself
-
+### Unblocking Yourself
 ```
 Blocked on a decision? 
   → Make a decision with explicit assumptions, proceed, note to revisit
@@ -128,8 +104,7 @@ Velocity principle:
 
 ---
 
-## Measuring Your Own Velocity
-
+### Measuring Your Own Velocity
 ```typescript
 // Weekly velocity self-assessment (Friday, 10 minutes)
 
@@ -167,7 +142,41 @@ const week = {
 
 ---
 
-## Velocity Checklist
+## Decision Framework
+
+Slow decisions kill velocity as surely as bad code. Most decisions are reversible — treat them as such.
+
+```
+Decision types:
+  Type 1: Irreversible (database architecture, public API contracts, security model)
+  Type 2: Reversible (implementation details, UI layout, naming, technology choice within a module)
+
+  Type 1 → slow down, gather input, document tradeoffs
+  Type 2 → decide in < 1 hour, ship, course-correct with data
+
+The mistake: treating Type 2 decisions like Type 1.
+  "Should we use a Map or an object for this cache?"
+  → This is Type 2. Pick one. Ship. Change it in 10 minutes if wrong.
+
+The 2-minute rule for Type 2:
+  If you can't decide in 2 minutes, flip a coin.
+  Both options are fine — you're burning real time picking between them.
+
+The bias toward action:
+  A shipped imperfect solution beats a perfect unshipped one.
+  Shipping creates feedback. Feedback creates improvement.
+  Not shipping creates nothing.
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] PRs < 400 lines (split if larger)
 - [ ] Requirements confirmed before implementation starts (not discovered mid-sprint)

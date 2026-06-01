@@ -2,7 +2,7 @@
 
 # Frontend — State Management
 
-## Core Question: Where Should This State Live?
+## Core Philosophy
 
 State management comes down to one question: **"Who uses this data?"**
 
@@ -18,7 +18,43 @@ Rule: **Keep state as low as possible.** Global state is for things that are gen
 
 ---
 
-## Layer 1: Local State
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to state.
+
+## Principles
+
+### URL State
+```tsx
+// Filters, page numbers, search terms — should live in URL
+// Users should be able to share links, back button should work
+
+const useSearchParams = () => {
+  const [params, setParams] = useSearchParams();
+  
+  const filters = useMemo(() => ({
+    query: params.get('q') ?? '',
+    page: Number(params.get('page') ?? 1),
+    category: params.get('cat') ?? 'all',
+  }), [params]);
+
+  const updateFilters = useCallback((updates: Partial<typeof filters>) => {
+    setParams(prev => {
+      const next = new URLSearchParams(prev);
+      Object.entries(updates).forEach(([k, v]) => {
+        if (v) next.set(k, String(v)); else next.delete(k);
+      });
+      return next;
+    });
+  }, [setParams]);
+
+  return { filters, updateFilters };
+};
+```
+
+---
+
+## Decision Framework
 
 ### useState — Simple Values
 ```tsx
@@ -61,8 +97,6 @@ function cartReducer(state: CartState, action: CartAction): CartState {
 
 ---
 
-## Layer 2: Context
-
 Context is not a **state management** tool — it's a **dependency injection** tool. Don't put frequently changing values into Context.
 
 ```tsx
@@ -101,8 +135,6 @@ const ThemeContext = createContext(theme);
 ```
 
 ---
-
-## Layer 3: Global State (Zustand)
 
 Zustand provides global state management without Redux's ceremony.
 
@@ -158,8 +190,6 @@ const useAppStore = create<AppStore>()((...args) => ({
 
 ---
 
-## Layer 4: Server State (React Query)
-
 Data coming from the server is **a separate state category** — it requires caching, revalidation, and background sync.
 
 ```tsx
@@ -188,39 +218,6 @@ const useCreateProduct = () =>
 
 ---
 
-## URL State
-
-```tsx
-// Filters, page numbers, search terms — should live in URL
-// Users should be able to share links, back button should work
-
-const useSearchParams = () => {
-  const [params, setParams] = useSearchParams();
-  
-  const filters = useMemo(() => ({
-    query: params.get('q') ?? '',
-    page: Number(params.get('page') ?? 1),
-    category: params.get('cat') ?? 'all',
-  }), [params]);
-
-  const updateFilters = useCallback((updates: Partial<typeof filters>) => {
-    setParams(prev => {
-      const next = new URLSearchParams(prev);
-      Object.entries(updates).forEach(([k, v]) => {
-        if (v) next.set(k, String(v)); else next.delete(k);
-      });
-      return next;
-    });
-  }, [setParams]);
-
-  return { filters, updateFilters };
-};
-```
-
----
-
-## State Decision Matrix
-
 | Data Type | Solution |
 |-----------|----------|
 | UI toggle, modal open/closed | useState |
@@ -234,10 +231,17 @@ const useSearchParams = () => {
 
 ---
 
-## Common Mistakes
+## Anti-Patterns
 
 1. **Putting everything in global state** — component-local state is usually enough
 2. **Syncing state via useEffect** — derive state, don't copy it
 3. **Using Context without memoization** — memoize it, split it
 4. **Copying server state to client state** — React Query is sufficient
 5. **Not normalizing state** — updating a nested object inside an array is hard, flatten it
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
+```

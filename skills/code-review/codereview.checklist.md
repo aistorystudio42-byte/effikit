@@ -2,28 +2,15 @@
 
 # Code Review — Review Checklist and Process
 
-## The Purpose of Code Review
+## Core Philosophy
 
-Code review is not gatekeeping — it's knowledge transfer and quality assurance. The goal is to ship better software faster, not to find every flaw before merging. Reviews should be collaborative, not adversarial.
+## When to Activate
 
-```
-What code review achieves:
-  ✓ Catch bugs before they reach users
-  ✓ Spread knowledge across the team
-  ✓ Maintain architectural consistency
-  ✓ Identify security vulnerabilities early
-  ✓ Ensure tests cover the change
+> This skill should be activated when you need to resolve issues related to checklist.
 
-What code review is NOT:
-  ✗ Style enforcement (use automated formatters/linters)
-  ✗ Personal preference battles
-  ✗ Approval theater (rubber stamp without reading)
-```
+## Principles
 
----
-
-## Review Priority Order
-
+### Review Priority Order
 Review in this order — stop and comment when you find an issue before continuing:
 
 ```
@@ -39,8 +26,7 @@ Don't spend time on readability if the logic is wrong.
 
 ---
 
-## Correctness Checks
-
+### Correctness Checks
 ```
 Logic:
   [ ] Does the code correctly implement the stated requirement?
@@ -63,8 +49,7 @@ State:
 
 ---
 
-## Security Checks
-
+### Security Checks
 ```
 Input:
   [ ] Is user input sanitized/validated at the boundary?
@@ -86,8 +71,7 @@ Output:
 
 ---
 
-## Test Checks
-
+### Test Checks
 ```
 Coverage:
   [ ] Does the change include tests?
@@ -104,8 +88,7 @@ Quality:
 
 ---
 
-## Design Checks
-
+### Design Checks
 ```
 Consistency:
   [ ] Does the change follow existing patterns in the codebase?
@@ -125,8 +108,7 @@ Complexity:
 
 ---
 
-## Giving Feedback
-
+### Giving Feedback
 Calibrate feedback with prefixes so the author knows what's required:
 
 ```
@@ -153,8 +135,7 @@ Praise (acknowledge good decisions):
 
 ---
 
-## Review Time Expectations
-
+### Review Time Expectations
 ```
 < 200 lines changed:   review within 4 hours
 200–500 lines:         review by end of day
@@ -172,7 +153,37 @@ Author responsibilities:
 
 ---
 
-## Code Review Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+Code review is not gatekeeping — it's knowledge transfer and quality assurance. The goal is to ship better software faster, not to find every flaw before merging. Reviews should be collaborative, not adversarial.
+
+```
+What code review achieves:
+  ✓ Catch bugs before they reach users
+  ✓ Spread knowledge across the team
+  ✓ Maintain architectural consistency
+  ✓ Identify security vulnerabilities early
+  ✓ Ensure tests cover the change
+
+What code review is NOT:
+  ✗ Style enforcement (use automated formatters/linters)
+  ✗ Personal preference battles
+  ✗ Approval theater (rubber stamp without reading)
+```
+
+---
 
 Before approving:
 - [ ] Correctness: logic is correct, edge cases handled

@@ -2,8 +2,15 @@
 
 # Testing — Integration Tests
 
-## Integration vs Unit Tests
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to integration.
+
+## Principles
+
+### Integration vs Unit Tests
 Integration tests verify that components work together correctly — the interactions between your code and external systems (database, HTTP, file system, message queues).
 
 ```
@@ -16,8 +23,7 @@ Integration: slower, uses real dependencies, fewer but higher confidence
 
 ---
 
-## API Integration Testing with Supertest
-
+### API Integration Testing with Supertest
 ```typescript
 import request from 'supertest';
 import { app } from '../src/app';
@@ -86,8 +92,7 @@ describe('POST /api/orders', () => {
 
 ---
 
-## Database Integration Testing
-
+### Database Integration Testing
 ```typescript
 // Use a real test database — not mocks
 // Why: mocks don't catch constraint violations, migration issues, query correctness
@@ -156,8 +161,7 @@ describe('UserRepository', () => {
 
 ---
 
-## Test Containers (Ephemeral Database)
-
+### Test Containers (Ephemeral Database)
 For CI environments without a persistent test database:
 
 ```typescript
@@ -195,8 +199,7 @@ afterAll(async () => {
 
 ---
 
-## Test Helpers and Factories
-
+### Test Helpers and Factories
 ```typescript
 // factories/user.factory.ts — create valid test data consistently
 import { faker } from '@faker-js/faker';
@@ -227,8 +230,7 @@ export function createTestToken(userId: string, role = 'user'): string {
 
 ---
 
-## Testing External Services (HTTP Mocking)
-
+### Testing External Services (HTTP Mocking)
 ```typescript
 import nock from 'nock';
 
@@ -265,7 +267,7 @@ describe('PaymentService', () => {
 
 ---
 
-## Integration Test Strategy
+## Decision Framework
 
 ```
 What to test with integration tests:
@@ -283,7 +285,13 @@ What to leave for unit tests:
 
 ---
 
-## Checklist
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Each integration test uses a real database (not mocked)
 - [ ] Database reset between tests (no state leaks)

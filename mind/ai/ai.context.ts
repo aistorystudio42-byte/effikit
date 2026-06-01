@@ -121,7 +121,7 @@ export class ContextWindow {
     const evictable = this.messages
       .map((m, i) => ({ m, i }))
       .filter(({ m }) => !m.pinned && m.role !== "system")
-      .sort((a, b) => (a.m.importance ?? 0) - (b.m.importance ?? 0));
+      .sort((a, b) => (a.m.importance ?? 0) - (b.m.importance ?? 0) || a.m.timestamp - b.m.timestamp);
 
     for (const { m } of evictable) {
       if (this.totalTokens <= targetTokens) break;
@@ -147,11 +147,22 @@ export class ContextWindow {
     const summarizedIds = new Set(toSummarize.map((m) => m.id));
     this.messages = this.messages.filter((m) => !summarizedIds.has(m.id));
 
-    const summaryMsg = this.addMessage(
-      "system",
-      `[Conversation summary]: ${summary}`,
-      { pinned: true, importance: 0.9 }
-    );
+    const summaryMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "system",
+      content: `[Conversation summary]: ${summary}`,
+      tokens: estimateTokens(`[Conversation summary]: ${summary}`),
+      timestamp: Date.now(),
+      pinned: true,
+      importance: 0.9,
+    };
+
+    // Inject summary at the beginning (after any existing pinned system prompts)
+    let insertIdx = 0;
+    while (insertIdx < this.messages.length && this.messages[insertIdx].role === "system" && this.messages[insertIdx].pinned) {
+      insertIdx++;
+    }
+    this.messages.splice(insertIdx, 0, summaryMsg);
 
     this.compressionCount++;
     return summary;

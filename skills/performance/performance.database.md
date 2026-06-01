@@ -2,8 +2,15 @@
 
 # Performance — Database Optimization
 
-## Database Performance Hierarchy
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to database.
+
+## Principles
+
+### Database Performance Hierarchy
 Fix in this order — each level is cheaper than the next:
 
 ```
@@ -17,8 +24,7 @@ Fix in this order — each level is cheaper than the next:
 
 ---
 
-## Finding Slow Queries
-
+### Finding Slow Queries
 ```sql
 -- Enable pg_stat_statements extension first
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
@@ -61,8 +67,7 @@ ORDER BY seq_scan DESC;
 
 ---
 
-## EXPLAIN ANALYZE — Reading the Plan
-
+### EXPLAIN ANALYZE — Reading the Plan
 ```sql
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
 SELECT u.email, COUNT(o.id) AS order_count
@@ -92,49 +97,7 @@ Numbers to check:
 
 ---
 
-## Index Strategy
-
-```sql
--- Rule: index columns that appear in WHERE, JOIN ON, or ORDER BY on large tables
--- Cost: every index slows INSERT/UPDATE/DELETE and uses disk space
-
--- Basic index on frequently filtered column
-CREATE INDEX CONCURRENTLY idx_orders_user_id ON orders (user_id);
-CREATE INDEX CONCURRENTLY idx_orders_status ON orders (status);
-
--- Composite: column order matters — most selective or most used first
--- Covers: WHERE user_id = ? AND status = ?
--- Also covers: WHERE user_id = ? (prefix match)
--- Does NOT cover: WHERE status = ? alone (not a prefix match)
-CREATE INDEX CONCURRENTLY idx_orders_user_status ON orders (user_id, status);
-
--- Partial: index only the rows you actually query
--- Much smaller than full index, fits in memory better
-CREATE INDEX CONCURRENTLY idx_orders_pending ON orders (created_at)
-  WHERE status = 'pending';
-
--- Covering: include columns to avoid heap lookup entirely
--- Query: SELECT status, total_cents FROM orders WHERE user_id = ?
-CREATE INDEX CONCURRENTLY idx_orders_user_cover ON orders (user_id)
-  INCLUDE (status, total_cents, created_at);
--- → Index Only Scan: no table access needed
-
--- Expression: index on computed value
--- Query: WHERE lower(email) = ?
-CREATE INDEX CONCURRENTLY idx_users_email_lower ON users (lower(email));
-
--- Remove unused indexes — they slow writes and waste space
-SELECT indexname, idx_scan AS times_used,
-       pg_size_pretty(pg_relation_size(indexrelid)) AS size
-FROM pg_stat_user_indexes
-WHERE idx_scan = 0 AND indexname NOT LIKE '%_pkey'
-ORDER BY pg_relation_size(indexrelid) DESC;
-```
-
----
-
-## Query Rewriting Patterns
-
+### Query Rewriting Patterns
 ```sql
 -- Pattern: EXISTS instead of IN for large subqueries
 -- EXISTS short-circuits on first match — faster for large subqueries
@@ -181,8 +144,7 @@ await db.query(
 
 ---
 
-## Connection Pool Tuning
-
+### Connection Pool Tuning
 ```typescript
 // PostgreSQL max_connections default: 100
 // Every connection uses ~5-10MB RAM
@@ -207,8 +169,7 @@ const pool = new Pool({
 
 ---
 
-## Vacuum and Statistics
-
+### Vacuum and Statistics
 ```sql
 -- Dead row bloat slows queries and wastes space
 -- Check bloat
@@ -232,7 +193,54 @@ WHERE relname = 'orders';
 
 ---
 
-## Database Performance Checklist
+## Decision Framework
+
+```sql
+-- Rule: index columns that appear in WHERE, JOIN ON, or ORDER BY on large tables
+-- Cost: every index slows INSERT/UPDATE/DELETE and uses disk space
+
+-- Basic index on frequently filtered column
+CREATE INDEX CONCURRENTLY idx_orders_user_id ON orders (user_id);
+CREATE INDEX CONCURRENTLY idx_orders_status ON orders (status);
+
+-- Composite: column order matters — most selective or most used first
+-- Covers: WHERE user_id = ? AND status = ?
+-- Also covers: WHERE user_id = ? (prefix match)
+-- Does NOT cover: WHERE status = ? alone (not a prefix match)
+CREATE INDEX CONCURRENTLY idx_orders_user_status ON orders (user_id, status);
+
+-- Partial: index only the rows you actually query
+-- Much smaller than full index, fits in memory better
+CREATE INDEX CONCURRENTLY idx_orders_pending ON orders (created_at)
+  WHERE status = 'pending';
+
+-- Covering: include columns to avoid heap lookup entirely
+-- Query: SELECT status, total_cents FROM orders WHERE user_id = ?
+CREATE INDEX CONCURRENTLY idx_orders_user_cover ON orders (user_id)
+  INCLUDE (status, total_cents, created_at);
+-- → Index Only Scan: no table access needed
+
+-- Expression: index on computed value
+-- Query: WHERE lower(email) = ?
+CREATE INDEX CONCURRENTLY idx_users_email_lower ON users (lower(email));
+
+-- Remove unused indexes — they slow writes and waste space
+SELECT indexname, idx_scan AS times_used,
+       pg_size_pretty(pg_relation_size(indexrelid)) AS size
+FROM pg_stat_user_indexes
+WHERE idx_scan = 0 AND indexname NOT LIKE '%_pkey'
+ORDER BY pg_relation_size(indexrelid) DESC;
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Slow queries identified via `pg_stat_statements`
 - [ ] EXPLAIN ANALYZE run on all queries > 100ms

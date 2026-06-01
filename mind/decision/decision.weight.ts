@@ -162,6 +162,7 @@ export function weightedSum(
   alternatives: Alternative[],
   criteria: Criterion[]
 ): WeightedScore[] {
+  if (alternatives.length === 0 || criteria.length === 0) return [];
   const totalWeight = criteria.reduce((s, c) => s + Math.abs(c.weight), 0);
 
   // Min-max normalize each criterion column

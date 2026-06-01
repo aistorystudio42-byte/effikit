@@ -2,7 +2,7 @@
 
 # Design — UX Principles and Interaction Design
 
-## Core UX Heuristics
+## Core Philosophy
 
 Nielsen's 10 heuristics are the foundation of usable interface design. Apply them as questions, not rules.
 
@@ -21,8 +21,13 @@ Nielsen's 10 heuristics are the foundation of usable interface design. Apply the
 
 ---
 
-## Feedback Design
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to ux.
+
+## Principles
+
+### Feedback Design
 Every user action should produce a visible response within:
 ```
 < 100ms  → feels instant (no feedback indicator needed)
@@ -68,7 +73,91 @@ const toggleLike = async (postId: string) => {
 
 ---
 
-## Error Message Design
+### Empty States
+Empty states are opportunities, not voids. They guide users to their first action.
+
+```typescript
+// Empty state anatomy:
+// 1. Illustration (optional) — humanizes, reduces anxiety
+// 2. Headline — what is missing
+// 3. Description — why it's empty and what it means
+// 4. Primary action — what to do next
+
+const EmptyOrderHistory = () => (
+  <div className="empty-state">
+    <PackageOpenIcon className="empty-icon" aria-hidden />
+    <h3>No orders yet</h3>
+    <p>When you place your first order, it will appear here.</p>
+    <Button variant="primary" onClick={() => router.push('/shop')}>
+      Start shopping
+    </Button>
+  </div>
+);
+```
+
+---
+
+### Progressive Disclosure
+Show only what users need for their current task. Reveal complexity on demand.
+
+```typescript
+// Progressive form — start simple, expand when needed
+const AddressForm = () => {
+  const [showOptional, setShowOptional] = useState(false);
+
+  return (
+    <form>
+      {/* Required fields always visible */}
+      <Input label="Street address" required />
+      <Input label="City" required />
+      <Select label="Country" required />
+
+      {/* Optional fields — hidden until requested */}
+      {!showOptional ? (
+        <button type="button" onClick={() => setShowOptional(true)}>
+          + Add apartment, suite, or floor
+        </button>
+      ) : (
+        <Input label="Apartment, suite, floor (optional)" autoFocus />
+      )}
+    </form>
+  );
+};
+```
+
+---
+
+### Affordance and Signifiers
+Affordances are what an element can do. Signifiers are visual cues that communicate affordances.
+
+```
+Clickable buttons:
+  ✓ Elevated (shadow), distinct background, pointer cursor, hover state
+  ✗ Flat text with no hover state — looks like a label
+
+Draggable items:
+  ✓ Drag handle icon, cursor changes to grab on hover
+  ✗ No visual indicator — user must discover by accident
+
+Input fields:
+  ✓ Bordered rectangle, placeholder text, focus ring
+  ✗ Underline only — ambiguous whether it's editable
+
+Links vs buttons:
+  Links: navigate to a new page/URL
+  Buttons: trigger an action (submit, toggle, open modal)
+  Never style a button like a link that performs a destructive action
+```
+
+---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
 
 Users read error messages in high-stress moments. Design them for recovery, not explanation.
 
@@ -119,88 +208,7 @@ const ErrorState = ({ title, description, action }: ErrorStateProps) => (
 
 ---
 
-## Empty States
-
-Empty states are opportunities, not voids. They guide users to their first action.
-
-```typescript
-// Empty state anatomy:
-// 1. Illustration (optional) — humanizes, reduces anxiety
-// 2. Headline — what is missing
-// 3. Description — why it's empty and what it means
-// 4. Primary action — what to do next
-
-const EmptyOrderHistory = () => (
-  <div className="empty-state">
-    <PackageOpenIcon className="empty-icon" aria-hidden />
-    <h3>No orders yet</h3>
-    <p>When you place your first order, it will appear here.</p>
-    <Button variant="primary" onClick={() => router.push('/shop')}>
-      Start shopping
-    </Button>
-  </div>
-);
-```
-
----
-
-## Progressive Disclosure
-
-Show only what users need for their current task. Reveal complexity on demand.
-
-```typescript
-// Progressive form — start simple, expand when needed
-const AddressForm = () => {
-  const [showOptional, setShowOptional] = useState(false);
-
-  return (
-    <form>
-      {/* Required fields always visible */}
-      <Input label="Street address" required />
-      <Input label="City" required />
-      <Select label="Country" required />
-
-      {/* Optional fields — hidden until requested */}
-      {!showOptional ? (
-        <button type="button" onClick={() => setShowOptional(true)}>
-          + Add apartment, suite, or floor
-        </button>
-      ) : (
-        <Input label="Apartment, suite, floor (optional)" autoFocus />
-      )}
-    </form>
-  );
-};
-```
-
----
-
-## Affordance and Signifiers
-
-Affordances are what an element can do. Signifiers are visual cues that communicate affordances.
-
-```
-Clickable buttons:
-  ✓ Elevated (shadow), distinct background, pointer cursor, hover state
-  ✗ Flat text with no hover state — looks like a label
-
-Draggable items:
-  ✓ Drag handle icon, cursor changes to grab on hover
-  ✗ No visual indicator — user must discover by accident
-
-Input fields:
-  ✓ Bordered rectangle, placeholder text, focus ring
-  ✗ Underline only — ambiguous whether it's editable
-
-Links vs buttons:
-  Links: navigate to a new page/URL
-  Buttons: trigger an action (submit, toggle, open modal)
-  Never style a button like a link that performs a destructive action
-```
-
----
-
-## UX Checklist
+## Example in Action
 
 - [ ] Every action has a response within 100ms (visual change)
 - [ ] Loading states implemented for all async operations

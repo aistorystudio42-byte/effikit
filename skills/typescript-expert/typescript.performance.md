@@ -1,6 +1,6 @@
 <!-- @keywords: TypeScript performance, compilation speed, instantiation depth, combinatorial explosion, interface vs type alias, project references, incremental compilation, tsc performance, build time -->
 
-# TypeScript Expert — When TypeScript Becomes Your Bottleneck
+# Check time:      44.3s
 
 ## Core Philosophy
 
@@ -19,20 +19,17 @@ Most TypeScript performance problems have one of three causes: instantiation dep
 
 ---
 
-## Profiling First
+## Principles
 
+### Profiling First
 Before optimizing, measure:
 
 ```bash
-# Built-in diagnostic output
 tsc --noEmit --extendedDiagnostics 2>&1 | grep -E "Files|Instantiations|Check time"
 
-# Identify hot files
 tsc --noEmit --diagnostics
 
-# Generate trace for deeper analysis
 tsc --noEmit --generateTrace ./trace-output
-# Then open trace-output/trace.json in chrome://tracing
 ```
 
 Key metrics to watch:
@@ -42,8 +39,7 @@ Key metrics to watch:
 
 ---
 
-## Interface vs Type Alias Performance
-
+### Interface vs Type Alias Performance
 Interfaces are cached by the compiler after the first check. Type aliases with complex intersections and conditionals are re-evaluated on each use.
 
 ```ts
@@ -60,8 +56,7 @@ interface UserWithPermissions extends User, Permission, AuditInfo {
 
 ---
 
-## Instantiation Depth Reduction
-
+### Instantiation Depth Reduction
 Deeply recursive conditional types cause exponential instantiation:
 
 ```ts
@@ -83,8 +78,7 @@ import type { ReadonlyDeep } from 'type-fest';
 
 ---
 
-## Combinatorial Explosion Prevention
-
+### Combinatorial Explosion Prevention
 Union types multiply instantiations:
 
 ```ts
@@ -105,8 +99,7 @@ type Issue =
 
 ---
 
-## Project References
-
+### Project References
 The single biggest build time improvement for monorepos:
 
 ```json
@@ -126,16 +119,20 @@ The single biggest build time improvement for monorepos:
 ```
 
 ```bash
-# Build only changed packages and their dependents
 tsc --build --incremental
 
-# Watch mode respects project references
 tsc --build --watch
 ```
 
 With project references, TypeScript reads `.d.ts` files from built packages instead of re-type-checking their source — typically 60-80% build time reduction in monorepos.
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 
@@ -153,9 +150,6 @@ With project references, TypeScript reads `.d.ts` files from built packages inst
 **Initial diagnosis:**
 ```bash
 tsc --noEmit --extendedDiagnostics 2>&1
-# Files:           2,847
-# Instantiations:  4,234,891  ← problem here
-# Check time:      44.3s
 ```
 
 **Problem 1 — tsconfig includes too much:**

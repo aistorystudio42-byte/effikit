@@ -2,16 +2,49 @@
 
 # Science — Einstein Mode: Thought Experiments and First Principles
 
-## The Einstein Mindset
+## Core Philosophy
 
+```
+Einstein never accepted "that's how it's always been done."
+He asked: "What do we actually know for certain? What are we just assuming?"
+
+Applied to a technical decision:
+  Question: "Should we use Redis for caching?"
+
+  Common answer: "Yes, we always use Redis for caching."
+
+  First principles:
+    What are we actually trying to achieve? (reduce DB load / response time)
+    What are the real constraints? (< 100ms response, < 10k req/s, 3 engineers)
+    What are the simplest mechanisms available?
+      - In-process memory: 0ms, no infrastructure, lost on restart
+      - CDN cache: 0ms for static data, no server cost
+      - Database query cache: already exists, no new infrastructure
+      - Redis: shared, fast, TTL-based, but requires ops knowledge
+
+  First principles answer: for this team at this scale,
+    in-process LRU cache (node-lru-cache) may be sufficient.
+    Redis is the right answer at higher scale or with multiple instances.
+    The question revealed an assumption ("we need Redis") 
+    that wasn't yet true.
+```
+
+---
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to einstein.
+
+## Principles
+
+### The Einstein Mindset
 Einstein's greatest breakthroughs came not from complex mathematics but from simple questions asked with absolute seriousness. "What would it look like to ride alongside a beam of light?" This thought experiment — imagined at age 16 — led directly to Special Relativity.
 
 Einstein Mode: strip away complexity until you reach the first principles. Then rebuild from there.
 
 ---
 
-## The Thought Experiment Protocol
-
+### The Thought Experiment Protocol
 ```
 Step 1: Simplify the problem to its absolute essence
   Remove all real-world complexity
@@ -33,8 +66,7 @@ Step 4: Rebuild from the revealed principle
 
 ---
 
-## Applied: The Distributed Systems Thought Experiment
-
+### Applied: The Distributed Systems Thought Experiment
 ```
 Einstein question: "What if two users update the same record simultaneously 
                    on servers 1,000 miles apart?"
@@ -65,37 +97,7 @@ Step 4: Design from principle
 
 ---
 
-## First Principles Thinking
-
-```
-Einstein never accepted "that's how it's always been done."
-He asked: "What do we actually know for certain? What are we just assuming?"
-
-Applied to a technical decision:
-  Question: "Should we use Redis for caching?"
-
-  Common answer: "Yes, we always use Redis for caching."
-
-  First principles:
-    What are we actually trying to achieve? (reduce DB load / response time)
-    What are the real constraints? (< 100ms response, < 10k req/s, 3 engineers)
-    What are the simplest mechanisms available?
-      - In-process memory: 0ms, no infrastructure, lost on restart
-      - CDN cache: 0ms for static data, no server cost
-      - Database query cache: already exists, no new infrastructure
-      - Redis: shared, fast, TTL-based, but requires ops knowledge
-
-  First principles answer: for this team at this scale,
-    in-process LRU cache (node-lru-cache) may be sufficient.
-    Redis is the right answer at higher scale or with multiple instances.
-    The question revealed an assumption ("we need Redis") 
-    that wasn't yet true.
-```
-
----
-
-## Symmetry and Elegance as Signals
-
+### Symmetry and Elegance as Signals
 Einstein trusted elegant solutions. When a solution was ugly, he suspected it was wrong.
 
 ```
@@ -119,8 +121,7 @@ Rule: if you have to explain your design for more than 1 sentence,
 
 ---
 
-## The Relativity of Perspective
-
+### The Relativity of Perspective
 Einstein showed that the same event looks different from different reference frames — and that BOTH perspectives are valid.
 
 ```
@@ -146,7 +147,19 @@ Einstein Mode synthesis:
 
 ---
 
-## Einstein Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Problem stripped to absolute essence (no implementation details yet)
 - [ ] Thought experiment run at the extreme edge case

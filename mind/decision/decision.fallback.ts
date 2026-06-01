@@ -71,6 +71,7 @@ export class FallbackChain<T> {
   async execute(): Promise<FallbackResult<T>> {
     const start = Date.now();
     let totalAttempts = 0;
+    let finalLastError: unknown;
 
     for (let si = 0; si < this.strategies.length; si++) {
       const strategy = this.strategies[si];
@@ -104,11 +105,12 @@ export class FallbackChain<T> {
           }
         }
       }
-
-      // All retries for this strategy exhausted, try next
+      finalLastError = lastError;
     }
 
-    throw new Error(`All ${this.strategies.length} strategies failed after ${totalAttempts} total attempts`);
+    const finalError = new Error(`All ${this.strategies.length} strategies failed after ${totalAttempts} total attempts`);
+    (finalError as any).cause = finalLastError;
+    throw finalError;
   }
 }
 

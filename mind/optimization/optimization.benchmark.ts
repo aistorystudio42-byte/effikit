@@ -135,6 +135,10 @@ export class BenchmarkSuite {
       results.push(await benchmark(name, fn, { ...globalOptions, ...options }));
     }
 
+    if (results.length === 0) {
+      return { suite: this.suiteName, results: [], fastest: "", slowest: "", comparisons: [] };
+    }
+
     const fastest = results.reduce((a, b) => (a.meanMs < b.meanMs ? a : b));
     const slowest = results.reduce((a, b) => (a.meanMs > b.meanMs ? a : b));
 

@@ -19,8 +19,9 @@ An argument can be valid (the conclusion follows from the premises) but unsound 
 
 ---
 
-## Three Modes of Reasoning in Software
+## Principles
 
+### Three Modes of Reasoning in Software
 **Deductive:** If A is true and B is true, C must be true.  
 *"Our system must handle 10k concurrent users. This architecture handles 8k. Therefore this architecture fails the requirement."*  
 Use when you have verified premises and need guaranteed conclusions.
@@ -35,8 +36,7 @@ Use for debugging and root cause analysis. Best guess, not proven.
 
 ---
 
-## 12 Logical Fallacies in Tech Debates
-
+### 12 Logical Fallacies in Tech Debates
 **1. Appeal to Authority:** "Google uses it so we should."  
 Google's constraints ≠ your constraints.
 
@@ -75,8 +75,7 @@ Temporal sequence is not causation.
 
 ---
 
-## Steelmanning
-
+### Steelmanning
 Before refuting any position, construct the strongest possible version of it — stronger than the person arguing it stated. If you can't construct this, you don't understand the position well enough to refute it.
 
 **Process:**
@@ -86,6 +85,12 @@ Before refuting any position, construct the strongest possible version of it —
 4. Only then present your counter-argument.
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

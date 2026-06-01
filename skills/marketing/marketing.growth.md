@@ -10,18 +10,6 @@ The sequence is fixed: retention first, then activation, then acquisition. Pouri
 
 ---
 
-## When to Activate
-
-- Defining the growth model for a new product
-- North star metric selection
-- Diagnosing why acquisition isn't converting to retained users
-- Designing viral or referral mechanics
-- Deciding between PLG and sales-led growth
-
----
-
-## Principles
-
 **1. Retention is the foundation. Always.** If users don't stay, no acquisition strategy survives. Measure D1, D7, D30 retention before spending a dollar on acquisition. If D7 retention is below 20%, fix the product before marketing it.
 
 **2. Viral coefficient math.** K-factor = invites per user × conversion rate. K > 1 means organic growth. K = 0.5 means you need 2 existing users to net 1 new user — growth requires external input. Design for K > 0.4 minimum; build toward K > 1.
@@ -33,6 +21,18 @@ The sequence is fixed: retention first, then activation, then acquisition. Pouri
 **5. Growth loops have three components: trigger → action → reward → re-trigger.** Map the loop before building it. If you can't draw the complete cycle, you don't have a loop — you have a campaign.
 
 ---
+
+## When to Activate
+
+- Defining the growth model for a new product
+- North star metric selection
+- Diagnosing why acquisition isn't converting to retained users
+- Designing viral or referral mechanics
+- Deciding between PLG and sales-led growth
+
+---
+
+## Principles
 
 ## Decision Framework
 

@@ -1,32 +1,33 @@
 <!-- @keywords: security audit, vulnerability scanning, penetration testing, OWASP, dependency audit, secrets detection -->
 
-# Security — Auditing and Vulnerability Management
+# Rotate ALL exposed secrets — assume they're compromised
 
-## Security Audit Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to audit.
+
+## Principles
+
+### Security Audit Mindset
 A security audit is not about finding every possible bug — it's about systematically covering the highest-risk attack surfaces first. Use the OWASP Top 10 as a checklist, but always reason about your specific threat model.
 
 ---
 
-## Automated Vulnerability Scanning
-
+### Automated Vulnerability Scanning
 ### Dependency Auditing
 ```bash
-# npm audit — check for known CVEs in dependencies
 npm audit
 npm audit --audit-level=high  # only fail on high/critical
 
-# Fix automatically when safe
 npm audit fix
 
-# For audit in CI — block deploys on critical vulnerabilities
 npm audit --audit-level=critical --json | jq '.metadata.vulnerabilities.critical'
 
-# Snyk — deeper analysis, more context
 npx snyk test
 npx snyk test --severity-threshold=high
 
-# GitHub Dependabot — configure in .github/dependabot.yml
 version: 2
 updates:
   - package-ecosystem: npm
@@ -38,27 +39,17 @@ updates:
 
 ### Static Analysis (SAST)
 ```bash
-# ESLint security plugin
 npm install --save-dev eslint-plugin-security
 
-# .eslintrc
 {
   "plugins": ["security"],
   "extends": ["plugin:security/recommended"]
 }
 
-# Detects:
-# - eval() usage
-# - Non-literal RegExp (ReDoS risk)
-# - Buffer without encoding
-# - Object injection risks
-
-# Semgrep — rule-based SAST
 semgrep --config=p/javascript
 semgrep --config=p/typescript
 semgrep --config=p/security-audit
 
-# CodeQL (GitHub Actions)
 - uses: github/codeql-action/analyze@v3
   with:
     languages: javascript, typescript
@@ -66,26 +57,16 @@ semgrep --config=p/security-audit
 
 ### Secrets Detection
 ```bash
-# Detect committed secrets before they're pushed
-# Install git-secrets or gitleaks
 
-# gitleaks — scans entire git history
 gitleaks detect --source . --verbose
 
-# Pre-commit hook setup
-# .husky/pre-commit
 gitleaks protect --staged --verbose
 
-# If secrets are already committed — rotate them immediately, then clean history
-# git filter-branch or BFG Repo Cleaner to remove from history
-# Force push (coordinate with team)
-# Rotate ALL exposed secrets — assume they're compromised
 ```
 
 ---
 
-## Manual Security Review
-
+### Manual Security Review
 ### Code Review Security Checklist
 
 ```
@@ -122,8 +103,7 @@ Information Disclosure:
 
 ---
 
-## OWASP Top 10 Verification
-
+### OWASP Top 10 Verification
 ### A01 — Broken Access Control
 ```typescript
 // Test: Can user A access user B's data by changing the ID?
@@ -186,8 +166,7 @@ describe('Brute Force Protection', () => {
 
 ---
 
-## Penetration Testing Basics
-
+### Penetration Testing Basics
 ```
 Reconnaissance:
   - Map all endpoints (automated: nikto, manual: explore app)
@@ -215,8 +194,7 @@ Input Testing:
 
 ---
 
-## Incident Disclosure
-
+### Incident Disclosure
 ```
 If you find a vulnerability in your own system:
 1. Assess severity and impact immediately
@@ -233,7 +211,19 @@ If you find a vulnerability in your own system:
 
 ---
 
-## Security Audit Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Dependency audit clean (no critical/high CVEs)
 - [ ] No secrets in git history or .env committed

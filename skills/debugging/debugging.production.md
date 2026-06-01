@@ -2,8 +2,15 @@
 
 # Debugging — Production Issues and Incident Response
 
-## Production Debugging Constraints
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to production.
+
+## Principles
+
+### Production Debugging Constraints
 In production, you can't:
 - Add random console.logs and refresh
 - Set breakpoints and step through code
@@ -20,53 +27,7 @@ The discipline of production debugging is building **observability** before inci
 
 ---
 
-## Error Tracking Setup
-
-```typescript
-// Sentry — full context on every error
-import * as Sentry from '@sentry/node';
-
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  release: process.env.GIT_SHA, // tie errors to exact deploy
-
-  // Sample 100% in staging, 10% in production (cost vs coverage tradeoff)
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-
-  beforeSend(event, hint) {
-    // Don't send expected errors to Sentry — reduce noise
-    const error = hint.originalException;
-    if (error instanceof NotFoundError) return null;
-    if (error instanceof ValidationError) return null;
-    return event;
-  },
-});
-
-// Attach user context to every subsequent error in this request
-Sentry.setUser({ id: user.id, email: user.email });
-
-// Add custom context
-Sentry.setContext('order', { orderId: order.id, status: order.status });
-
-// Manual capture with full context
-Sentry.captureException(error, {
-  extra: {
-    userId: req.user?.id,
-    requestBody: req.body,
-    requestPath: req.path,
-  },
-  tags: {
-    feature: 'checkout',
-    paymentProvider: 'stripe',
-  },
-});
-```
-
----
-
-## Structured Log Analysis
-
+### Structured Log Analysis
 ```typescript
 // Write logs that are queryable
 // Wrong: unstructured string
@@ -96,8 +57,7 @@ logger.info({
 
 ---
 
-## Reading Stack Traces in Production
-
+### Reading Stack Traces in Production
 ```
 Production stack traces are minified. Two requirements to read them:
 1. Source maps uploaded to error tracker or available
@@ -116,8 +76,7 @@ Always upload source maps for every deployment.
 
 ---
 
-## Debugging by Log Correlation
-
+### Debugging by Log Correlation
 ```typescript
 // Request ID ties all logs from one request together
 // Even across service boundaries
@@ -146,8 +105,7 @@ const downstreamResponse = await fetch('http://payment-service/charge', {
 
 ---
 
-## Incident Response Protocol
-
+### Incident Response Protocol
 ### Immediate Steps (First 5 Minutes)
 ```
 1. Assess impact
@@ -228,7 +186,7 @@ Action Items:
 
 ---
 
-## Alerting Strategy
+## Decision Framework
 
 ```
 Too few alerts → outages go undetected
@@ -245,4 +203,56 @@ Key metrics to alert on:
   - Successful transaction rate (orders, signups)
   - Queue depth (if growing → workers struggling)
   - Disk usage (if nearing full → DB will crash)
+```
+
+## Anti-Patterns
+
+```typescript
+// Sentry — full context on every error
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: process.env.GIT_SHA, // tie errors to exact deploy
+
+  // Sample 100% in staging, 10% in production (cost vs coverage tradeoff)
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
+
+  beforeSend(event, hint) {
+    // Don't send expected errors to Sentry — reduce noise
+    const error = hint.originalException;
+    if (error instanceof NotFoundError) return null;
+    if (error instanceof ValidationError) return null;
+    return event;
+  },
+});
+
+// Attach user context to every subsequent error in this request
+Sentry.setUser({ id: user.id, email: user.email });
+
+// Add custom context
+Sentry.setContext('order', { orderId: order.id, status: order.status });
+
+// Manual capture with full context
+Sentry.captureException(error, {
+  extra: {
+    userId: req.user?.id,
+    requestBody: req.body,
+    requestPath: req.path,
+  },
+  tags: {
+    feature: 'checkout',
+    paymentProvider: 'stripe',
+  },
+});
+```
+
+---
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
 ```

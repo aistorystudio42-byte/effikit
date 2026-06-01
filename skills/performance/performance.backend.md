@@ -1,9 +1,16 @@
 <!-- @keywords: backend performance, profiling, throughput, latency, CPU, memory, Node.js optimization -->
 
-# Performance — Backend Optimization
+# Clinic.js — automated Node.js profiling
 
-## Backend Performance Metrics
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to backend.
+
+## Principles
+
+### Backend Performance Metrics
 ```
 Throughput:     requests per second the system can handle
 Latency:        time to respond to a single request
@@ -17,21 +24,13 @@ Optimize in order: **correctness first, then latency, then throughput**.
 
 ---
 
-## Node.js Profiling
-
+### Node.js Profiling
 ```bash
-# CPU profiling — find hot functions
 node --prof src/main.js
-# Run load: autocannon http://localhost:3000/api/products
-# Process profile
 node --prof-process isolate-*.log > profile.txt
-# Look for functions with high "self" time
 
-# Heap snapshot — memory leak detection
 node --inspect src/main.js
-# Chrome DevTools → chrome://inspect → Memory tab → Take snapshot
 
-# Clinic.js — automated Node.js profiling
 npx clinic doctor -- node src/main.js
 npx clinic flame -- node src/main.js  # flame graph
 npx clinic bubbleprof -- node src/main.js  # async profile
@@ -39,8 +38,7 @@ npx clinic bubbleprof -- node src/main.js  # async profile
 
 ---
 
-## Async Performance Patterns
-
+### Async Performance Patterns
 ```typescript
 // Pattern 1: Parallel independent operations
 // Wrong: sequential awaits when operations are independent
@@ -83,8 +81,7 @@ for await (const user of cursor) {
 
 ---
 
-## CPU-Bound Work
-
+### CPU-Bound Work
 ```typescript
 // Node.js is single-threaded. CPU-intensive work blocks everything.
 
@@ -126,8 +123,7 @@ const report = await pool.run(data);
 
 ---
 
-## Memory Optimization
-
+### Memory Optimization
 ```typescript
 // Monitor memory usage
 const memUsage = process.memoryUsage();
@@ -170,7 +166,7 @@ function processItem(bigData: Map<string, Item>, id: string) {
 
 ---
 
-## HTTP Layer Performance
+## Decision Framework
 
 ```typescript
 // Response compression — reduces payload size significantly
@@ -208,7 +204,13 @@ server.headersTimeout = 66_000;   // must be > keepAliveTimeout
 
 ---
 
-## Backend Performance Checklist
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] P50/P95/P99 latency tracked in production
 - [ ] Slow endpoints profiled with clinic.js or node --prof

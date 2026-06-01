@@ -10,18 +10,6 @@ The rule: video starts loading when the user is about to see it, not when the pa
 
 ---
 
-## When to Activate
-
-- Hero section with background video
-- Content feed with inline video previews
-- Product demos that autoplay on scroll
-- Interactive video players with custom controls
-- Any page where video is above or near the fold
-
----
-
-## Principles
-
 **1. Intersection-based autoplay, not page-load autoplay.** Autoplay on page load downloads video before the user sees it. Use IntersectionObserver to trigger play when 50% of the video is visible.
 
 **2. Poster image is mandatory.** A poster image shows instantly while video buffers. Without it, users see a black rectangle. The poster should be the first frame or a representative still.
@@ -36,6 +24,18 @@ The rule: video starts loading when the user is about to see it, not when the pa
 **5. Mobile Safari demands inline playback.** `playsinline` attribute is required for iOS autoplay. Without it, video opens fullscreen and kills the UX.
 
 ---
+
+## When to Activate
+
+- Hero section with background video
+- Content feed with inline video previews
+- Product demos that autoplay on scroll
+- Interactive video players with custom controls
+- Any page where video is above or near the fold
+
+---
+
+## Principles
 
 ## Decision Framework
 

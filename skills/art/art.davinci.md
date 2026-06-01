@@ -2,16 +2,22 @@
 
 # Art — Da Vinci Mode: Systems Thinking and Deep Observation
 
-## The Da Vinci Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to davinci.
+
+## Principles
+
+### The Da Vinci Mindset
 Leonardo da Vinci didn't separate art from science. He studied anatomy to paint better. He studied water to understand both rivers and blood. He understood that everything connects to everything else, and that the deepest insights come from studying a problem from multiple disciplines simultaneously.
 
 Da Vinci Mode: approach every problem with radical curiosity. Look at it from angles that seem unrelated. The unexpected connection is often the breakthrough.
 
 ---
 
-## Cross-Domain Pattern Recognition
-
+### Cross-Domain Pattern Recognition
 Da Vinci transferred patterns between domains. The spiral in a nautilus shell became the spiral staircase. The flow of water became the flow of blood. The branching of trees became the branching of rivers.
 
 ```
@@ -33,37 +39,7 @@ Ask: "Where else does this problem exist in nature or society?
 
 ---
 
-## Deep Observation Before Action
-
-Da Vinci's notebooks show thousands of observations before conclusions. He drew the same horse 50 times from different angles before painting it once.
-
-```
-Applied to debugging:
-  Before touching code: observe the bug fully.
-  - Under what exact conditions does it occur?
-  - What are all the variables that affect it?
-  - What does the data look like immediately before the failure?
-  - What do the logs say — all of them, in sequence?
-  - When did it first appear? What changed that day?
-
-  Da Vinci would fill a page of observations.
-  Most developers change code after 30 seconds of looking.
-  The difference: Da Vinci's observation reveals the root cause.
-  The hasty change fixes a symptom.
-
-Applied to system design:
-  Before designing: study the problem domain deeply.
-  - Who are all the actors in this system?
-  - What are all the flows of data?
-  - What already exists that you could leverage?
-  - What are the natural fault lines where things break?
-  - What does the ideal state look like — not the achievable state?
-```
-
----
-
-## The Notebook Practice
-
+### The Notebook Practice
 Da Vinci kept notebooks everywhere — for capturing observations the moment they occurred.
 
 ```typescript
@@ -94,8 +70,7 @@ Going with A — minimal change, clear mechanism
 
 ---
 
-## Systems Thinking: See the Whole System
-
+### Systems Thinking: See the Whole System
 Da Vinci never studied a part in isolation. He always asked how it related to the whole.
 
 ```
@@ -117,8 +92,7 @@ accessibility, and support — and designs accordingly.
 
 ---
 
-## Analogical Design
-
+### Analogical Design
 ```
 User interface problem: how to communicate system status during a long operation
 
@@ -140,7 +114,46 @@ Translated to UI:
 
 ---
 
-## Da Vinci Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+Da Vinci's notebooks show thousands of observations before conclusions. He drew the same horse 50 times from different angles before painting it once.
+
+```
+Applied to debugging:
+  Before touching code: observe the bug fully.
+  - Under what exact conditions does it occur?
+  - What are all the variables that affect it?
+  - What does the data look like immediately before the failure?
+  - What do the logs say — all of them, in sequence?
+  - When did it first appear? What changed that day?
+
+  Da Vinci would fill a page of observations.
+  Most developers change code after 30 seconds of looking.
+  The difference: Da Vinci's observation reveals the root cause.
+  The hasty change fixes a symptom.
+
+Applied to system design:
+  Before designing: study the problem domain deeply.
+  - Who are all the actors in this system?
+  - What are all the flows of data?
+  - What already exists that you could leverage?
+  - What are the natural fault lines where things break?
+  - What does the ideal state look like — not the achievable state?
+```
+
+---
 
 - [ ] Problem observed deeply before action (at least 5 distinct observations)
 - [ ] Cross-domain search: where does this problem exist elsewhere?

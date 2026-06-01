@@ -2,7 +2,7 @@
 
 # Accessibility — Keyboard Navigation and Focus Management
 
-## Keyboard-First Principle
+## Core Philosophy
 
 Every interaction possible with a mouse must be achievable with a keyboard alone. This serves keyboard-only users, power users, and assistive technology users.
 
@@ -19,8 +19,13 @@ Core keyboard behaviors:
 
 ---
 
-## Focus Visibility
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to keyboard.
+
+## Principles
+
+### Focus Visibility
 Focus indicators must be clearly visible. Never remove the outline without replacing it.
 
 ```css
@@ -47,8 +52,7 @@ Focus indicators must be clearly visible. Never remove the outline without repla
 
 ---
 
-## Tab Order
-
+### Tab Order
 Tab order must follow visual reading order (top-left to bottom-right).
 
 ```tsx
@@ -84,8 +88,7 @@ useEffect(() => {
 
 ---
 
-## Focus Trapping (Modal Dialogs)
-
+### Focus Trapping (Modal Dialogs)
 When a dialog is open, focus must stay inside it.
 
 ```tsx
@@ -166,8 +169,7 @@ function Modal({ isOpen, onClose, children }: ModalProps) {
 
 ---
 
-## Keyboard Navigation Within Components
-
+### Keyboard Navigation Within Components
 Complex components (menus, tabs, comboboxes) use arrow keys internally.
 
 ```tsx
@@ -236,8 +238,7 @@ function Tabs({ tabs }: { tabs: Tab[] }) {
 
 ---
 
-## Skip Links
-
+### Skip Links
 Allow keyboard users to skip repetitive navigation.
 
 ```tsx
@@ -271,8 +272,7 @@ Allow keyboard users to skip repetitive navigation.
 
 ---
 
-## Focus Return
-
+### Focus Return
 When a trigger opens something (modal, dropdown), focus should return to the trigger when it closes.
 
 ```tsx
@@ -294,7 +294,19 @@ function useReturnFocus(isOpen: boolean) {
 
 ---
 
-## Keyboard Accessibility Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All interactions reachable and operable via keyboard alone
 - [ ] Focus indicator is clearly visible (never `outline: none` without replacement)

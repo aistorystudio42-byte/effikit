@@ -32,16 +32,29 @@ export interface EngineConfig {
   minSimilarityThreshold: number;
   maxNeighbors: number;
   maxResults: number;
+  similarityMetric?: "pearson" | "cosine";
 }
 
 // ─── Math Utilities ───────────────────────────────────────────────────────────
 
-function dotProduct(a: number[], b: number[]): number {
-  return a.reduce((sum, val, i) => sum + val * (b[i] ?? 0), 0);
-}
+function cosineSimilarity(
+  a: Record<string, number>,
+  b: Record<string, number>
+): number {
+  const commonKeys = Object.keys(a).filter((k) => k in b);
+  if (commonKeys.length === 0) return 0;
 
-function magnitude(v: number[]): number {
-  return Math.sqrt(v.reduce((sum, val) => sum + val * val, 0));
+  let dotProduct = 0;
+  for (const k of commonKeys) dotProduct += a[k] * b[k];
+
+  let magA = 0;
+  for (const v of Object.values(a)) magA += v * v;
+  
+  let magB = 0;
+  for (const v of Object.values(b)) magB += v * v;
+
+  const mag = Math.sqrt(magA) * Math.sqrt(magB);
+  return mag === 0 ? 0 : dotProduct / mag;
 }
 
 // Pearson CF similarity (mean-centered)
@@ -78,11 +91,17 @@ function findSimilarUsers(
   target: UserProfile,
   allUsers: UserProfile[],
   maxNeighbors: number,
-  minThreshold: number
+  minThreshold: number,
+  metric: "pearson" | "cosine" = "pearson"
 ): Array<{ user: UserProfile; similarity: number }> {
   return allUsers
     .filter((u) => u.userId !== target.userId)
-    .map((u) => ({ user: u, similarity: pearsonSimilarity(target.ratings, u.ratings) }))
+    .map((u) => {
+      const similarity = metric === "pearson" 
+        ? pearsonSimilarity(target.ratings, u.ratings)
+        : cosineSimilarity(target.ratings, u.ratings);
+      return { user: u, similarity };
+    })
     .filter((x) => x.similarity >= minThreshold)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, maxNeighbors);
@@ -150,12 +169,18 @@ export class RecommendationEngine {
       minSimilarityThreshold: config.minSimilarityThreshold ?? 0.1,
       maxNeighbors: config.maxNeighbors ?? 50,
       maxResults: config.maxResults ?? 20,
+      similarityMetric: config.similarityMetric ?? "pearson",
     };
 
     // Normalize weights to sum to 1
     const total = this.config.collaborativeWeight + this.config.contentWeight;
-    this.config.collaborativeWeight /= total;
-    this.config.contentWeight /= total;
+    if (total === 0) {
+      this.config.collaborativeWeight = 0.5;
+      this.config.contentWeight = 0.5;
+    } else {
+      this.config.collaborativeWeight /= total;
+      this.config.contentWeight /= total;
+    }
   }
 
   recommend(
@@ -174,7 +199,8 @@ export class RecommendationEngine {
       targetUser,
       allUsers,
       this.config.maxNeighbors,
-      this.config.minSimilarityThreshold
+      this.config.minSimilarityThreshold,
+      this.config.similarityMetric
     );
 
     // Content-based: build tag affinity profile

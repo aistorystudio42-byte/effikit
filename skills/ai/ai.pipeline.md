@@ -2,8 +2,15 @@
 
 # AI — Pipeline and Agent Orchestration
 
-## Single LLM Call vs Pipeline
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to pipeline.
+
+## Principles
+
+### Single LLM Call vs Pipeline
 A single LLM call handles simple tasks. Complex tasks benefit from pipelines — sequences of calls where each step specializes.
 
 ```
@@ -20,8 +27,7 @@ Pipeline: "Research a topic and write a report"
 
 ---
 
-## Tool Use / Function Calling
-
+### Tool Use / Function Calling
 Give the LLM tools to interact with the outside world.
 
 ```typescript
@@ -117,8 +123,7 @@ async function executeTool(name: string, input: unknown): Promise<unknown> {
 
 ---
 
-## Parallel Tool Execution
-
+### Parallel Tool Execution
 When multiple tools can run simultaneously, execute them in parallel.
 
 ```typescript
@@ -148,8 +153,7 @@ async function executeToolCalls(toolCalls: ToolCall[]): Promise<ToolResult[]> {
 
 ---
 
-## Multi-Step Pipeline with Specialization
-
+### Multi-Step Pipeline with Specialization
 ```typescript
 class ContentPipeline {
   // Step 1: Extract and structure raw content
@@ -202,7 +206,13 @@ class ContentPipeline {
 
 ---
 
-## Error Handling and Retry
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
 
 ```typescript
 class ResilientLLMClient {
@@ -239,7 +249,7 @@ class ResilientLLMClient {
 
 ---
 
-## Pipeline Checklist
+## Example in Action
 
 - [ ] Each pipeline step uses the appropriate model (fast/cheap for classification, capable for generation)
 - [ ] Tool definitions are precise (clear name, description, parameter types)

@@ -2,8 +2,15 @@
 
 # Accessibility — Color and Visual Accessibility
 
-## Color Contrast Requirements
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to color.
+
+## Principles
+
+### Color Contrast Requirements
 WCAG 2.1 defines minimum contrast ratios for text readability.
 
 ```
@@ -21,8 +28,7 @@ Target AA for most projects. AAA for healthcare or high-stakes UI.
 
 ---
 
-## Measuring Contrast
-
+### Measuring Contrast
 ```typescript
 // Calculate contrast ratio programmatically
 function getLuminance(r: number, g: number, b: number): number {
@@ -70,8 +76,7 @@ colorPairs.forEach(({ fg, bg, context }) => {
 
 ---
 
-## Don't Rely on Color Alone
-
+### Don't Rely on Color Alone
 About 8% of men and 0.5% of women have some form of color blindness. Never use color as the only means of conveying information.
 
 ```tsx
@@ -114,8 +119,7 @@ About 8% of men and 0.5% of women have some form of color blindness. Never use c
 
 ---
 
-## Color Blindness Testing
-
+### Color Blindness Testing
 ```
 Types of color blindness:
   Deuteranopia (8% of men): can't distinguish red/green
@@ -132,8 +136,7 @@ Testing tools:
 
 ---
 
-## Dark Mode Contrast
-
+### Dark Mode Contrast
 ```css
 :root {
   --text-primary:     #111827;  /* on white: 16.1:1 ✓ */
@@ -153,8 +156,7 @@ Testing tools:
 
 ---
 
-## Focus Indicators — Contrast Requirements
-
+### Focus Indicators — Contrast Requirements
 ```css
 /* Focus ring must have 3:1 contrast against adjacent colors */
 :focus-visible {
@@ -174,7 +176,19 @@ Testing tools:
 
 ---
 
-## Color Accessibility Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All text meets AA contrast (4.5:1 for body, 3:1 for large text)
 - [ ] UI components (borders, input outlines) meet 3:1 contrast

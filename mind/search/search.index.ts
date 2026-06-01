@@ -186,7 +186,7 @@ export class InvertedIndex {
         if (this.config.algorithm === "bm25") {
           termScore = bm25Score(
             posting.termFrequency, df, this.docCount, docLen,
-            avgFieldLen[posting.fieldName] ?? 1,
+            Math.max(0.001, avgFieldLen[posting.fieldName] ?? 1),
             this.config.bm25.k1, this.config.bm25.b
           );
         } else {

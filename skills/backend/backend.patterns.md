@@ -2,14 +2,17 @@
 
 # Backend — Design Patterns and Scalable Structures
 
-## When to Apply a Pattern
+## Core Philosophy
+
+## When to Activate
 
 Patterns solve specific recurring problems. Applying a pattern where the problem doesn't exist adds complexity without benefit. Before adopting any pattern, identify the exact problem it solves in your current context.
 
 ---
 
-## CQRS — Command Query Responsibility Segregation
+## Principles
 
+### CQRS — Command Query Responsibility Segregation
 **Problem it solves:** Read and write models have different optimization needs. A write operation needs validation and consistency; a read operation needs speed and flexibility.
 
 ```typescript
@@ -63,8 +66,7 @@ class GetOrderDetailsHandler {
 
 ---
 
-## Domain Events
-
+### Domain Events
 Decouple side effects from core business logic. When order is created, payment, email, and inventory should not be orchestrated directly inside `OrderService`.
 
 ```typescript
@@ -109,8 +111,7 @@ eventBus.subscribe('order.created', e => notificationHandler.handle(e));
 
 ---
 
-## Middleware Chain
-
+### Middleware Chain
 ```typescript
 // Express middleware — composable, single responsibility
 type Middleware = (req: Request, res: Response, next: NextFunction) => void | Promise<void>;
@@ -171,8 +172,7 @@ router.post('/admin/users',
 
 ---
 
-## Repository Pattern with Specifications
-
+### Repository Pattern with Specifications
 For complex queries, the Specification pattern keeps repositories clean.
 
 ```typescript
@@ -208,8 +208,7 @@ const users = await userRepo.findBySpec(activePremiumUsers);
 
 ---
 
-## Unit of Work Pattern
-
+### Unit of Work Pattern
 Ensures multiple repository operations either all succeed or all fail together.
 
 ```typescript
@@ -252,8 +251,7 @@ await uow.transaction(async (uow) => {
 
 ---
 
-## Pattern Selection Guide
-
+### Pattern Selection Guide
 | Problem | Pattern |
 |---------|---------|
 | Read/write model mismatch | CQRS |
@@ -263,3 +261,22 @@ await uow.transaction(async (uow) => {
 | Cross-cutting concerns (auth, logging) | Middleware |
 | Same operation, different implementations | Strategy |
 | Building complex objects step by step | Builder |
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
+```

@@ -2,8 +2,15 @@
 
 # AI — Context Management
 
-## The Context Window Problem
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to context.
+
+## Principles
+
+### The Context Window Problem
 LLMs have a finite context window. A long conversation or large codebase can't fit entirely in context. Context management is the discipline of deciding what information the model needs right now.
 
 ```
@@ -20,8 +27,7 @@ Reality: retrieved documents often vary from 5k to 80k tokens
 
 ---
 
-## Retrieval-Augmented Generation (RAG)
-
+### Retrieval-Augmented Generation (RAG)
 Don't put everything in context. Retrieve what's relevant.
 
 ```typescript
@@ -83,7 +89,96 @@ Question: ${userQuery}`;
 
 ---
 
-## Chunking Strategy
+### Conversation Memory
+```typescript
+// Short-term: sliding window (keep last N messages)
+class ConversationMemory {
+  private messages: Message[] = [];
+
+  add(role: 'user' | 'assistant', content: string): void {
+    this.messages.push({ role, content, timestamp: new Date() });
+  }
+
+  // Sliding window — most recent N tokens
+  getContext(maxTokens = 8000): Message[] {
+    let tokens = 0;
+    const result: Message[] = [];
+
+    // Walk backwards — keep most recent
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      const estimated = this.messages[i].content.length / 4;
+      if (tokens + estimated > maxTokens) break;
+      result.unshift(this.messages[i]);
+      tokens += estimated;
+    }
+
+    return result;
+  }
+
+  // Summarize old messages to compress history
+  async compress(threshold = 20): Promise<void> {
+    if (this.messages.length < threshold) return;
+
+    const toSummarize = this.messages.slice(0, -10); // keep last 10 intact
+    const summary = await callLLM(`
+Summarize this conversation history in 3-5 bullet points.
+Preserve: key decisions, important facts, user preferences.
+
+${toSummarize.map(m => `${m.role}: ${m.content}`).join('\n')}
+`);
+
+    this.messages = [
+      { role: 'system', content: `Previous conversation summary:\n${summary}` },
+      ...this.messages.slice(-10),
+    ];
+  }
+}
+```
+
+---
+
+### Context Window Optimization
+```typescript
+// Prioritize context by relevance and recency
+async function buildOptimalContext(
+  query: string,
+  conversationHistory: Message[],
+  availableDocuments: Document[],
+  tokenBudget = 80_000,
+): Promise<ContextBundle> {
+  let remainingBudget = tokenBudget;
+
+  // 1. System prompt (fixed cost)
+  const systemTokens = estimateTokens(systemPrompt);
+  remainingBudget -= systemTokens;
+
+  // 2. Recent conversation (high value — always include last 5 turns)
+  const recentHistory = conversationHistory.slice(-10);
+  const historyTokens = recentHistory.reduce((sum, m) => sum + estimateTokens(m.content), 0);
+  remainingBudget -= historyTokens;
+
+  // 3. Retrieved documents (variable — ranked by relevance)
+  const retrieved = await vectorStore.query(query, 10);
+  const documents: string[] = [];
+
+  for (const chunk of retrieved) {
+    const chunkTokens = estimateTokens(chunk.text);
+    if (remainingBudget - chunkTokens < 5000) break; // keep buffer for response
+    documents.push(chunk.text);
+    remainingBudget -= chunkTokens;
+  }
+
+  return { systemPrompt, history: recentHistory, documents };
+}
+
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4); // ~4 chars per token for English
+}
+```
+
+---
+
+## Decision Framework
 
 How you split documents dramatically affects retrieval quality.
 
@@ -137,98 +232,13 @@ class DocumentChunker {
 
 ---
 
-## Conversation Memory
+## Anti-Patterns
 
-```typescript
-// Short-term: sliding window (keep last N messages)
-class ConversationMemory {
-  private messages: Message[] = [];
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
-  add(role: 'user' | 'assistant', content: string): void {
-    this.messages.push({ role, content, timestamp: new Date() });
-  }
-
-  // Sliding window — most recent N tokens
-  getContext(maxTokens = 8000): Message[] {
-    let tokens = 0;
-    const result: Message[] = [];
-
-    // Walk backwards — keep most recent
-    for (let i = this.messages.length - 1; i >= 0; i--) {
-      const estimated = this.messages[i].content.length / 4;
-      if (tokens + estimated > maxTokens) break;
-      result.unshift(this.messages[i]);
-      tokens += estimated;
-    }
-
-    return result;
-  }
-
-  // Summarize old messages to compress history
-  async compress(threshold = 20): Promise<void> {
-    if (this.messages.length < threshold) return;
-
-    const toSummarize = this.messages.slice(0, -10); // keep last 10 intact
-    const summary = await callLLM(`
-Summarize this conversation history in 3-5 bullet points.
-Preserve: key decisions, important facts, user preferences.
-
-${toSummarize.map(m => `${m.role}: ${m.content}`).join('\n')}
-`);
-
-    this.messages = [
-      { role: 'system', content: `Previous conversation summary:\n${summary}` },
-      ...this.messages.slice(-10),
-    ];
-  }
-}
-```
-
----
-
-## Context Window Optimization
-
-```typescript
-// Prioritize context by relevance and recency
-async function buildOptimalContext(
-  query: string,
-  conversationHistory: Message[],
-  availableDocuments: Document[],
-  tokenBudget = 80_000,
-): Promise<ContextBundle> {
-  let remainingBudget = tokenBudget;
-
-  // 1. System prompt (fixed cost)
-  const systemTokens = estimateTokens(systemPrompt);
-  remainingBudget -= systemTokens;
-
-  // 2. Recent conversation (high value — always include last 5 turns)
-  const recentHistory = conversationHistory.slice(-10);
-  const historyTokens = recentHistory.reduce((sum, m) => sum + estimateTokens(m.content), 0);
-  remainingBudget -= historyTokens;
-
-  // 3. Retrieved documents (variable — ranked by relevance)
-  const retrieved = await vectorStore.query(query, 10);
-  const documents: string[] = [];
-
-  for (const chunk of retrieved) {
-    const chunkTokens = estimateTokens(chunk.text);
-    if (remainingBudget - chunkTokens < 5000) break; // keep buffer for response
-    documents.push(chunk.text);
-    remainingBudget -= chunkTokens;
-  }
-
-  return { systemPrompt, history: recentHistory, documents };
-}
-
-function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 4); // ~4 chars per token for English
-}
-```
-
----
-
-## Context Management Checklist
+## Example in Action
 
 - [ ] Token budget planned (system prompt + history + retrieval + response)
 - [ ] Document chunking matches retrieval use case (semantic chunks for FAQ, size chunks for dense docs)

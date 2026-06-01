@@ -2,16 +2,22 @@
 
 # Refactoring — Patterns and Techniques
 
-## Refactoring Discipline
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to patterns.
+
+## Principles
+
+### Refactoring Discipline
 Refactoring is changing code structure without changing observable behavior. The moment you add a feature while refactoring, you've done two things at once — and now it's hard to tell which change broke something.
 
 **Rule: Always have tests before refactoring.** If tests don't exist, write them first. Refactor under green tests only.
 
 ---
 
-## Extract Function / Method
-
+### Extract Function / Method
 The most common and valuable refactoring. When a piece of code needs a comment to explain it, extract it into a function with a name that replaces the comment.
 
 ```typescript
@@ -58,8 +64,7 @@ function isCouponValid(coupon: Coupon | null): coupon is Coupon {
 
 ---
 
-## Replace Conditional with Polymorphism
-
+### Replace Conditional with Polymorphism
 Long if/switch chains on type become hard to extend. Polymorphism lets you add new types without touching existing code.
 
 ```typescript
@@ -106,8 +111,7 @@ function calculateShipping(order: Order): number {
 
 ---
 
-## Replace Magic Numbers with Named Constants
-
+### Replace Magic Numbers with Named Constants
 ```typescript
 // Before: magic numbers everywhere
 function canUserUpload(user: User, fileSizeBytes: number): boolean {
@@ -131,8 +135,7 @@ function canUserUpload(user: User, fileSizeBytes: number): boolean {
 
 ---
 
-## Introduce Parameter Object
-
+### Introduce Parameter Object
 When a function takes many related parameters, group them into an object.
 
 ```typescript
@@ -164,8 +167,7 @@ function searchProducts(params: ProductSearchParams): Promise<Product[]> { ... }
 
 ---
 
-## Decompose Large Classes
-
+### Decompose Large Classes
 A class with too many responsibilities should be split.
 
 ```typescript
@@ -209,7 +211,19 @@ class EmailVerificationService {
 
 ---
 
-## Refactoring Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 Before starting:
 - [ ] Tests exist and are passing (green)

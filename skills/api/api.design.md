@@ -2,8 +2,15 @@
 
 # API — RESTful Design Principles
 
-## Resource-Oriented Design
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to design.
+
+## Principles
+
+### Resource-Oriented Design
 REST is about resources, not actions. The URL identifies the resource; the HTTP method describes the action.
 
 ```
@@ -22,8 +29,7 @@ Correct (resource-oriented):
 
 ---
 
-## URL Structure
-
+### URL Structure
 ### Hierarchy Reflects Relationships
 ```
 /users                        → all users
@@ -58,8 +64,7 @@ Date range:   GET /orders?from=2024-01-01&to=2024-03-31
 
 ---
 
-## HTTP Methods
-
+### HTTP Methods
 | Method | Use Case | Body | Idempotent | Safe |
 |--------|----------|------|------------|------|
 | GET | Read | No | Yes | Yes |
@@ -91,53 +96,7 @@ PATCH /users/123
 
 ---
 
-## Status Codes
-
-Use the right code — don't return `200 OK` with `{ "error": "not found" }` in the body.
-
-```
-2xx Success
-  200 OK              → GET, PUT, PATCH success
-  201 Created         → POST success (include Location header)
-  204 No Content      → DELETE success, no response body
-  202 Accepted        → Async operation started (job queued)
-
-3xx Redirection
-  301 Moved Permanently → Resource URL changed
-  304 Not Modified      → Cached response still valid (ETag/If-None-Match)
-
-4xx Client Errors
-  400 Bad Request     → Malformed syntax, invalid JSON
-  401 Unauthorized    → Not authenticated (missing/invalid token)
-  403 Forbidden       → Authenticated but not authorized
-  404 Not Found       → Resource doesn't exist
-  409 Conflict        → State conflict (duplicate email, optimistic lock)
-  422 Unprocessable   → Valid syntax but failed validation
-  429 Too Many Requests → Rate limit exceeded
-
-5xx Server Errors
-  500 Internal Server Error → Unexpected server error
-  503 Service Unavailable   → Maintenance, overloaded
-```
-
-### Common Status Code Mistakes
-```
-201 → Location header must be included
-  Location: /users/123
-
-401 vs 403:
-  401 = "I don't know who you are" (not logged in)
-  403 = "I know who you are but you can't do this" (no permission)
-
-404 vs 403:
-  Sometimes returning 404 for unauthorized resources is intentional
-  (don't reveal existence of private resources)
-```
-
----
-
-## Response Format
-
+### Response Format
 Consistent response structure across all endpoints.
 
 ```typescript
@@ -182,8 +141,7 @@ GET /users/123 → { "id": "123", "name": "Alice" }
 
 ---
 
-## Headers
-
+### Headers
 ```typescript
 // Always include
 Content-Type: application/json
@@ -210,7 +168,62 @@ Access-Control-Allow-Headers: Content-Type, Authorization
 
 ---
 
-## API Design Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+Use the right code — don't return `200 OK` with `{ "error": "not found" }` in the body.
+
+```
+2xx Success
+  200 OK              → GET, PUT, PATCH success
+  201 Created         → POST success (include Location header)
+  204 No Content      → DELETE success, no response body
+  202 Accepted        → Async operation started (job queued)
+
+3xx Redirection
+  301 Moved Permanently → Resource URL changed
+  304 Not Modified      → Cached response still valid (ETag/If-None-Match)
+
+4xx Client Errors
+  400 Bad Request     → Malformed syntax, invalid JSON
+  401 Unauthorized    → Not authenticated (missing/invalid token)
+  403 Forbidden       → Authenticated but not authorized
+  404 Not Found       → Resource doesn't exist
+  409 Conflict        → State conflict (duplicate email, optimistic lock)
+  422 Unprocessable   → Valid syntax but failed validation
+  429 Too Many Requests → Rate limit exceeded
+
+5xx Server Errors
+  500 Internal Server Error → Unexpected server error
+  503 Service Unavailable   → Maintenance, overloaded
+```
+
+### Common Status Code Mistakes
+```
+201 → Location header must be included
+  Location: /users/123
+
+401 vs 403:
+  401 = "I don't know who you are" (not logged in)
+  403 = "I know who you are but you can't do this" (no permission)
+
+404 vs 403:
+  Sometimes returning 404 for unauthorized resources is intentional
+  (don't reveal existence of private resources)
+```
+
+---
 
 - [ ] URLs are nouns, not verbs
 - [ ] Collections are plural (`/users`, not `/user`)

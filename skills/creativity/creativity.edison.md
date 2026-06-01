@@ -2,16 +2,22 @@
 
 # Creativity — Edison Mode: Systematic Experimentation
 
-## The Edison Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to edison.
+
+## Principles
+
+### The Edison Mindset
 Thomas Edison didn't "fail 10,000 times" finding the lightbulb — he ran 10,000 experiments. Each result was data, not failure. Edison Mode is the mindset of systematic, rapid experimentation where every dead end reveals something useful.
 
 Apply this when: you're stuck on a problem with no clear solution, exploring unknown territory, or when the first obvious approach hasn't worked.
 
 ---
 
-## The Experiment Framework
-
+### The Experiment Framework
 ```
 Define:
   What are you trying to prove or disprove?
@@ -31,8 +37,7 @@ Learn:
 
 ---
 
-## Applied to Software Problems
-
+### Applied to Software Problems
 ### Stuck on a Bug?
 
 ```typescript
@@ -91,8 +96,7 @@ async function exploreStripeSDK() {
 
 ---
 
-## Ideation: Volume Before Quality
-
+### Ideation: Volume Before Quality
 Edison's notebooks show hundreds of ideas per day — most were discarded. Volume precedes quality in creative problem-solving.
 
 ```
@@ -117,8 +121,7 @@ Evaluating before generating kills 80% of good ideas before they're born.
 
 ---
 
-## The Minimum Viable Experiment (MVE)
-
+### The Minimum Viable Experiment (MVE)
 Before building a feature, test the core assumption with the least possible work.
 
 ```typescript
@@ -147,8 +150,7 @@ const SaveButton = () => (
 
 ---
 
-## Edison Mode Applied: Problem-Solving Steps
-
+### Edison Mode Applied: Problem-Solving Steps
 ```
 1. State the problem precisely (what exactly isn't working?)
 2. Generate 5+ possible causes (don't stop at the first one)
@@ -164,7 +166,19 @@ const SaveButton = () => (
 
 ---
 
-## Edison Mode Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Problem stated precisely before experimenting
 - [ ] Multiple hypotheses generated before testing any

@@ -19,8 +19,20 @@ In engineering, Socratic questioning serves two purposes: exposing hidden assump
 
 ---
 
-## Socratic Question Taxonomy
+Productive doubt has a limit. The signal to stop questioning and decide:
 
+- The remaining uncertainty is smaller than the cost of further analysis
+- You've identified the top 3 risks and have mitigation plans for each
+- You can steelman the opposing position (question 5 above) and still prefer your choice
+- A decision made now and revised later is cheaper than a decision not made
+
+**Paralysis markers:** You keep asking the same question in different forms. Every new question reveals another question with no path to a decision. You're adding stakeholders to avoid making the call.
+
+---
+
+## Principles
+
+### Socratic Question Taxonomy
 **Clarifying questions** — expose what the statement actually means:
 - "What do you mean when you say it's 'slow'?"
 - "Can you give me a concrete example of this failing?"
@@ -48,8 +60,7 @@ In engineering, Socratic questioning serves two purposes: exposing hidden assump
 
 ---
 
-## Self-Directed Questioning Protocol
-
+### Self-Directed Questioning Protocol
 Use this before committing to any architectural decision:
 
 1. "What problem am I actually solving?" (not the presented solution — the underlying problem)
@@ -62,18 +73,11 @@ If you cannot answer question 5, you don't understand the decision space well en
 
 ---
 
-## When to Stop and Commit
+## Decision Framework
 
-Productive doubt has a limit. The signal to stop questioning and decide:
-
-- The remaining uncertainty is smaller than the cost of further analysis
-- You've identified the top 3 risks and have mitigation plans for each
-- You can steelman the opposing position (question 5 above) and still prefer your choice
-- A decision made now and revised later is cheaper than a decision not made
-
-**Paralysis markers:** You keep asking the same question in different forms. Every new question reveals another question with no path to a decision. You're adding stakeholders to avoid making the call.
-
----
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

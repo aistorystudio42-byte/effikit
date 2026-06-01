@@ -10,18 +10,6 @@ The cardinal sin of developer tool copy: describing what the tool does instead o
 
 ---
 
-## When to Activate
-
-- Writing landing page headlines, subheadlines, body copy
-- Crafting CTAs that need to outperform generic "Sign Up" buttons
-- Rewriting weak product descriptions or feature lists
-- Creating urgency without false claims
-- Email subject lines and push notifications
-
----
-
-## Principles
-
 **1. AIDA — the only framework you need.** Attention (stop the scroll), Interest (here's something relevant to you), Desire (imagine this being yours), Action (here's how to get it). Every piece of copy follows this sequence or fails.
 
 **2. Specific beats vague, always.** "Faster" means nothing. "Loads in 0.4 seconds" is a claim someone can believe or disprove. Specificity signals honesty. Vagueness signals you don't know your numbers.
@@ -35,6 +23,18 @@ The cardinal sin of developer tool copy: describing what the tool does instead o
 **6. Scarcity and urgency only when real.** "Only 3 spots left" when there are 3000 is a lie. Readers detect it and trust collapses permanently. Real scarcity: beta cohort of 200, early access closes Friday, founding price until launch.
 
 ---
+
+## When to Activate
+
+- Writing landing page headlines, subheadlines, body copy
+- Crafting CTAs that need to outperform generic "Sign Up" buttons
+- Rewriting weak product descriptions or feature lists
+- Creating urgency without false claims
+- Email subject lines and push notifications
+
+---
+
+## Principles
 
 ## Decision Framework
 

@@ -10,6 +10,14 @@ The enemy of first principles is the analogy: "We should do it like Netflix." Ne
 
 ---
 
+**Assumptions have a half-life.** The assumption that was correct 2 years ago may be incorrect today. Re-examine decisions when constraints change, not just when problems arise.
+
+**Physics is the floor.** When the why ladder hits physical limits (network latency exists, RAM has cost, CPUs have a clock rate), you've reached atoms. Stop there.
+
+**Simplicity is the default.** The first-principles answer is almost always simpler than the inherited pattern. Complexity is often just accumulated assumption-debt.
+
+---
+
 ## When to Activate
 
 - A technical decision feels like it has an obvious answer but you're not sure why
@@ -19,8 +27,9 @@ The enemy of first principles is the analogy: "We should do it like Netflix." Ne
 
 ---
 
-## 5-Step Decomposition
+## Principles
 
+### 5-Step Decomposition
 **Step 1 — State the problem in one sentence.**  
 Not the solution. Not the constraint. The actual problem. "We need microservices" is not a problem. "Our deployment takes 40 minutes and blocks the team" is.
 
@@ -40,15 +49,11 @@ Given your real constraints, what is the minimum solution that addresses the roo
 
 ---
 
-## Principles
+## Decision Framework
 
-**Assumptions have a half-life.** The assumption that was correct 2 years ago may be incorrect today. Re-examine decisions when constraints change, not just when problems arise.
-
-**Physics is the floor.** When the why ladder hits physical limits (network latency exists, RAM has cost, CPUs have a clock rate), you've reached atoms. Stop there.
-
-**Simplicity is the default.** The first-principles answer is almost always simpler than the inherited pattern. Complexity is often just accumulated assumption-debt.
-
----
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

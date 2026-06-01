@@ -2,14 +2,50 @@
 
 # Design — Design System Architecture
 
-## What Is a Design System?
+## Core Philosophy
 
+```typescript
+// Consistent prop API across all components:
+
+// 1. Variant — visual style
+variant: 'primary' | 'secondary' | 'ghost' | 'destructive'
+
+// 2. Size — consistent scale
+size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+// 3. State props — predictable names
+isLoading, isDisabled, isSelected, isExpanded, isOpen
+
+// 4. Composition — accept children and slot props
+// Don't limit composition — use children/render props for flexibility
+
+// 5. ref forwarding — required for all interactive elements
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ ...props }, ref) => (
+  <button ref={ref} {...props} />
+));
+
+// 6. Spread native props — don't block native attributes
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  error?: string;
+}
+// User can pass data-testid, aria-*, id without extra prop definitions
+```
+
+---
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to system.
+
+## Principles
+
+### What Is a Design System?
 A design system is the single source of truth for visual and interaction decisions. It's not a component library — it's a language. When every designer and developer uses the same tokens, spacing scale, and component primitives, the product looks and behaves consistently without constant coordination.
 
 ---
 
-## Token Hierarchy
-
+### Token Hierarchy
 ```
 Primitive tokens → Semantic tokens → Component tokens
 
@@ -35,8 +71,7 @@ Why three layers?
 
 ---
 
-## Color System Design
-
+### Color System Design
 ```typescript
 // Perceptually uniform color scales — each step is visually equal distance
 const colorScale = {
@@ -88,8 +123,7 @@ const semanticColors = {
 
 ---
 
-## Typography Scale
-
+### Typography Scale
 ```typescript
 // Type scale — consistent ratio (1.25 major third, or 1.333 perfect fourth)
 const typeScale = {
@@ -120,8 +154,7 @@ const textStyles = {
 
 ---
 
-## Spacing System
-
+### Spacing System
 ```typescript
 // 4px base grid — all spacing is a multiple of 4
 const spacing = {
@@ -156,40 +189,7 @@ const spacing = {
 
 ---
 
-## Component API Design Principles
-
-```typescript
-// Consistent prop API across all components:
-
-// 1. Variant — visual style
-variant: 'primary' | 'secondary' | 'ghost' | 'destructive'
-
-// 2. Size — consistent scale
-size: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-
-// 3. State props — predictable names
-isLoading, isDisabled, isSelected, isExpanded, isOpen
-
-// 4. Composition — accept children and slot props
-// Don't limit composition — use children/render props for flexibility
-
-// 5. ref forwarding — required for all interactive elements
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ ...props }, ref) => (
-  <button ref={ref} {...props} />
-));
-
-// 6. Spread native props — don't block native attributes
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  error?: string;
-}
-// User can pass data-testid, aria-*, id without extra prop definitions
-```
-
----
-
-## Design System Governance
-
+### Design System Governance
 ```
 Token naming convention: all lowercase, hyphenated
   Good: --color-primary, --space-content-gap
@@ -210,7 +210,19 @@ Breaking changes:
 
 ---
 
-## Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All colors reference semantic tokens (never hardcoded hex in components)
 - [ ] All spacing uses the spacing scale (no arbitrary pixel values)

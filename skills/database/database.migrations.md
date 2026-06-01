@@ -2,7 +2,7 @@
 
 # Database — Migrations and Schema Evolution
 
-## Migration Philosophy
+## Core Philosophy
 
 A migration is a unit of intentional schema change. It must be: **reversible** (can roll back), **idempotent** (safe to run twice), and **non-destructive** to existing data unless explicitly intended.
 
@@ -10,8 +10,13 @@ Never modify a migration that has already been run in production. Write a new mi
 
 ---
 
-## Migration File Structure
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to migrations.
+
+## Principles
+
+### Migration File Structure
 ```typescript
 // migrations/20240315_add_user_tier.ts
 
@@ -39,8 +44,7 @@ export async function down(knex: Knex): Promise<void> {
 
 ---
 
-## Zero-Downtime Migration Patterns
-
+### Zero-Downtime Migration Patterns
 Adding a column and deploying code that uses it in one step is risky — the old code runs while the migration is in progress.
 
 ### The Expand-Contract Pattern
@@ -96,8 +100,7 @@ export async function up(knex: Knex): Promise<void> {
 
 ---
 
-## Dangerous Operations and Safe Alternatives
-
+### Dangerous Operations and Safe Alternatives
 ### Adding NOT NULL Column
 ```sql
 -- DANGEROUS: Locks entire table while backfilling (can take minutes on large tables)
@@ -147,8 +150,7 @@ CREATE INDEX CONCURRENTLY idx_users_email ON users (email);
 
 ---
 
-## Migration Tracking and Versioning
-
+### Migration Tracking and Versioning
 ```typescript
 // knexfile.ts
 export default {
@@ -170,7 +172,7 @@ export default {
 
 ---
 
-## Rollback Strategy
+## Decision Framework
 
 ```typescript
 // Always write the down() function — even if you plan to never use it
@@ -211,7 +213,13 @@ export async function down(knex: Knex): Promise<void> {
 
 ---
 
-## Migration Checklist
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Migration filename includes timestamp (for ordering)
 - [ ] `up()` and `down()` both implemented

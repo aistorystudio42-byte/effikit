@@ -32,10 +32,16 @@ export interface DiversityResult {
 
 // ─── Similarity Functions ──────────────────────────────────────────────────────
 
-function tagJaccard(a: DiversifiableItem, b: DiversifiableItem): number {
-  const setA = new Set(a.tags);
-  const intersection = b.tags.filter((t) => setA.has(t)).length;
-  const union = new Set([...a.tags, ...b.tags]).size;
+function tagJaccard(a: DiversifiableItem & { tagSet?: Set<string> }, b: DiversifiableItem & { tagSet?: Set<string> }): number {
+  const setA = a.tagSet ?? new Set(a.tags);
+  const setB = b.tagSet ?? new Set(b.tags);
+  let intersection = 0;
+  if (setA.size < setB.size) {
+    for (const t of setA) if (setB.has(t)) intersection++;
+  } else {
+    for (const t of setB) if (setA.has(t)) intersection++;
+  }
+  const union = setA.size + setB.size - intersection;
   return union === 0 ? 0 : intersection / union;
 }
 
@@ -51,8 +57,7 @@ function cosineSimilarityVec(a: number[], b: number[]): number {
   return denom === 0 ? 0 : dot / denom;
 }
 
-function itemSimilarity(a: DiversifiableItem, b: DiversifiableItem): number {
-  // Use embedding cosine if available, else fall back to tag Jaccard
+function itemSimilarity(a: DiversifiableItem & { tagSet?: Set<string> }, b: DiversifiableItem & { tagSet?: Set<string> }): number {
   if (a.embedding && b.embedding) {
     return cosineSimilarityVec(a.embedding, b.embedding);
   }
@@ -94,7 +99,7 @@ function injectSerendipity(
   const result = [...selected];
   const step = Math.floor(result.length / (serendipityCount + 1));
   reservoir.forEach((item, i) => {
-    const pos = Math.min((i + 1) * step, result.length);
+    const pos = Math.min((i + 1) * step + i, result.length);
     result.splice(pos, 0, item);
   });
 
@@ -123,7 +128,7 @@ export class DiversityEngine {
     if (items.length === 0) return { items: [], categoryDistribution: {}, diversityScore: 0 };
 
     const maxScore = Math.max(...items.map((i) => Math.abs(i.score)), 1e-9);
-    const normalized = items.map((i) => ({ ...i, score: i.score / maxScore }));
+    const normalized = items.map((i) => ({ ...i, score: i.score / maxScore, tagSet: new Set(i.tags) }));
 
     const selected: DiversifiableItem[] = [];
     const inSelected = new Set<number>();

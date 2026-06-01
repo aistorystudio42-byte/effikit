@@ -2,7 +2,7 @@
 
 # Backend — Architecture and Layer Design
 
-## Core Principle: Separation of Concerns
+## Core Philosophy
 
 Every backend system eventually faces the same failure: business logic bleeds into the wrong layer. Controllers start making database calls. Services start formatting HTTP responses. The codebase becomes impossible to test or change without side effects.
 
@@ -10,7 +10,95 @@ The solution is explicit, enforced layer boundaries.
 
 ---
 
-## Layered Architecture
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to architecture.
+
+## Principles
+
+### Dependency Injection
+Layers depend on abstractions, not implementations. This enables testing and swapping implementations.
+
+```typescript
+// Interface — the contract
+interface IUserRepository {
+  findByEmail(email: string): Promise<User | null>;
+  findById(id: string): Promise<User | null>;
+  create(data: CreateUserData): Promise<User>;
+  update(id: string, data: Partial<User>): Promise<User>;
+}
+
+// Real implementation
+class PostgresUserRepository implements IUserRepository {
+  async findByEmail(email: string) { /* real DB query */ }
+}
+
+// Test implementation
+class InMemoryUserRepository implements IUserRepository {
+  private users = new Map<string, User>();
+  async findByEmail(email: string) {
+    return [...this.users.values()].find(u => u.email === email) ?? null;
+  }
+}
+
+// Service depends on interface, not implementation
+class UserService {
+  constructor(private readonly userRepo: IUserRepository) {}
+  // Works with both Postgres and InMemory implementations
+}
+```
+
+---
+
+### Module Structure
+```
+src/
+  modules/
+    users/
+      users.controller.ts
+      users.service.ts
+      users.repository.ts
+      users.dto.ts
+      users.types.ts
+      users.module.ts     ← wires everything together
+    orders/
+      orders.controller.ts
+      ...
+  shared/
+    middleware/
+    errors/
+    database/
+    events/
+  app.ts
+  main.ts
+```
+
+**Co-location rule:** Keep everything related to a feature in one module. Cross-cutting concerns (auth middleware, logging, DB connection) go in `shared/`.
+
+---
+
+### Async Patterns
+```typescript
+// Always handle Promise rejections
+// Wrong: fire-and-forget without catch
+emailService.sendWelcome(user.email); // if this throws, it's an unhandled rejection
+
+// Correct: await or explicit error handling
+await emailService.sendWelcome(user.email);
+// or if non-critical:
+emailService.sendWelcome(user.email).catch(err => logger.warn('Email failed', err));
+
+// Parallel independent operations
+const [user, permissions, settings] = await Promise.all([
+  userRepo.findById(id),
+  permissionRepo.findByUser(id),
+  settingsRepo.findByUser(id),
+]);
+```
+
+---
+
+## Decision Framework
 
 ```
 HTTP Layer (Controllers/Routes)
@@ -99,43 +187,6 @@ class UserRepository {
 
 ---
 
-## Dependency Injection
-
-Layers depend on abstractions, not implementations. This enables testing and swapping implementations.
-
-```typescript
-// Interface — the contract
-interface IUserRepository {
-  findByEmail(email: string): Promise<User | null>;
-  findById(id: string): Promise<User | null>;
-  create(data: CreateUserData): Promise<User>;
-  update(id: string, data: Partial<User>): Promise<User>;
-}
-
-// Real implementation
-class PostgresUserRepository implements IUserRepository {
-  async findByEmail(email: string) { /* real DB query */ }
-}
-
-// Test implementation
-class InMemoryUserRepository implements IUserRepository {
-  private users = new Map<string, User>();
-  async findByEmail(email: string) {
-    return [...this.users.values()].find(u => u.email === email) ?? null;
-  }
-}
-
-// Service depends on interface, not implementation
-class UserService {
-  constructor(private readonly userRepo: IUserRepository) {}
-  // Works with both Postgres and InMemory implementations
-}
-```
-
----
-
-## Error Handling Strategy
-
 Define a domain error hierarchy. Catch at the boundary (controller), handle in the middle (service), throw from the bottom (repository).
 
 ```typescript
@@ -182,57 +233,13 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 
 ---
 
-## Module Structure
+## Anti-Patterns
 
-```
-src/
-  modules/
-    users/
-      users.controller.ts
-      users.service.ts
-      users.repository.ts
-      users.dto.ts
-      users.types.ts
-      users.module.ts     ← wires everything together
-    orders/
-      orders.controller.ts
-      ...
-  shared/
-    middleware/
-    errors/
-    database/
-    events/
-  app.ts
-  main.ts
-```
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
-**Co-location rule:** Keep everything related to a feature in one module. Cross-cutting concerns (auth middleware, logging, DB connection) go in `shared/`.
-
----
-
-## Async Patterns
-
-```typescript
-// Always handle Promise rejections
-// Wrong: fire-and-forget without catch
-emailService.sendWelcome(user.email); // if this throws, it's an unhandled rejection
-
-// Correct: await or explicit error handling
-await emailService.sendWelcome(user.email);
-// or if non-critical:
-emailService.sendWelcome(user.email).catch(err => logger.warn('Email failed', err));
-
-// Parallel independent operations
-const [user, permissions, settings] = await Promise.all([
-  userRepo.findById(id),
-  permissionRepo.findByUser(id),
-  settingsRepo.findByUser(id),
-]);
-```
-
----
-
-## Checklist
+## Example in Action
 
 - [ ] Controllers contain zero business logic
 - [ ] Services have no direct database calls

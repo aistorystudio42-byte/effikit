@@ -2,8 +2,15 @@
 
 # Design — Responsive Design and Layout
 
-## Mobile-First Thinking
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to responsive.
+
+## Principles
+
+### Mobile-First Thinking
 Mobile-first means designing the simplest, most constrained version first, then progressively enhancing for larger screens. It forces prioritization — you can only show what truly matters.
 
 ```
@@ -19,8 +26,7 @@ Design in this order:
 
 ---
 
-## Layout Systems
-
+### Layout Systems
 ### Fluid Grid
 ```css
 /* Fluid grid — columns adapt to screen width */
@@ -70,8 +76,7 @@ Design in this order:
 
 ---
 
-## Fluid Typography
-
+### Fluid Typography
 Font sizes that scale smoothly between viewport widths — no hard jumps.
 
 ```css
@@ -96,8 +101,7 @@ h1 { font-size: var(--text-h1); }
 
 ---
 
-## Responsive Component Patterns
-
+### Responsive Component Patterns
 ### Stack → Inline
 ```typescript
 // Components that stack vertically on mobile, go inline on desktop
@@ -149,8 +153,7 @@ const Navigation = () => {
 
 ---
 
-## Touch Target Sizes
-
+### Touch Target Sizes
 ```css
 /* Minimum touch target: 44x44px (Apple HIG) / 48x48px (Material) */
 .button, .link, .checkbox, .radio {
@@ -166,8 +169,7 @@ const Navigation = () => {
 
 ---
 
-## Image Responsive Patterns
-
+### Image Responsive Patterns
 ```typescript
 // Always specify width+height to prevent CLS (Cumulative Layout Shift)
 // Use aspect-ratio to reserve space before image loads
@@ -210,7 +212,19 @@ const Navigation = () => {
 
 ---
 
-## Responsive Design Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Tested at 320px (smallest supported mobile)
 - [ ] Touch targets ≥ 44px

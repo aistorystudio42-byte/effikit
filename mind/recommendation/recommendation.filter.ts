@@ -110,10 +110,12 @@ const recencyFilter: FilterRule = {
 // ─── Maximal Marginal Relevance (MMR) Diversity ───────────────────────────────
 // Balances relevance with diversity: penalizes items too similar to already-selected ones
 
-function tagOverlap(a: FilterableItem, b: FilterableItem): number {
-  const setA = new Set(a.tags);
-  const intersection = b.tags.filter((t) => setA.has(t)).length;
-  const union = new Set([...a.tags, ...b.tags]).size;
+function tagOverlapPrecomputed(setA: Set<string>, setB: Set<string>): number {
+  let intersection = 0;
+  for (const t of setB) {
+    if (setA.has(t)) intersection++;
+  }
+  const union = setA.size + setB.size - intersection;
   return union === 0 ? 0 : intersection / union;
 }
 
@@ -129,6 +131,8 @@ const diversityFilter: FilterRule = {
     const inSelected = new Set<number>();
     const candidates = [...items];
 
+    const tagSets = items.map(i => new Set(i.tags));
+
     while (selected.length < (ctx.maxResults ?? items.length)) {
       let bestIdx = -1;
       let bestMMR = -Infinity;
@@ -139,9 +143,10 @@ const diversityFilter: FilterRule = {
         const relevance = candidates[i].score / maxScore;
         const maxSim = selected.length === 0
           ? 0
-          : Math.max(...selected.map((s) => tagOverlap(candidates[i], s)));
+          : Math.max(...Array.from(inSelected).map(selIdx => tagOverlapPrecomputed(tagSets[i], tagSets[selIdx])));
 
-        const mmr = alpha * relevance - (1 - alpha) * maxSim;
+        // alpha=0 (pure relevance), alpha=1 (maximum diversity)
+        const mmr = (1 - alpha) * relevance - alpha * maxSim;
         if (mmr > bestMMR) { bestMMR = mmr; bestIdx = i; }
       }
 

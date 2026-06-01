@@ -57,6 +57,7 @@ const DEFAULT_WEIGHTS: Record<InteractionType, number> = {
 // ─── Decay Function ───────────────────────────────────────────────────────────
 
 function decayWeight(timestamp: number, halfLifeMs: number, nowMs = Date.now()): number {
+  if (halfLifeMs <= 0) return 0;
   const ageMs = Math.max(0, nowMs - timestamp);
   return Math.exp((-Math.LN2 / halfLifeMs) * ageMs);
 }
@@ -204,11 +205,13 @@ export class UserProfileBuilder {
 }
 
 function mergeVectors(a: Record<string, number>, b: Record<string, number>, wA = 1, wB = 1): Record<string, number> {
-  const result = { ...a };
+  const result: Record<string, number> = {};
   const totalW = Math.max(1, wA + wB);
-  for (const [k, v] of Object.entries(b)) {
-    const aVal = result[k] ?? 0;
-    result[k] = (aVal * wA + v * wB) / totalW;
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const k of keys) {
+    const aVal = a[k] ?? 0;
+    const bVal = b[k] ?? 0;
+    result[k] = (aVal * wA + bVal * wB) / totalW;
   }
   return result;
 }

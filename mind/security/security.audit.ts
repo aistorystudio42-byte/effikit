@@ -303,6 +303,10 @@ export class AnomalyDetector {
 
     // ── Repeated failures ─────────────────────────────────────────────────────
     if (event.outcome === "failure" && event.actorId) {
+      if (!this.actorFailures.has(event.actorId) && this.actorFailures.size >= MAX_TRACKED_ACTORS) {
+        const firstKey = this.actorFailures.keys().next().value;
+        if (firstKey !== undefined) this.actorFailures.delete(firstKey);
+      }
       const failures = (this.actorFailures.get(event.actorId) ?? 0) + 1;
       this.actorFailures.set(event.actorId, failures);
 

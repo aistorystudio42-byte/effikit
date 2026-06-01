@@ -1,9 +1,16 @@
 <!-- @keywords: code quality, standards, craftsmanship, clean code, technical excellence, quality mindset -->
 
-# Performance Boost — Quality Without Slowing Down
+# Full test suite + coverage + security scan
 
-## Quality and Speed Are Not Opposites
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to quality.
+
+## Principles
+
+### Quality and Speed Are Not Opposites
 The belief that quality slows you down is a short-term illusion. Low-quality code creates rework, debugging time, and merge conflicts that cost far more time than the quality shortcuts saved.
 
 ```
@@ -22,8 +29,7 @@ Quality isn't slow. Rework is slow.
 
 ---
 
-## The Quality Ratchet
-
+### The Quality Ratchet
 The quality ratchet: each piece of code you write must not make the codebase worse.
 
 ```
@@ -49,62 +55,19 @@ Quality ratchet rules:
 
 ---
 
-## Fast Quality Checks
-
+### Fast Quality Checks
 ```bash
-# Pre-commit quality gate (< 30 seconds total)
-# .husky/pre-commit
 
 npm run lint       # ESLint + type check (10 seconds)
 npm run test:unit  # Run unit tests (15 seconds)
 
-# If any fails: commit blocked
-# This catches 80% of issues before they reach CI or code review
-
-# Pre-push quality gate (2-3 minutes)
-# .husky/pre-push
-
 npm run test       # All tests including integration (2 min)
 
-# CI quality gate (8-10 minutes)
-# Full test suite + coverage + security scan
 ```
 
 ---
 
-## Code Review for Quality Improvement
-
-```
-Self-review protocol before submitting PR:
-
-1. Read the diff as if you're a stranger (are you)
-   What's confusing? What requires a comment to understand?
-
-2. Run the mental test:
-   "If this code fails in production at 2am, can I understand it
-    well enough to fix it quickly while half asleep?"
-
-3. Check the test quality:
-   Do the tests describe behavior? ("creates order with pending status")
-   Or just existence? ("order is created")
-
-4. Check the naming:
-   Can you read each function name and understand what it does?
-   Would a new team member understand the variable names?
-
-5. Check the abstractions:
-   Is every abstraction earning its existence?
-   Is there anything that could be simplified?
-
-6. Check for future you:
-   Is there any decision that future-you will not understand?
-   Document it with a WHY comment.
-```
-
----
-
-## TypeScript Strictness as Quality Gate
-
+### TypeScript Strictness as Quality Gate
 ```typescript
 // tsconfig.json — quality through type strictness
 {
@@ -127,8 +90,7 @@ Self-review protocol before submitting PR:
 
 ---
 
-## Automated Quality Enforcement
-
+### Automated Quality Enforcement
 ```json
 // package.json — quality as automation, not discipline
 {
@@ -164,8 +126,7 @@ module.exports = {
 
 ---
 
-## Quality Metrics That Matter
-
+### Quality Metrics That Matter
 ```
 Useful quality metrics:
   Test coverage on business logic: target > 90%
@@ -188,7 +149,48 @@ Real quality indicator: time to add a new feature
 
 ---
 
-## Quality Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```
+Self-review protocol before submitting PR:
+
+1. Read the diff as if you're a stranger (are you)
+   What's confusing? What requires a comment to understand?
+
+2. Run the mental test:
+   "If this code fails in production at 2am, can I understand it
+    well enough to fix it quickly while half asleep?"
+
+3. Check the test quality:
+   Do the tests describe behavior? ("creates order with pending status")
+   Or just existence? ("order is created")
+
+4. Check the naming:
+   Can you read each function name and understand what it does?
+   Would a new team member understand the variable names?
+
+5. Check the abstractions:
+   Is every abstraction earning its existence?
+   Is there anything that could be simplified?
+
+6. Check for future you:
+   Is there any decision that future-you will not understand?
+   Document it with a WHY comment.
+```
+
+---
 
 - [ ] Codebase left cleaner than it was found (Boy Scout Rule)
 - [ ] Pre-commit hooks installed and running (lint + type check + unit tests)

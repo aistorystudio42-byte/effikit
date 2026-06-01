@@ -2,8 +2,15 @@
 
 # Performance — Frontend Optimization
 
-## Measure Before You Optimize
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to frontend.
+
+## Principles
+
+### Measure Before You Optimize
 Every optimization should be driven by data. Tools for measuring:
 
 ```
@@ -36,8 +43,7 @@ onTTFB(sendToAnalytics);
 
 ---
 
-## LCP (Largest Contentful Paint) — < 2.5s
-
+### LCP (Largest Contentful Paint) — < 2.5s
 The largest visible element should load fast. Usually: hero image, above-fold heading, or product image.
 
 ```tsx
@@ -69,8 +75,7 @@ The largest visible element should load fast. Usually: hero image, above-fold he
 
 ---
 
-## CLS (Cumulative Layout Shift) — < 0.1
-
+### CLS (Cumulative Layout Shift) — < 0.1
 Prevent elements from jumping around after initial render.
 
 ```tsx
@@ -99,8 +104,7 @@ useEffect(() => {
 
 ---
 
-## Bundle Size Optimization
-
+### Bundle Size Optimization
 ```typescript
 // Analyze: what's in your bundle?
 // Vite: npx vite-bundle-analyzer
@@ -126,8 +130,7 @@ const ChartLibrary = dynamic(() => import('recharts').then(m => ({ default: m.Li
 
 ---
 
-## Rendering Performance
-
+### Rendering Performance
 ```typescript
 // Long task detection — anything > 50ms blocks the main thread
 const observer = new PerformanceObserver(list => {
@@ -168,7 +171,24 @@ const handleFilterChange = (value: string) => {
 
 ---
 
-## Resource Loading Strategy
+### Performance Budget
+```json
+// performance-budget.json — enforced in CI
+{
+  "resourceSizes": [
+    { "resourceType": "script", "budget": 300 },
+    { "resourceType": "total",  "budget": 1000 }
+  ],
+  "timings": [
+    { "metric": "interactive", "budget": 3500 },
+    { "metric": "first-contentful-paint", "budget": 1500 }
+  ]
+}
+```
+
+---
+
+## Decision Framework
 
 ```html
 <!-- Critical CSS: inline above-the-fold styles -->
@@ -195,25 +215,13 @@ const handleFilterChange = (value: string) => {
 
 ---
 
-## Performance Budget
+## Anti-Patterns
 
-```json
-// performance-budget.json — enforced in CI
-{
-  "resourceSizes": [
-    { "resourceType": "script", "budget": 300 },
-    { "resourceType": "total",  "budget": 1000 }
-  ],
-  "timings": [
-    { "metric": "interactive", "budget": 3500 },
-    { "metric": "first-contentful-paint", "budget": 1500 }
-  ]
-}
-```
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
----
-
-## Frontend Performance Checklist
+## Example in Action
 
 - [ ] LCP < 2.5s (measured with real users, not Lighthouse only)
 - [ ] CLS < 0.1 (images have explicit dimensions, no content injection above fold)

@@ -2,14 +2,15 @@
 
 # Refactoring — Recognizing Code Smells
 
-## Code Smell Catalog
+## Core Philosophy
 
-A code smell is a surface indication that something deeper may be wrong. Not every smell requires immediate refactoring — weigh the cost of change against the benefit. But smells compound: a slightly smelly codebase becomes unintelligible over time.
+## When to Activate
 
----
+> This skill should be activated when you need to resolve issues related to smells.
 
-## Long Method
+## Principles
 
+### Long Method
 **Symptom:** A function that takes more than 20-30 lines, or requires scrolling to read.
 
 **Why it hurts:** Hard to name, test, or reason about. Usually has multiple responsibilities.
@@ -43,38 +44,7 @@ async function handleCheckout(req, res) {
 
 ---
 
-## Duplicate Code (DRY Violations)
-
-**Symptom:** The same logic appears in two or more places.
-
-**Why it hurts:** When the logic changes, you change it in one place and forget the others. Bugs diverge between copies.
-
-**Fix:** Extract to a shared function, class, or hook. But: only extract when the duplication is truly identical in concept, not just similar in form. Three similar-looking things may represent different concepts.
-
-```typescript
-// ✗ Same pagination logic in 3 controllers
-// users.controller.ts
-const page = parseInt(req.query.page as string) || 1;
-const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-const offset = (page - 1) * limit;
-
-// products.controller.ts
-const page = parseInt(req.query.page as string) || 1;
-const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
-const offset = (page - 1) * limit;
-
-// ✓ Extracted utility
-function parsePagination(query: ParsedQs): Pagination {
-  const page = Math.max(1, parseInt(query.page as string) || 1);
-  const limit = Math.min(100, Math.max(1, parseInt(query.limit as string) || 20));
-  return { page, limit, offset: (page - 1) * limit };
-}
-```
-
----
-
-## God Class / God Object
-
+### God Class / God Object
 **Symptom:** One class knows too much and does too much. Everything depends on it.
 
 **Why it hurts:** Changing it breaks unrelated features. Impossible to test in isolation.
@@ -106,8 +76,7 @@ class UserAdminService { blockUser(); deleteUser(); }
 
 ---
 
-## Primitive Obsession
-
+### Primitive Obsession
 **Symptom:** Using primitives (string, number) to represent domain concepts.
 
 **Why it hurts:** Validation is scattered, no self-documentation, easy to mix up arguments.
@@ -144,8 +113,7 @@ class Money {
 
 ---
 
-## Feature Envy
-
+### Feature Envy
 **Symptom:** A method uses more data and methods from another class than its own.
 
 **Why it hurts:** Indicates the method is in the wrong class.
@@ -176,8 +144,7 @@ class Coupon {
 
 ---
 
-## Data Clumps
-
+### Data Clumps
 **Symptom:** The same group of parameters appears together repeatedly.
 
 **Fix:** Group into a parameter object or class.
@@ -197,7 +164,69 @@ class Coordinate {
 
 ---
 
-## Dead Code
+### Smell Priority Guide
+```
+Fix immediately (high risk):
+  ✗ Duplicate security/financial logic (divergence causes bugs)
+  ✗ God class with > 500 lines (changes break everything)
+  ✗ Dead code in security-sensitive paths
+
+Fix next sprint:
+  ✗ Long methods > 50 lines
+  ✗ Duplicate business logic
+  ✗ Primitive obsession in domain models
+
+Fix when touching the area:
+  ✗ Minor duplication
+  ✗ Poor naming in rarely-changed code
+  ✗ Dead code in stable areas
+```
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+A code smell is a surface indication that something deeper may be wrong. Not every smell requires immediate refactoring — weigh the cost of change against the benefit. But smells compound: a slightly smelly codebase becomes unintelligible over time.
+
+---
+
+**Symptom:** The same logic appears in two or more places.
+
+**Why it hurts:** When the logic changes, you change it in one place and forget the others. Bugs diverge between copies.
+
+**Fix:** Extract to a shared function, class, or hook. But: only extract when the duplication is truly identical in concept, not just similar in form. Three similar-looking things may represent different concepts.
+
+```typescript
+// ✗ Same pagination logic in 3 controllers
+// users.controller.ts
+const page = parseInt(req.query.page as string) || 1;
+const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+const offset = (page - 1) * limit;
+
+// products.controller.ts
+const page = parseInt(req.query.page as string) || 1;
+const limit = Math.min(parseInt(req.query.limit as string) || 20, 100);
+const offset = (page - 1) * limit;
+
+// ✓ Extracted utility
+function parsePagination(query: ParsedQs): Pagination {
+  const page = Math.max(1, parseInt(query.page as string) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit as string) || 20));
+  return { page, limit, offset: (page - 1) * limit };
+}
+```
+
+---
 
 **Symptom:** Code that is never executed: commented-out code, unreachable branches, unused exports.
 
@@ -219,22 +248,3 @@ export function formatDate() { ... } // never imported anywhere
 ```
 
 ---
-
-## Smell Priority Guide
-
-```
-Fix immediately (high risk):
-  ✗ Duplicate security/financial logic (divergence causes bugs)
-  ✗ God class with > 500 lines (changes break everything)
-  ✗ Dead code in security-sensitive paths
-
-Fix next sprint:
-  ✗ Long methods > 50 lines
-  ✗ Duplicate business logic
-  ✗ Primitive obsession in domain models
-
-Fix when touching the area:
-  ✗ Minor duplication
-  ✗ Poor naming in rarely-changed code
-  ✗ Dead code in stable areas
-```

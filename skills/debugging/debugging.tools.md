@@ -1,9 +1,16 @@
 <!-- @keywords: debugging tools, Chrome DevTools, breakpoints, network tab, React DevTools, logging, profiler -->
 
-# Debugging — Tools and Techniques
+# Attach Chrome DevTools: chrome://inspect
 
-## Browser DevTools Mastery
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to tools.
+
+## Principles
+
+### Browser DevTools Mastery
 ### Console Beyond console.log
 ```javascript
 // Group related logs
@@ -61,8 +68,7 @@ Request inspection:
 
 ---
 
-## React DevTools
-
+### React DevTools
 ### Component Inspector
 ```
 React DevTools → Components tab
@@ -98,8 +104,7 @@ Commit details panel:
 
 ---
 
-## Node.js Debugging
-
+### Node.js Debugging
 ### VS Code Debugger Setup
 ```json
 // .vscode/launch.json
@@ -132,14 +137,11 @@ Commit details panel:
 ```
 
 ```bash
-# Start Node with inspector
 node --inspect src/main.js         # attach debugger
 node --inspect-brk src/main.js    # pause at first line
 
-# For ts-node
 ts-node --inspect src/main.ts
 
-# Attach Chrome DevTools: chrome://inspect
 ```
 
 ### Async Debugging Patterns
@@ -178,8 +180,7 @@ try {
 
 ---
 
-## Logging for Debuggability
-
+### Logging for Debuggability
 ```typescript
 import pino from 'pino';
 
@@ -208,8 +209,7 @@ logger.error({
 
 ---
 
-## Memory Leak Detection
-
+### Memory Leak Detection
 ```typescript
 // Node.js heap snapshot
 const v8 = require('v8');
@@ -240,8 +240,7 @@ setInterval(() => {
 
 ---
 
-## Production Debugging Without Downtime
-
+### Production Debugging Without Downtime
 ```typescript
 // Feature flags for diagnostic logging
 const isDiagnosticMode = featureFlags.isEnabled('diagnostic-logging', userId);
@@ -267,4 +266,23 @@ class ErrorBoundary extends React.Component {
     });
   }
 }
+```
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
 ```

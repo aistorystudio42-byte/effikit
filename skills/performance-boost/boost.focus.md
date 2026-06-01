@@ -1,9 +1,16 @@
 <!-- @keywords: focus, deep work, flow state, distraction, context switching, productivity, concentration -->
 
-# Performance Boost — Focus and Flow State
+# }
 
-## The Cost of Context Switching
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to focus.
+
+## Principles
+
+### The Cost of Context Switching
 Every interruption costs more than the interruption itself. The cognitive overhead of reloading a complex system into working memory after a distraction is 15-25 minutes. Four 2-hour blocks produce more than eight 1-hour blocks, even though the total time is identical.
 
 ```
@@ -21,8 +28,7 @@ to the invisible tax of context switching.
 
 ---
 
-## Entering Flow State
-
+### Entering Flow State
 Flow is a mental state where difficulty and skill are matched, feedback is immediate, and the sense of self disappears into the work. It produces the highest quality output.
 
 ```
@@ -43,8 +49,7 @@ Blockers to flow:
 
 ---
 
-## Deep Work Protocol
-
+### Deep Work Protocol
 ```
 Pre-session (5 minutes):
   1. Define exactly one thing you're building or fixing
@@ -69,8 +74,7 @@ Post-session (5 minutes):
 
 ---
 
-## Task Clarity Before Starting
-
+### Task Clarity Before Starting
 The most common reason for context switching is unclear task definition. Clarifying the task takes 10 minutes and saves 2 hours.
 
 ```
@@ -92,12 +96,10 @@ Example:
 
 ---
 
-## Reducing Friction
-
+### Reducing Friction
 Every small friction point adds up. Eliminate the micro-costs of development.
 
 ```bash
-# Aliases for frequently used commands
 alias gs='git status'
 alias gd='git diff'
 alias gl='git log --oneline -10'
@@ -105,12 +107,7 @@ alias t='npm test'
 alias tw='npm run test:watch'
 alias dev='npm run dev'
 
-# Start dev environment in one command
 cat package.json # should include:
-# "scripts": {
-#   "dev:full": "docker-compose up -d && npm run dev",
-#   "reset": "docker-compose down -v && docker-compose up -d && npm run db:migrate && npm run db:seed"
-# }
 ```
 
 ```typescript
@@ -133,8 +130,7 @@ cat package.json # should include:
 
 ---
 
-## Energy Management
-
+### Energy Management
 ```
 Peak performance hours:
   Most developers have 4-6 hours of peak cognitive performance per day.
@@ -153,7 +149,19 @@ and you do your deepest work at 3pm when you're mentally depleted.
 
 ---
 
-## Focus Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Single task defined before starting (what exactly + what done looks like)
 - [ ] Environment primed before the session starts (no setup during deep work)

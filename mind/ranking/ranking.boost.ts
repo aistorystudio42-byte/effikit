@@ -110,20 +110,30 @@ export class BoostEngine {
   private sortWithPins(
     items: Array<Boostable & BoostResult>
   ): Array<Boostable & BoostResult> {
-    const pinned   = items.filter((i) => i.pinnedPosition !== null)
-                         .sort((a, b) => {
-                           if (a.pinnedPosition === b.pinnedPosition) return b.boostedScore - a.boostedScore;
-                           return (a.pinnedPosition ?? 0) - (b.pinnedPosition ?? 0);
-                         });
-    const unpinned = items.filter((i) => i.pinnedPosition === null)
-                         .sort((a, b) => b.boostedScore - a.boostedScore);
+    const pinned = items
+      .filter((i) => i.pinnedPosition !== null)
+      .sort((a, b) => {
+        if (a.pinnedPosition === b.pinnedPosition) return b.boostedScore - a.boostedScore;
+        return (a.pinnedPosition ?? 0) - (b.pinnedPosition ?? 0);
+      });
+      
+    const unpinned = items
+      .filter((i) => i.pinnedPosition === null)
+      .sort((a, b) => b.boostedScore - a.boostedScore);
 
-    const result: Array<Boostable & BoostResult> = [...unpinned];
+    const result: Array<Boostable & BoostResult> = [];
+    let unpinnedIdx = 0;
 
-    // Insert pinned items at their designated positions
-    for (const item of pinned) {
-      const pos = Math.max(0, (item.pinnedPosition ?? 1) - 1);
-      result.splice(pos, 0, item);
+    for (const p of pinned) {
+      const targetIdx = Math.max(0, (p.pinnedPosition ?? 1) - 1);
+      while (result.length < targetIdx && unpinnedIdx < unpinned.length) {
+        result.push(unpinned[unpinnedIdx++]);
+      }
+      result.push(p);
+    }
+
+    while (unpinnedIdx < unpinned.length) {
+      result.push(unpinned[unpinnedIdx++]);
     }
 
     return result;

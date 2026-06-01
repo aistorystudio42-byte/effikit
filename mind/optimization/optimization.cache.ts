@@ -170,7 +170,8 @@ export class PrefixCache<T> {
   // Returns the closest cached ancestor for a prefix (useful for progressive refinement)
   getClosestAncestor(key: string): { value: T; matchedPrefix: string } | undefined {
     let node = this.root;
-    let last: { value: T; matchedPrefix: string } | undefined;
+    let last: { value: T; matchedPrefix: string } | undefined = 
+      this.root.value !== undefined ? { value: this.root.value, matchedPrefix: "" } : undefined;
 
     for (let i = 0; i < key.length; i++) {
       const char = key[i];

@@ -78,60 +78,68 @@ function tokenize(raw: string): Array<{ raw: string; type: TokenType; field?: st
   let i = 0;
 
   while (i < raw.length) {
-    // Skip whitespace
     while (i < raw.length && /\s/.test(raw[i])) i++;
     if (i >= raw.length) break;
 
     let negated = false;
-
-    // Negation prefix
     if (raw[i] === "-") {
       negated = true;
       i += 1;
-    } else if (raw.slice(i).startsWith("NOT ") || raw.slice(i) === "NOT") {
+    } else if (raw.startsWith("NOT ", i) || raw.slice(i) === "NOT") {
       negated = true;
-      i += 4;
+      i += (raw.slice(i) === "NOT" ? 3 : 4);
+      while (i < raw.length && /\s/.test(raw[i])) i++;
     }
 
-    // Quoted phrase
+    let field: string | undefined;
+    const colonMatch = raw.slice(i).match(/^([a-zA-Z0-9_-]+):/);
+    if (colonMatch) {
+      field = colonMatch[1].toLowerCase();
+      i += colonMatch[0].length;
+    }
+
+    let value = "";
+    let isPhrase = false;
     if (raw[i] === '"') {
+      isPhrase = true;
       const end = raw.indexOf('"', i + 1);
-      if (end === -1) { i++; continue; }
-      tokens.push({ raw: raw.slice(i + 1, end), type: "phrase", negated });
-      i = end + 1;
-      continue;
+      if (end === -1) {
+        value = raw.slice(i + 1);
+        i = raw.length;
+      } else {
+        value = raw.slice(i + 1, end);
+        i = end + 1;
+      }
+    } else {
+      let j = i;
+      while (j < raw.length && !/\s/.test(raw[j])) j++;
+      value = raw.slice(i, j);
+      i = j;
     }
 
-    // Read until next whitespace
-    let j = i;
-    while (j < raw.length && !/\s/.test(raw[j])) j++;
-    const word = raw.slice(i, j);
-    i = j;
+    if (!value) continue;
 
-    if (!word) continue;
-
-    // Field token: field:value
-    const colonIdx = word.indexOf(":");
-    if (colonIdx > 0 && colonIdx < word.length - 1) {
-      const field = word.slice(0, colonIdx).toLowerCase();
-      const value = word.slice(colonIdx + 1);
+    if (field) {
       tokens.push({ raw: value, type: "field", field, negated });
       continue;
     }
 
-    // Wildcard
-    if (word.includes("*") || word.includes("?")) {
-      tokens.push({ raw: word.toLowerCase(), type: "wildcard", negated });
+    if (isPhrase) {
+      tokens.push({ raw: value, type: "phrase", negated });
       continue;
     }
 
-    // Boolean operators
-    if (word === "AND" || word === "OR") {
-      tokens.push({ raw: word, type: "operator" });
+    if (value.includes("*") || value.includes("?")) {
+      tokens.push({ raw: value.toLowerCase(), type: "wildcard", negated });
       continue;
     }
 
-    tokens.push({ raw: word.toLowerCase(), type: "term", negated });
+    if (value === "AND" || value === "OR") {
+      tokens.push({ raw: value, type: "operator" });
+      continue;
+    }
+
+    tokens.push({ raw: value.toLowerCase(), type: "term", negated });
   }
 
   return tokens;

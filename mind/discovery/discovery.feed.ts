@@ -162,16 +162,23 @@ function interleaveMixed(
   const total = scored.length + chrono.length;
 
   for (let i = 0; i < total; i++) {
-    // Ratio-based deterministic slot allocation (no randomness)
+    while (si < scored.length && seen.has(scored[si].id)) si++;
+    while (ci < chrono.length && seen.has(chrono[ci].id)) ci++;
+
+    if (si >= scored.length && ci >= chrono.length) break;
+
     const useScored = (si / (si + ci + 1)) < ratio;
 
-    if (useScored) {
-      while (si < scored.length && seen.has(scored[si].id)) si++;
-      if (si < scored.length) { seen.add(scored[si].id); result.push(scored[si++]); continue; }
+    if (useScored && si < scored.length) {
+      seen.add(scored[si].id);
+      result.push(scored[si++]);
+    } else if (ci < chrono.length) {
+      seen.add(chrono[ci].id);
+      result.push(chrono[ci++]);
+    } else if (si < scored.length) {
+      seen.add(scored[si].id);
+      result.push(scored[si++]);
     }
-
-    while (ci < chrono.length && seen.has(chrono[ci].id)) ci++;
-    if (ci < chrono.length) { seen.add(chrono[ci].id); result.push(chrono[ci++]); }
   }
 
   return result;

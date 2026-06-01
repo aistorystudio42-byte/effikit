@@ -1,8 +1,69 @@
 <!-- @keywords: architecture, patterns, clean architecture, hexagonal, microservices, monolith, DDD -->
 
-# Architecture — Patterns and System Design
+# ADR-007: Adopt Modular Monolith over Microservices
 
-## Architecture Decision Framework
+## Core Philosophy
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to patterns.
+
+## Principles
+
+### Modular Monolith — Best of Both Worlds
+Monolith for deployment simplicity, module boundaries for future extraction.
+
+```
+src/
+  modules/
+    orders/          ← owns order data, exposes only public API
+      index.ts       ← public surface: what other modules can call
+      internal/      ← private: not importable from other modules
+    users/
+      index.ts
+      internal/
+    inventory/
+      index.ts
+      internal/
+  shared/            ← truly shared (errors, logging, DI container)
+```
+
+```typescript
+// orders/index.ts — only public surface
+export { CreateOrderUseCase } from './internal/use-cases/create-order';
+export type { Order, OrderStatus } from './internal/domain/order';
+// No internal implementation details exported
+
+// inventory/internal/use-cases/allocate-stock.ts
+// Imports only from orders' public API:
+import type { Order } from '@modules/orders'; // ✓ public API
+import { OrderRepository } from '@modules/orders/internal'; // ✗ private — forbidden
+```
+
+---
+
+### Context
+We need to choose between microservices and monolith for v2.
+Team size: 5 engineers. Current scale: 10k users.
+
+### Reasoning
+- Team too small to operate multiple deployment pipelines
+- Current scale doesn't require independent scaling
+- Module boundaries allow future extraction if needed
+- Single database is simpler and sufficient at current scale
+
+### Consequences
++ Simpler deployment and operations
++ Easier refactoring across modules (atomic commits)
+- Cannot scale modules independently (acceptable at current scale)
+- Requires discipline to respect module boundaries (enforced via ESLint import rules)
+
+### Review Date: 2025-01-15
+```
+
+---
+
+## Decision Framework
 
 Before choosing a pattern, answer these questions:
 
@@ -16,8 +77,6 @@ Scale:         low → monolith        |  high throughput → event-driven
 The most common mistake is choosing microservices for a 3-person team building a new product. Start monolith. Extract services when friction is real, not hypothetical.
 
 ---
-
-## Layered Architecture (Default Choice)
 
 Clear separation of concerns. Good for most applications.
 
@@ -79,8 +138,6 @@ class ConfirmOrderUseCase {
 
 ---
 
-## Hexagonal Architecture (Ports and Adapters)
-
 Domain is at the center. Everything external connects via ports (interfaces).
 
 ```typescript
@@ -122,8 +179,6 @@ class InMemoryOrderRepository implements OrderRepository {
 **Benefit:** Business logic testable without any real database or payment provider.
 
 ---
-
-## Event-Driven Architecture
 
 Decouples producers from consumers. Enables async workflows and horizontal scaling.
 
@@ -171,73 +226,11 @@ class NotificationService {
 
 ---
 
-## Modular Monolith — Best of Both Worlds
-
-Monolith for deployment simplicity, module boundaries for future extraction.
-
-```
-src/
-  modules/
-    orders/          ← owns order data, exposes only public API
-      index.ts       ← public surface: what other modules can call
-      internal/      ← private: not importable from other modules
-    users/
-      index.ts
-      internal/
-    inventory/
-      index.ts
-      internal/
-  shared/            ← truly shared (errors, logging, DI container)
-```
-
-```typescript
-// orders/index.ts — only public surface
-export { CreateOrderUseCase } from './internal/use-cases/create-order';
-export type { Order, OrderStatus } from './internal/domain/order';
-// No internal implementation details exported
-
-// inventory/internal/use-cases/allocate-stock.ts
-// Imports only from orders' public API:
-import type { Order } from '@modules/orders'; // ✓ public API
-import { OrderRepository } from '@modules/orders/internal'; // ✗ private — forbidden
-```
-
----
-
-## Architecture Decision Records (ADR)
-
 Document why architectural decisions were made.
 
 ```markdown
-# ADR-007: Adopt Modular Monolith over Microservices
 
-## Status: Accepted (2024-01-15)
-
-## Context
-We need to choose between microservices and monolith for v2.
-Team size: 5 engineers. Current scale: 10k users.
-
-## Decision
 Adopt a modular monolith with strict module boundaries.
-
-## Reasoning
-- Team too small to operate multiple deployment pipelines
-- Current scale doesn't require independent scaling
-- Module boundaries allow future extraction if needed
-- Single database is simpler and sufficient at current scale
-
-## Consequences
-+ Simpler deployment and operations
-+ Easier refactoring across modules (atomic commits)
-- Cannot scale modules independently (acceptable at current scale)
-- Requires discipline to respect module boundaries (enforced via ESLint import rules)
-
-## Review Date: 2025-01-15
-```
-
----
-
-## Architecture Checklist
 
 - [ ] Architecture choice matched to team size and scale requirements
 - [ ] Layer boundaries enforced (no infrastructure imports in domain)
@@ -246,3 +239,16 @@ Adopt a modular monolith with strict module boundaries.
 - [ ] Module boundaries enforced with ESLint import rules
 - [ ] ADRs written for significant architectural decisions
 - [ ] Architecture reviewed annually or when requirements change significantly
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
+```

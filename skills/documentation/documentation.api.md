@@ -1,36 +1,21 @@
 <!-- @keywords: API documentation, OpenAPI, changelog, endpoint docs, request response examples -->
 
-# Documentation — API Documentation Standards
+# API Changelog
 
-## API Docs as a Product
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to api.
+
+## Principles
+
+### API Docs as a Product
 API documentation is a product used by developers integrating with your system. Incomplete or inaccurate docs create support tickets and erode trust. Every endpoint should be documented as if the reader has never seen your codebase.
 
 ---
 
-## OpenAPI First vs Code First
-
-```
-Code-first: write code, generate docs from annotations
-  + Documentation always in sync with code
-  + Less duplication
-  - Docs quality depends on annotation discipline
-  - Less control over final doc structure
-
-OpenAPI-first: write spec, generate code stubs
-  + Forces API design thinking before implementation
-  + Contract can be shared with frontend before backend is built
-  - Additional file to maintain
-  - Can drift from implementation if not enforced
-
-Recommended for most teams: Code-first with strict annotation requirements.
-Use zod-to-openapi or tsoa to generate spec from TypeScript.
-```
-
----
-
-## Endpoint Documentation Anatomy
-
+### Endpoint Documentation Anatomy
 Every endpoint must document:
 
 ```typescript
@@ -100,53 +85,10 @@ router.post('/orders', authenticate, validate(CreateOrderSchema), orderControlle
 
 ---
 
-## Error Code Documentation
-
-```typescript
-// Document ALL possible error codes — not just HTTP status
-// Developers need to handle specific error cases programmatically
-
-/**
- * @openapi
- * components:
- *   schemas:
- *     ErrorResponse:
- *       type: object
- *       required: [error]
- *       properties:
- *         error:
- *           type: object
- *           required: [code, message]
- *           properties:
- *             code:
- *               type: string
- *               description: Machine-readable error identifier
- *               enum:
- *                 - VALIDATION_ERROR
- *                 - UNAUTHORIZED
- *                 - FORBIDDEN
- *                 - NOT_FOUND
- *                 - CONFLICT
- *                 - INSUFFICIENT_STOCK
- *                 - PAYMENT_FAILED
- *                 - RATE_LIMIT_EXCEEDED
- *                 - INTERNAL_ERROR
- *             message:
- *               type: string
- *               description: Human-readable error description
- *             details:
- *               type: object
- *               description: Additional error context (varies by error code)
- */
-```
-
----
-
-## Authentication Documentation
-
+### Authentication Documentation
 ```markdown
-## Authentication
 
+### Authentication
 All endpoints except `/auth/*` require a Bearer token.
 
 ### Getting a Token
@@ -196,13 +138,10 @@ This invalidates the refresh token. Discard the access token client-side.
 
 ---
 
-## Changelog Format
-
+### Changelog Format
 ```markdown
-# API Changelog
 
-## [2.3.0] — 2024-03-15
-
+### [2.3.0] — 2024-03-15
 ### Added
 - `GET /api/orders` now supports filtering by `status` query parameter
   - Valid values: `pending`, `processing`, `completed`, `cancelled`
@@ -225,8 +164,7 @@ This invalidates the refresh token. Discard the access token client-side.
 
 ---
 
-## [2.2.0] — 2024-02-01
-
+### [2.2.0] — 2024-02-01
 ### Breaking Changes
 - `address` field in order responses changed from string to structured object
   - Old: `"address": "123 Main St, New York, NY 10001"`
@@ -239,7 +177,74 @@ See [v2.2 Migration Guide](docs/migration/v2.2.md) for detailed migration steps.
 
 ---
 
-## Documentation Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+```typescript
+// Document ALL possible error codes — not just HTTP status
+// Developers need to handle specific error cases programmatically
+
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     ErrorResponse:
+ *       type: object
+ *       required: [error]
+ *       properties:
+ *         error:
+ *           type: object
+ *           required: [code, message]
+ *           properties:
+ *             code:
+ *               type: string
+ *               description: Machine-readable error identifier
+ *               enum:
+ *                 - VALIDATION_ERROR
+ *                 - UNAUTHORIZED
+ *                 - FORBIDDEN
+ *                 - NOT_FOUND
+ *                 - CONFLICT
+ *                 - INSUFFICIENT_STOCK
+ *                 - PAYMENT_FAILED
+ *                 - RATE_LIMIT_EXCEEDED
+ *                 - INTERNAL_ERROR
+ *             message:
+ *               type: string
+ *               description: Human-readable error description
+ *             details:
+ *               type: object
+ *               description: Additional error context (varies by error code)
+ */
+```
+
+---
+
+## Example in Action
+
+```
+Code-first: write code, generate docs from annotations
+  + Documentation always in sync with code
+  + Less duplication
+  - Docs quality depends on annotation discipline
+  - Less control over final doc structure
+
+OpenAPI-first: write spec, generate code stubs
+  + Forces API design thinking before implementation
+  + Contract can be shared with frontend before backend is built
+  - Additional file to maintain
+  - Can drift from implementation if not enforced
+
+Recommended for most teams: Code-first with strict annotation requirements.
+Use zod-to-openapi or tsoa to generate spec from TypeScript.
+```
+
+---
 
 - [ ] Every endpoint has: summary, full description, all parameters, all responses
 - [ ] Request body schema includes all fields with types, constraints, and examples

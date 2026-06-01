@@ -2,8 +2,15 @@
 
 # Security — Authentication and Session Security
 
-## Threat Model First
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to auth.
+
+## Principles
+
+### Threat Model First
 Before implementing auth security, identify what you're protecting against:
 
 ```
@@ -25,8 +32,7 @@ Threat: CSRF (tricking browser to make authenticated requests)
 
 ---
 
-## Password Security
-
+### Password Security
 ```typescript
 import bcrypt from 'bcrypt';
 import { checkPasswordBreach } from './breach-check'; // Have I Been Pwned API
@@ -61,8 +67,7 @@ class PasswordService {
 
 ---
 
-## Brute Force Protection
-
+### Brute Force Protection
 ```typescript
 class LoginAttemptTracker {
   private readonly MAX_ATTEMPTS = 5;
@@ -125,8 +130,7 @@ async function login(req: Request, res: Response) {
 
 ---
 
-## CSRF Protection
-
+### CSRF Protection
 ```typescript
 // CSRF token pattern for non-SameSite-compatible scenarios
 import crypto from 'crypto';
@@ -162,8 +166,7 @@ res.cookie('sessionId', sessionId, {
 
 ---
 
-## Multi-Factor Authentication
-
+### Multi-Factor Authentication
 ```typescript
 import { authenticator } from 'otplib';
 import QRCode from 'qrcode';
@@ -204,8 +207,7 @@ class MfaService {
 
 ---
 
-## Security Headers
-
+### Security Headers
 ```typescript
 import helmet from 'helmet';
 
@@ -233,7 +235,19 @@ app.use(helmet({
 
 ---
 
-## Security Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Passwords hashed with bcrypt (cost ≥ 12) — never MD5/SHA1
 - [ ] Brute force protection: rate limiting + account lockout

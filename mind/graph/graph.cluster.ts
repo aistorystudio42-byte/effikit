@@ -48,6 +48,9 @@ export function connectedComponents<N, E>(graph: Graph<N, E>): Cluster<N>[] {
       for (const neighbor of graph.neighbors(id)) {
         if (!visited.has(neighbor.id)) queue.push(neighbor.id);
       }
+      for (const pred of graph.predecessors(id)) {
+        if (!visited.has(pred.id)) queue.push(pred.id);
+      }
     }
 
     clusters.push({
@@ -224,16 +227,28 @@ export function kCliquePercolation<N, E>(graph: Graph<N, E>, k = 3): Cluster<N>[
   const clusterSets: Set<string>[] = [];
 
   for (let i = 0; i < cliques.length; i++) {
-    let merged = false;
+    const overlappingClusters: Set<string>[] = [];
+    const nonOverlappingClusters: Set<string>[] = [];
+    
     for (const cluster of clusterSets) {
       const overlap = cliques[i].filter((n) => cluster.has(n)).length;
       if (overlap >= k - 1) {
-        cliques[i].forEach((n) => cluster.add(n));
-        merged = true;
-        break;
+        overlappingClusters.push(cluster);
+      } else {
+        nonOverlappingClusters.push(cluster);
       }
     }
-    if (!merged) clusterSets.push(new Set(cliques[i]));
+    
+    if (overlappingClusters.length > 0) {
+      const merged = new Set(cliques[i]);
+      for (const oc of overlappingClusters) {
+        oc.forEach(n => merged.add(n));
+      }
+      clusterSets.length = 0;
+      clusterSets.push(...nonOverlappingClusters, merged);
+    } else {
+      clusterSets.push(new Set(cliques[i]));
+    }
   }
 
   return clusterSets.map((cs, i) => {

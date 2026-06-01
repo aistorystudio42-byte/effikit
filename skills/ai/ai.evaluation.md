@@ -2,14 +2,20 @@
 
 # AI — Evaluation and Quality Assurance
 
-## Why Evaluation Is Non-Negotiable
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to evaluation.
+
+## Principles
+
+### Why Evaluation Is Non-Negotiable
 LLMs are probabilistic. The same prompt can produce different outputs. Without systematic evaluation, you don't know if your prompt changes improved or degraded quality. You're flying blind.
 
 ---
 
-## Evaluation Types
-
+### Evaluation Types
 ```
 Automated Evals (fast, scalable):
   - Exact match: output matches expected exactly
@@ -30,8 +36,7 @@ Behavioral Evals:
 
 ---
 
-## Building an Eval Suite
-
+### Building an Eval Suite
 ```typescript
 interface EvalCase {
   id: string;
@@ -90,8 +95,7 @@ class EvalRunner {
 
 ---
 
-## LLM-as-Judge
-
+### LLM-as-Judge
 Use a capable model to evaluate another model's output.
 
 ```typescript
@@ -150,8 +154,7 @@ const judgement = await judgeOutput(
 
 ---
 
-## Hallucination Detection
-
+### Hallucination Detection
 ```typescript
 class HallucinationDetector {
   // Check if model's factual claims are grounded in provided context
@@ -202,8 +205,7 @@ Return JSON:
 
 ---
 
-## Regression Testing
-
+### Regression Testing
 ```typescript
 // Lock in known-good outputs — alert if quality degrades
 class PromptRegressionTest {
@@ -231,7 +233,19 @@ class PromptRegressionTest {
 
 ---
 
-## Evaluation Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Eval suite covers happy path AND edge cases
 - [ ] Minimum 50 test cases for core functionality

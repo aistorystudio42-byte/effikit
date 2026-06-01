@@ -10,18 +10,6 @@ The single most powerful move in product marketing: make the user the hero of th
 
 ---
 
-## When to Activate
-
-- Writing the "About" or "Why we built this" page
-- Founder story for pitch decks or press
-- Case studies and testimonials (story structure, not Q&A format)
-- Product launches and announcements
-- Any copy that needs to build trust, not just communicate features
-
----
-
-## Principles
-
 **1. Hero's journey applied to products.** The user is the hero. The product is the mentor (Gandalf, Yoda — never the hero). The user has a problem (the call to adventure), discovers the product, gets the tool, applies it, succeeds. Tell this story about the user, not about you.
 
 **2. Problem-first framing.** The story starts with pain, not solution. If you lead with the solution before the reader recognizes the problem, they have no reason to care. Spend 60% of the story on the problem.
@@ -33,6 +21,18 @@ The single most powerful move in product marketing: make the user the hero of th
 **5. Before/After/Bridge.** The simplest story structure that always works: paint the before (painful, frustrating status quo), paint the after (world with the problem solved), then introduce the bridge (your product, which is the path from before to after).
 
 ---
+
+## When to Activate
+
+- Writing the "About" or "Why we built this" page
+- Founder story for pitch decks or press
+- Case studies and testimonials (story structure, not Q&A format)
+- Product launches and announcements
+- Any copy that needs to build trust, not just communicate features
+
+---
+
+## Principles
 
 ## Decision Framework
 

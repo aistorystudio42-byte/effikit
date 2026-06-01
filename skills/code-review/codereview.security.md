@@ -1,15 +1,21 @@
 <!-- @keywords: code review, security review, vulnerability, OWASP, injection, auth bypass, insecure code -->
 
-# Code Review — Security-Focused Review
+# Dangerous innerHTML
 
-## Security Review Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to security.
+
+## Principles
+
+### Security Review Mindset
 Security review requires adversarial thinking — you're not asking "does this work?" but "how can this be abused?" Approach every input as if it comes from an attacker. Assume the worst-case user.
 
 ---
 
-## Injection Vulnerabilities
-
+### Injection Vulnerabilities
 ### SQL Injection Detection
 ```typescript
 // RED FLAG patterns to search for in review:
@@ -54,8 +60,7 @@ execFile('convert', [sanitizedFilename + '.jpg', 'output.png']); // ✓
 
 ---
 
-## Authentication and Authorization Bypass
-
+### Authentication and Authorization Bypass
 ```typescript
 // RED FLAG: Missing auth middleware on a route
 router.delete('/users/:id', userController.delete); // ✗ — no authenticate!
@@ -86,8 +91,7 @@ jwt.verify(token, secret); // ✗ — accepts any algorithm
 
 ---
 
-## Sensitive Data Exposure
-
+### Sensitive Data Exposure
 ```typescript
 // RED FLAG: Passwords or secrets in API responses
 const user = await userRepo.findById(id);
@@ -121,8 +125,7 @@ catch (err) {
 
 ---
 
-## Cryptographic Issues
-
+### Cryptographic Issues
 ```typescript
 // RED FLAG: Weak or broken hash algorithms for passwords
 crypto.createHash('md5').update(password).digest('hex'); // ✗
@@ -147,8 +150,7 @@ crypto.timingSafeEqual(Buffer.from(userToken), Buffer.from(storedToken)); // ✓
 
 ---
 
-## Path Traversal and File Security
-
+### Path Traversal and File Security
 ```typescript
 // RED FLAG: User-controlled file path without validation
 const filename = req.query.file;
@@ -172,34 +174,39 @@ if (detected?.mime !== 'image/jpeg') throw new SecurityError('Invalid file type'
 
 ---
 
-## Security Review Quick Search
-
+### Security Review Quick Search
 Commands to run on any diff to catch common issues:
 
 ```bash
-# SQL injection risks
 grep -n "query(\`" src/ -r | grep '\${'
 grep -n "query(\"" src/ -r | grep '"\ +'
 
-# Command injection
 grep -rn "exec(" src/ | grep -v "execFile"
 
-# Hardcoded secrets
 grep -rn "api_key\|secret\|password" src/ | grep "="
 
-# JWT without algorithm
 grep -rn "jwt.verify" src/ | grep -v "algorithms"
 
-# Missing auth middleware
 grep -rn "router\.\(get\|post\|put\|patch\|delete\)" src/ | grep -v "authenticate"
 
-# Dangerous innerHTML
 grep -rn "dangerouslySetInnerHTML" src/ | grep -v "DOMPurify"
 ```
 
 ---
 
-## Security Review Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All SQL uses parameterized queries (zero string interpolation)
 - [ ] All protected routes have authentication middleware

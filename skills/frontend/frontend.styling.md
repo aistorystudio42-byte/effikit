@@ -10,8 +10,13 @@ Design tokens are the foundation of this system. Color, size, and spacing values
 
 ---
 
-## Working with Tailwind
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to styling.
+
+## Principles
+
+### Working with Tailwind
 ### Variant Management — cva (Class Variance Authority)
 
 ```tsx
@@ -69,8 +74,7 @@ export function cn(...inputs: ClassValue[]) {
 
 ---
 
-## Design Token System
-
+### Design Token System
 ### Token Definition via CSS Variables
 ```css
 /* globals.css */
@@ -131,8 +135,7 @@ export default {
 
 ---
 
-## Responsive Design
-
+### Responsive Design
 ### Mobile-First Principle
 ```tsx
 // Wrong: Desktop-first (requires overrides, more code)
@@ -166,8 +169,7 @@ Don't memorize numbers — test on real devices.
 
 ---
 
-## Dark Mode
-
+### Dark Mode
 ### Strategy Selection
 ```tsx
 // Strategy 1: class-based (recommended — user preference control)
@@ -189,8 +191,7 @@ Don't memorize numbers — test on real devices.
 
 ---
 
-## Animation and Transitions
-
+### Animation and Transitions
 ```tsx
 // Micro-interaction: with Transition
 <button className="transition-all duration-200 hover:scale-105 active:scale-95">
@@ -217,7 +218,13 @@ Don't memorize numbers — test on real devices.
 
 ---
 
-## Common Mistakes
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
 
 ### Magic Numbers
 ```tsx
@@ -252,4 +259,11 @@ const cardBase = cn(
   'cursor-pointer select-none',
   'text-sm font-medium text-foreground'
 );
+```
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
 ```

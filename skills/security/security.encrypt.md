@@ -1,8 +1,14 @@
 <!-- @keywords: encryption, AES, hashing, secrets management, data at rest, TLS, cryptography -->
 
-# Security — Encryption and Secrets Management
+# Generate secure secrets
 
-## Cryptography Ground Rules
+## Core Philosophy
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to encrypt.
+
+## Principles
 
 1. **Don't roll your own crypto** — use established libraries (Node.js `crypto`, `libsodium`)
 2. **Use modern algorithms** — AES-256-GCM, ChaCha20-Poly1305, RSA-OAEP (not ECB, not CBC without MAC)
@@ -11,8 +17,7 @@
 
 ---
 
-## Symmetric Encryption (AES-256-GCM)
-
+### Symmetric Encryption (AES-256-GCM)
 ```typescript
 import crypto from 'crypto';
 
@@ -71,8 +76,7 @@ await db.query('UPDATE users SET ssn_encrypted = $1 WHERE id = $2', [encryptedSs
 
 ---
 
-## Key Derivation
-
+### Key Derivation
 ```typescript
 import { scrypt, randomBytes } from 'crypto';
 import { promisify } from 'util';
@@ -96,8 +100,7 @@ class KeyDerivation {
 
 ---
 
-## Hashing (Non-Reversible)
-
+### Hashing (Non-Reversible)
 ```typescript
 // For data integrity verification — not for passwords
 const hash = crypto
@@ -128,21 +131,17 @@ function verifyWebhookSignature(payload: string, signature: string): boolean {
 
 ---
 
-## Secrets Management
-
+### Secrets Management
 ### Environment Variables (Minimum Viable)
 ```bash
-# .env.example — committed (template, no values)
 DATABASE_URL=
 JWT_SECRET=
 ENCRYPTION_KEY=
 STRIPE_SECRET_KEY=
 
-# .env — never committed
 DATABASE_URL=postgres://user:password@localhost/myapp
 JWT_SECRET=<64-char random hex>
 
-# Generate secure secrets
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
@@ -216,8 +215,7 @@ class RotatingEncryption {
 
 ---
 
-## TLS Configuration
-
+### TLS Configuration
 ```typescript
 import https from 'https';
 import fs from 'fs';
@@ -240,7 +238,19 @@ const server = https.createServer({
 
 ---
 
-## Encryption Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] AES-256-GCM used for symmetric encryption (not ECB, not plain CBC)
 - [ ] Random IV generated fresh for each encryption operation

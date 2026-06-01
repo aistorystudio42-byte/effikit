@@ -2,8 +2,15 @@
 
 # Accessibility — Testing and Auditing
 
-## Testing Pyramid for Accessibility
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to testing.
+
+## Principles
+
+### Testing Pyramid for Accessibility
 ```
 Manual screen reader testing  → highest confidence, slowest
   ↑
@@ -16,8 +23,7 @@ Automated tools can't catch everything — they can't determine if alt text is m
 
 ---
 
-## Automated Testing with axe
-
+### Automated Testing with axe
 ```typescript
 // Unit/integration tests with jest-axe
 import { render } from '@testing-library/react';
@@ -53,8 +59,7 @@ describe('ProductCard accessibility', () => {
 
 ---
 
-## Playwright Accessibility Testing
-
+### Playwright Accessibility Testing
 ```typescript
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -90,8 +95,7 @@ test.describe('Checkout flow accessibility', () => {
 
 ---
 
-## ESLint Plugin for Accessibility
-
+### ESLint Plugin for Accessibility
 ```json
 // .eslintrc.json
 {
@@ -120,8 +124,7 @@ test.describe('Checkout flow accessibility', () => {
 
 ---
 
-## Screen Reader Testing
-
+### Screen Reader Testing
 ### Testing with NVDA (Windows) and VoiceOver (Mac)
 
 ```
@@ -168,8 +171,7 @@ Images:
 
 ---
 
-## Accessibility Audit Workflow
-
+### Accessibility Audit Workflow
 ```
 1. Automated scan (axe in CI)
    → Catch ~30% of issues automatically
@@ -194,7 +196,19 @@ Images:
 
 ---
 
-## Accessibility Testing Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] `jest-axe` running in component tests — no critical violations
 - [ ] `eslint-plugin-jsx-a11y` configured with recommended ruleset

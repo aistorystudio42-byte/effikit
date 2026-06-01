@@ -20,8 +20,9 @@ The moment you describe your product as "like X but better," you've already lost
 
 ---
 
-## Category Creation vs Category Entry
+## Principles
 
+### Category Creation vs Category Entry
 **Category entry:** You identify an existing market and compete within it.
 - Risk: defined by incumbents' rules, win requires being better on their metrics
 - Reward: existing demand — no need to educate the market
@@ -34,8 +35,7 @@ The moment you describe your product as "like X but better," you've already lost
 
 ---
 
-## Positioning Formula
-
+### Positioning Formula
 ```
 For [specific customer]
 who [specific problem or desire],
@@ -48,8 +48,7 @@ This formula forces specificity at every level. Generic answers at any level mea
 
 ---
 
-## Owning a Word
-
+### Owning a Word
 The most defensible positions own one word in the customer's mind:
 - Volvo = safety
 - Google = search
@@ -64,16 +63,14 @@ The word must be specific to your category and not already owned by an incumbent
 
 ---
 
-## Pricing as Signal
-
+### Pricing as Signal
 Price communicates position. Low price signals low quality or commodity. High price signals premium positioning. "Free" signals infrastructure (you don't charge for tools, you charge for services).
 
 Open source tools that monetize through hosted versions use price as positioning: the open-source version is infrastructure (free, trustworthy, worth integrating), the paid version is a service (support, uptime guarantees, managed hosting).
 
 ---
 
-## Reframing Competition
-
+### Reframing Competition
 When asked "how are you different from X?":
 
 1. **Acknowledge them:** "ChatGPT is an excellent general AI assistant."
@@ -83,6 +80,12 @@ When asked "how are you different from X?":
 This moves from competition to complementarity — a much stronger position than "we're better than X."
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

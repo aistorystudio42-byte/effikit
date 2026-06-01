@@ -2,7 +2,7 @@
 
 # Documentation — Code Comments and Inline Documentation
 
-## The Comment Philosophy
+## Core Philosophy
 
 The best code is self-documenting. Names, structure, and types communicate intent. Comments add value only when they explain something the code cannot: the **why**, the **tradeoff**, the **constraint**, or the **non-obvious invariant**.
 
@@ -23,8 +23,13 @@ Don't write a comment when:
 
 ---
 
-## Comments That Add Value
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to code.
+
+## Principles
+
+### Comments That Add Value
 ```typescript
 // ✓ WHY: non-obvious business rule
 // Coupons can only be applied to the subtotal, not to shipping.
@@ -52,8 +57,7 @@ items.sort(compareById);
 
 ---
 
-## Comments That Add Noise
-
+### Comments That Add Noise
 ```typescript
 // ✗ Restates what the code says
 // Increment the counter
@@ -80,8 +84,7 @@ const user = await getUserById(id);
 
 ---
 
-## JSDoc for Public APIs
-
+### JSDoc for Public APIs
 Public functions, classes, and types warrant structured documentation.
 
 ```typescript
@@ -111,8 +114,7 @@ function applyCouponDiscount(subtotalCents: number, coupon: Coupon | null): numb
 
 ---
 
-## Type Documentation
-
+### Type Documentation
 ```typescript
 /**
  * Represents a paginated collection of items.
@@ -146,8 +148,7 @@ type OrderStatus = 'pending' | 'processing' | 'completed' | 'cancelled';
 
 ---
 
-## TODO Comments — How to Use Them Right
-
+### TODO Comments — How to Use Them Right
 ```typescript
 // ✗ Vague TODOs that never get done
 // TODO: fix this later
@@ -172,7 +173,19 @@ if (process.env.NODE_ENV === 'test') { ... }
 
 ---
 
-## Documentation Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All public functions/classes have JSDoc describing behavior, params, and return value
 - [ ] Non-obvious business logic has a "why" comment

@@ -19,8 +19,9 @@ The growth equation has three variables: acquisition rate, activation rate, and 
 
 ---
 
-## Growth Equation
+## Principles
 
+### Growth Equation
 ```
 Business Value = Acquired Users × Activation Rate × Retention Rate × Revenue Per User
 
@@ -37,8 +38,7 @@ The math always favors activation and retention improvements over acquisition sp
 
 ---
 
-## Activation Moment
-
+### Activation Moment
 The activation moment is the first time the user experiences the core value promise. Everything before it is friction. Everything after it is retention work.
 
 **Identifying it:**
@@ -53,8 +53,7 @@ The activation moment is the first time the user experiences the core value prom
 
 ---
 
-## Unit Economics
-
+### Unit Economics
 **CAC (Customer Acquisition Cost):** Total acquisition spend ÷ new customers acquired in period.
 
 **LTV (Lifetime Value):** Average revenue per user × average customer lifetime.
@@ -68,8 +67,7 @@ The activation moment is the first time the user experiences the core value prom
 
 ---
 
-## North Star Metric Selection
-
+### North Star Metric Selection
 **Requirements for a valid north star metric:**
 1. It must predict retention (leading indicator, not lagging)
 2. It must be measurable daily or weekly
@@ -83,6 +81,12 @@ The activation moment is the first time the user experiences the core value prom
 - Content: "users returning within 7 days of their first session"
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

@@ -2,7 +2,7 @@
 
 # Code Review — Performance Review
 
-## Performance Review Philosophy
+## Core Philosophy
 
 Don't flag every suboptimal line — flag things that will actually hurt users. A micro-optimization in a function called once per day is noise. A missing index on a query called 10,000 times per minute is critical.
 
@@ -23,8 +23,13 @@ Don't flag:
 
 ---
 
-## N+1 Query Detection
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to performance.
+
+## Principles
+
+### N+1 Query Detection
 The most common and impactful backend performance issue.
 
 ```typescript
@@ -60,8 +65,7 @@ const posts = await Post.findAll({
 
 ---
 
-## Unbounded Queries
-
+### Unbounded Queries
 ```typescript
 // RED FLAG: No limit on potentially large result sets
 
@@ -84,8 +88,7 @@ await User.findAll({ where: { id: ids } }); // ✓
 
 ---
 
-## Missing Index Detection
-
+### Missing Index Detection
 ```typescript
 // RED FLAG: Filter or sort on non-indexed column in a query that will grow
 
@@ -114,8 +117,7 @@ await db.query(`
 
 ---
 
-## Memory Leak Patterns
-
+### Memory Leak Patterns
 ```typescript
 // RED FLAG: Event listeners added without removal
 class DataManager {
@@ -153,8 +155,7 @@ const cache = new TTLCache<string, HeavyObject>({ ttl: 5 * 60 * 1000 });
 
 ---
 
-## Algorithmic Complexity
-
+### Algorithmic Complexity
 ```typescript
 // RED FLAG: O(n²) or worse on collections that can be large
 
@@ -186,8 +187,7 @@ for (const item of items) {
 
 ---
 
-## Synchronous Blocking in Async Context
-
+### Synchronous Blocking in Async Context
 ```typescript
 // RED FLAG: Synchronous heavy computation in async request handler
 // This blocks the event loop — all other requests wait
@@ -222,7 +222,19 @@ app.get('/config', async (req, res) => {
 
 ---
 
-## Performance Review Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] No N+1 queries (DB calls inside loops)
 - [ ] All collection queries have LIMIT/pagination

@@ -2,7 +2,7 @@
 
 # Debugging — Systematic Problem-Solving Strategy
 
-## The Core Mistake: Random Guessing
+## Core Philosophy
 
 Most debugging time is wasted by changing code randomly and hoping the bug disappears. Systematic debugging is faster — even when it feels slower — because it moves toward certainty instead of wandering.
 
@@ -19,8 +19,13 @@ The scientific method applied to bugs:
 
 ---
 
-## Step 1: Precise Bug Description
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to strategy.
+
+## Principles
+
+### Step 1: Precise Bug Description
 Before touching any code, write down exactly:
 
 ```
@@ -39,8 +44,7 @@ The precise description narrows the search space dramatically.
 
 ---
 
-## Step 2: Reproduce Reliably
-
+### Step 2: Reproduce Reliably
 A bug you can't reproduce consistently is extremely hard to fix. Before hypothesizing, focus entirely on making the bug deterministic.
 
 ```
@@ -62,64 +66,7 @@ A minimal reproduction case often reveals the bug itself.
 
 ---
 
-## Step 3: Read the Error
-
-```typescript
-// An error message is a map — read it completely before searching
-
-// Example stack trace
-Error: Cannot read properties of undefined (reading 'name')
-    at UserCard (UserCard.tsx:23:18)          ← exactly where it crashed
-    at renderWithHooks                         ← React internals (skip these)
-    at updateFunctionComponent
-    at ProfilePage (ProfilePage.tsx:45:12)    ← what called UserCard
-    at App.tsx:12:8                            ← root
-
-// This tells you:
-// 1. Something is undefined on line 23 of UserCard.tsx
-// 2. Accessing .name on that undefined value
-// 3. The undefined value came from ProfilePage, which passed it as a prop
-
-// Wrong approach: Google the error and copy a solution
-// Right approach: Go to UserCard.tsx:23, find the .name access,
-//                 trace where that value comes from
-```
-
----
-
-## Step 4: Binary Search Through the Code
-
-When you don't know where the bug is, bisect — don't search linearly.
-
-```
-System: A → B → C → D → E → F (output wrong)
-
-Instead of checking A, then B, then C...
-Check at the midpoint: is the data correct after C?
-  Yes → bug is in D, E, or F → check E
-  No  → bug is in A, B, or C → check B
-
-Halves the search space with each check.
-```
-
-```typescript
-// Practical bisection: add a log at the middle of a long pipeline
-console.log('After transform, before filter:', JSON.stringify(data, null, 2));
-
-// In git: use git bisect to find which commit introduced the bug
-git bisect start
-git bisect bad HEAD          // current commit is broken
-git bisect good v2.2.0       // this version was fine
-// Git checks out a middle commit — test it, mark good or bad
-git bisect good / git bisect bad
-// Repeat until git identifies the exact commit
-git bisect reset
-```
-
----
-
-## Step 5: Hypothesis Testing
-
+### Step 5: Hypothesis Testing
 Form the most probable hypothesis first, then test it cheaply.
 
 ```
@@ -150,8 +97,7 @@ Float precision → compare with Math.abs(a - b) < epsilon
 
 ---
 
-## Step 6: Fix Root Cause, Not Symptoms
-
+### Step 6: Fix Root Cause, Not Symptoms
 ```typescript
 // Symptom fix (wrong): Hides the bug
 const getUserName = (user: any) => user?.name ?? 'Unknown';
@@ -170,8 +116,7 @@ if (!user) return <LoadingSpinner />;
 
 ---
 
-## Step 7: Verify the Fix
-
+### Step 7: Verify the Fix
 ```
 After fixing:
 1. Does the original bug no longer occur? (with the exact reproduction steps)
@@ -187,8 +132,7 @@ Document the fix:
 
 ---
 
-## Debugging Mindset
-
+### Debugging Mindset
 ```
 "The computer is always right." — if behavior is unexpected, your mental model is wrong
 "Assume nothing." — verify assumptions with logs/debugger, don't trust your memory
@@ -196,3 +140,65 @@ Document the fix:
 "One change at a time." — if you change multiple things, you don't know which one worked
 "Read before searching." — the error message usually contains the answer
 ```
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+```typescript
+// An error message is a map — read it completely before searching
+
+// Example stack trace
+Error: Cannot read properties of undefined (reading 'name')
+    at UserCard (UserCard.tsx:23:18)          ← exactly where it crashed
+    at renderWithHooks                         ← React internals (skip these)
+    at updateFunctionComponent
+    at ProfilePage (ProfilePage.tsx:45:12)    ← what called UserCard
+    at App.tsx:12:8                            ← root
+
+// This tells you:
+// 1. Something is undefined on line 23 of UserCard.tsx
+// 2. Accessing .name on that undefined value
+// 3. The undefined value came from ProfilePage, which passed it as a prop
+
+// Wrong approach: Google the error and copy a solution
+// Right approach: Go to UserCard.tsx:23, find the .name access,
+//                 trace where that value comes from
+```
+
+---
+
+## Example in Action
+
+When you don't know where the bug is, bisect — don't search linearly.
+
+```
+System: A → B → C → D → E → F (output wrong)
+
+Instead of checking A, then B, then C...
+Check at the midpoint: is the data correct after C?
+  Yes → bug is in D, E, or F → check E
+  No  → bug is in A, B, or C → check B
+
+Halves the search space with each check.
+```
+
+```typescript
+// Practical bisection: add a log at the middle of a long pipeline
+console.log('After transform, before filter:', JSON.stringify(data, null, 2));
+
+// In git: use git bisect to find which commit introduced the bug
+git bisect start
+git bisect bad HEAD          // current commit is broken
+git bisect good v2.2.0       // this version was fine
+// Git checks out a middle commit — test it, mark good or bad
+git bisect good / git bisect bad
+// Repeat until git identifies the exact commit
+git bisect reset
+```
+
+---

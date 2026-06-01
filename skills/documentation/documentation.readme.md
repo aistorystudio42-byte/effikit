@@ -1,9 +1,16 @@
 <!-- @keywords: README, documentation, project setup, onboarding, getting started, architecture overview -->
 
-# Documentation — README and Project Documentation
+# ADR-001: Use PostgreSQL as Primary Database
 
-## README as Onboarding
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to readme.
+
+## Principles
+
+### README as Onboarding
 The README is the first thing a new developer reads. A good README answers every question needed to get from zero to running the project in under 30 minutes — without asking anyone for help.
 
 ```
@@ -19,44 +26,31 @@ README must answer:
 
 ---
 
-## README Structure
-
+### README Structure
 ```markdown
-# Project Name
 
 > One-sentence description of what it does.
 
-## Overview
-
+### Overview
 What problem this solves, who uses it, and why it exists.
 Link to design docs, PRD, or architecture decision records.
 
-## Quick Start
-
+### Quick Start
 \`\`\`bash
-# 1. Clone and install
 git clone https://github.com/org/repo.git
 cd repo
 npm install
 
-# 2. Set up environment
 cp .env.example .env
-# Edit .env — see Environment Variables section below
 
-# 3. Start services
 docker-compose up -d  # starts postgres, redis
 
-# 4. Run migrations
 npm run db:migrate
 
-# 5. Start development server
 npm run dev
-# → API running at http://localhost:3000
-# → Docs at http://localhost:3000/api-docs
 \`\`\`
 
-## Environment Variables
-
+### Environment Variables
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `DATABASE_URL` | ✓ | — | PostgreSQL connection string |
@@ -65,8 +59,7 @@ npm run dev
 | `STRIPE_SECRET_KEY` | ✓ | — | Stripe secret key (sk_test_... for dev) |
 | `LOG_LEVEL` | — | `info` | `debug` / `info` / `warn` / `error` |
 
-## Project Structure
-
+### Project Structure
 \`\`\`
 src/
   modules/        ← Feature modules (users, orders, products)
@@ -82,8 +75,7 @@ src/
   main.ts         ← Entry point
 \`\`\`
 
-## Development Commands
-
+### Development Commands
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start development server with hot reload |
@@ -96,62 +88,42 @@ src/
 | `npm run db:rollback` | Rollback last migration |
 | `npm run db:seed` | Seed development data |
 
-## Testing
-
+### Testing
 \`\`\`bash
-# Unit tests
 npm run test:unit
 
-# Integration tests (requires database)
 npm run test:integration
 
-# E2E tests (requires full stack running)
 npm run test:e2e
 \`\`\`
 
-## Deployment
-
+### Deployment
 See [deployment guide](docs/deployment.md).
 
 Short version:
 1. Merge to `main` → auto-deploys to staging
 2. Create a release tag (`v1.2.3`) → manual approval → production deploy
 
-## Architecture
-
-See [architecture overview](docs/architecture.md) for system design.
-
-Key decisions:
-- **Database**: PostgreSQL (relational, ACID, mature)
-- **Cache**: Redis (session store, rate limiting, job queue)
-- **Auth**: JWT (access token 15m, refresh token 7d in HttpOnly cookie)
-
-## Contributing
-
+### Contributing
 See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## License
-
+### License
 MIT
 ```
 
 ---
 
-## CONTRIBUTING.md Template
-
+### CONTRIBUTING.md Template
 ```markdown
-# Contributing
 
-## Development Workflow
-
+### Development Workflow
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/my-feature`
 3. Make changes with tests
 4. Ensure all checks pass: `npm run ci`
 5. Submit a PR against `main`
 
-## Commit Convention
-
+### Commit Convention
 We use [Conventional Commits](https://conventionalcommits.org):
 
 \`\`\`
@@ -163,22 +135,14 @@ refactor: extract payment service
 test: add integration tests for checkout
 \`\`\`
 
-## PR Guidelines
-
+### PR Guidelines
 - PR title follows Conventional Commits format
 - Description explains WHY (link issue, describe motivation)
 - Screenshots for UI changes
 - Breaking changes called out explicitly
 - Self-review before requesting review
 
-## Code Style
-
-- TypeScript strict mode enabled
-- ESLint + Prettier enforce formatting automatically
-- Run `npm run lint --fix` to auto-fix
-
-## Branch Naming
-
+### Branch Naming
 \`\`\`
 feat/short-description
 fix/what-is-broken
@@ -189,22 +153,14 @@ docs/what-is-documented
 
 ---
 
-## Architecture Decision Records (ADRs)
-
-```markdown
-# ADR-001: Use PostgreSQL as Primary Database
-
-## Status
+### Status
 Accepted (2024-01-15)
 
-## Context
+### Context
 We need to choose a database for storing user and order data.
 The data has relational structure and consistency is critical for financial data.
 
-## Decision
-Use PostgreSQL as the primary database.
-
-## Consequences
+### Consequences
 **Positive:**
 - ACID transactions for financial operations
 - Rich query capabilities (JSON, full-text search, window functions)
@@ -214,14 +170,37 @@ Use PostgreSQL as the primary database.
 - Requires schema migrations for every change
 - More complex horizontal sharding if scale requires it (not expected in 2 years)
 
-## Alternatives Considered
+### Alternatives Considered
 - MongoDB: Flexible schema, but eventual consistency risks for financial data
 - MySQL: Similar capabilities, but PostgreSQL has richer feature set
 ```
 
 ---
 
-## Documentation Checklist
+## Decision Framework
+
+See [architecture overview](docs/architecture.md) for system design.
+
+Key decisions:
+- **Database**: PostgreSQL (relational, ACID, mature)
+- **Cache**: Redis (session store, rate limiting, job queue)
+- **Auth**: JWT (access token 15m, refresh token 7d in HttpOnly cookie)
+
+```markdown
+
+Use PostgreSQL as the primary database.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+- TypeScript strict mode enabled
+- ESLint + Prettier enforce formatting automatically
+- Run `npm run lint --fix` to auto-fix
 
 - [ ] README has Quick Start that works from zero (tested on fresh clone)
 - [ ] All environment variables documented (name, required, default, description)

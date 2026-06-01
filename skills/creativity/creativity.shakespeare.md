@@ -2,14 +2,20 @@
 
 # Creativity — Shakespeare Mode: Narrative and Conflict
 
-## Why Narrative Thinking in Tech?
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to shakespeare.
+
+## Principles
+
+### Why Narrative Thinking in Tech?
 Shakespeare understood that every compelling story requires conflict — a protagonist who wants something, an antagonist force that opposes them, and a transformation through struggle. The best product decisions and technical proposals are structured the same way. A feature without a clear antagonist (the problem it defeats) has no reason to exist.
 
 ---
 
-## The Three-Act Structure for Product Features
-
+### The Three-Act Structure for Product Features
 ```
 Act 1 — The World Before
   Who is the protagonist (user)?
@@ -30,8 +36,7 @@ Act 3 — The Resolution
 
 ---
 
-## Applied to Feature Proposals
-
+### Applied to Feature Proposals
 ```
 Bad feature proposal:
   "Add a bulk export feature to the dashboard."
@@ -60,8 +65,7 @@ what they're actually building and why it matters.
 
 ---
 
-## Character-Driven User Research
-
+### Character-Driven User Research
 ```
 Instead of: "Users want faster loading times"
 
@@ -80,8 +84,7 @@ Characters make abstract requirements concrete and memorable.
 
 ---
 
-## Conflict-First Technical Writing
-
+### Conflict-First Technical Writing
 ```
 Standard technical doc:
   "This document describes the authentication system. It uses JWT tokens
@@ -111,8 +114,7 @@ The reader now understands WHY this design, not just WHAT it is.
 
 ---
 
-## The Antagonist Inventory
-
+### The Antagonist Inventory
 Every good feature has a clear antagonist. Before building, name it.
 
 ```
@@ -136,7 +138,19 @@ When you can't name the antagonist, the feature may not be necessary.
 
 ---
 
-## Tragedy Prevention in Code Review
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 Shakespeare understood that great tragedies arise from fatal flaws — hubris, blindness to obvious danger. Code has the same structure.
 
@@ -161,8 +175,6 @@ Reviewer question: "What is this code's fatal flaw?
 ```
 
 ---
-
-## Shakespeare Mode Checklist
 
 - [ ] Feature has a named protagonist (specific user archetype)
 - [ ] Feature has a named antagonist (specific problem it defeats)

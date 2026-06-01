@@ -2,16 +2,22 @@
 
 # Art — Beethoven Mode: Iteration, Craft, and Deep Work
 
-## The Beethoven Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to beethoven.
+
+## Principles
+
+### The Beethoven Mindset
 Beethoven's sketchbooks show the same melody revised 20, 50, 100 times. What sounds inevitable and perfect in the final symphony started as crude, uncertain fragments. The Fifth Symphony's famous opening — ba-ba-ba-BUM — went through dozens of versions before Beethoven found the definitive form.
 
 Beethoven Mode is the discipline of iterating relentlessly toward the precise expression you hear in your head. It requires deep work, craft, and the patience to revise until it's right — not until it's good enough.
 
 ---
 
-## Deep Work Protocol
-
+### Deep Work Protocol
 Beethoven composed for 8-12 uninterrupted hours. He didn't check messages. He didn't attend meetings during composition sessions.
 
 ```
@@ -31,8 +37,7 @@ The ritual matters because:
 
 ---
 
-## The Sketch-to-Symphony Process
-
+### The Sketch-to-Symphony Process
 Beethoven sketched melodies quickly, then revised them meticulously. The ratio was important: generate fast, refine slow.
 
 ```typescript
@@ -76,8 +81,7 @@ function applyCoupon(subtotalCents: number, coupon: Coupon): number {
 
 ---
 
-## The Revision Mindset
-
+### The Revision Mindset
 Beethoven crossed out entire movements and started over. He didn't preserve bad work to show effort.
 
 ```
@@ -98,8 +102,7 @@ Signs you're over-polishing (stop here):
 
 ---
 
-## Constraint-Driven Mastery
-
+### Constraint-Driven Mastery
 Beethoven wrote his most celebrated works while deaf — the ultimate constraint. He heard music internally, without external validation.
 
 ```
@@ -116,8 +119,7 @@ The senior developer spots bugs before the code runs.
 
 ---
 
-## Craft Over Speed
-
+### Craft Over Speed
 ```
 Beethoven didn't rush the Ninth Symphony because the concert was scheduled.
 He postponed the premiere until it was ready.
@@ -138,7 +140,19 @@ Craft markers:
 
 ---
 
-## Beethoven Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Deep work block scheduled: 90+ minutes, notifications off
 - [ ] Sketch phase completed before cleanup phase starts

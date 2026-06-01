@@ -2,8 +2,15 @@
 
 # Creativity — Disney Method: Dreamer, Realist, Critic
 
-## The Three Rooms
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to disney.
+
+## Principles
+
+### The Three Rooms
 Walt Disney used three distinct thinking modes for creative problem-solving. He physically moved between rooms representing each mode. The power of the method is strict separation — you cannot be a Dreamer and a Critic simultaneously.
 
 ```
@@ -16,8 +23,7 @@ Apply this to: designing new features, solving architectural problems, writing t
 
 ---
 
-## Room 1: The Dreamer
-
+### Room 1: The Dreamer
 **Rules:** No "but," no "can't," no "realistic." Every idea is valid. Build on ideas, don't cut them.
 
 ```
@@ -41,8 +47,7 @@ Dreamer prompts for technical problems:
 
 ---
 
-## Room 2: The Realist
-
+### Room 2: The Realist
 **Rules:** Take the best Dreamer ideas and plan how to build them. Focus on execution, not evaluation.
 
 ```
@@ -71,8 +76,7 @@ The Realist asks:
 
 ---
 
-## Room 3: The Critic
-
+### Room 3: The Critic
 **Rules:** Find weaknesses in the Realist's plan. The goal is to make the plan better, not to kill the idea.
 
 ```
@@ -95,8 +99,7 @@ The Critic IS:
 
 ---
 
-## Full Disney Method Session
-
+### Full Disney Method Session
 ```
 Session structure (60-90 minutes):
 
@@ -123,8 +126,7 @@ Phase 4 — Integration (15 min):
 
 ---
 
-## Solo Disney Method
-
+### Solo Disney Method
 ```typescript
 // Useful for architectural decisions when working alone
 
@@ -156,7 +158,19 @@ Phase 4 — Integration (15 min):
 
 ---
 
-## Disney Method Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Three phases run in strict sequence (no mixing)
 - [ ] Dreamer phase: no evaluation, all ideas written down

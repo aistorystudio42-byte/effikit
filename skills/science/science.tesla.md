@@ -2,16 +2,22 @@
 
 # Science — Tesla Mode: Mental Simulation and Visualization
 
-## The Tesla Mindset
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to tesla.
+
+## Principles
+
+### The Tesla Mindset
 Nikola Tesla claimed to design entire machines in his mind with such precision that he could run them mentally, identify wear on components after years of imagined operation, and then build them physically — often without any modifications. He simulated the system in his head before a single bolt was turned.
 
 Tesla Mode: design and simulate a system mentally before building it. Identify failures before they exist.
 
 ---
 
-## Mental Simulation Protocol
-
+### Mental Simulation Protocol
 ```
 Step 1: Visualize the happy path in full detail
   Trace a request from browser to database and back.
@@ -42,8 +48,7 @@ Step 5: Find the unexpected interaction
 
 ---
 
-## Applied: Simulating a New Feature Before Building
-
+### Applied: Simulating a New Feature Before Building
 ```
 Feature: "Allow users to apply multiple coupons to one order"
 
@@ -93,8 +98,7 @@ Tesla simulation found 4 business rule gaps before a single line was written.
 
 ---
 
-## Failure Mode Visualization
-
+### Failure Mode Visualization
 ```typescript
 // Tesla exercise: for every external dependency, simulate its failure
 
@@ -138,8 +142,7 @@ const chargeWithIdempotency = (orderId: string, amount: number) =>
 
 ---
 
-## The Pre-Mortem
-
+### The Pre-Mortem
 Tesla imagined failures before they happened. Apply this to projects.
 
 ```
@@ -163,7 +166,19 @@ Before launching a feature:
 
 ---
 
-## Tesla Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Happy path mentally simulated end-to-end (every component named)
 - [ ] Failure scenarios simulated (network failure, DB failure, 3rd-party timeout)

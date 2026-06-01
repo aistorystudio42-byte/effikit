@@ -2,16 +2,33 @@
 
 # Art — Michelangelo Mode: Removing the Unnecessary
 
-## The Michelangelo Mindset
+## Core Philosophy
 
+## When to Activate
+
+Michelangelo knew what to keep. He never removed a detail that served the composition.
+
+```
+Don't remove:
+  - Error handling (it's marble, until it's the only thing protecting you)
+  - Test coverage (it's marble, until a regression proves it isn't)
+  - Accessibility (it looks like marble until 15% of your users can't use your product)
+  - Security validation (definitely looks like marble until it isn't)
+  - Documentation for non-obvious decisions (invisible marble — you'll need it in 6 months)
+```
+
+---
+
+## Principles
+
+### The Michelangelo Mindset
 Michelangelo said the statue already existed inside the marble — he just removed everything that wasn't the statue. This is not a metaphor for laziness. It required extraordinary skill to know what to remove, and extraordinary discipline to stop before removing what was essential.
 
 Michelangelo Mode: the work is done not when there's nothing left to add, but when there's nothing left to remove.
 
 ---
 
-## The Removal Framework
-
+### The Removal Framework
 ```
 Before removing anything, identify:
   What is the absolute minimum this must do?
@@ -25,8 +42,7 @@ After identifying the minimum:
 
 ---
 
-## Applied to Feature Scope
-
+### Applied to Feature Scope
 ```
 Initial feature request: "Improve the user profile page"
 
@@ -47,52 +63,7 @@ Result: a profile page with 60% less content that does 100% of what users need.
 
 ---
 
-## Applied to Code
-
-```typescript
-// Before Michelangelo: full of marble
-class UserService {
-  private logger: Logger;
-  private cache: CacheService;
-  private eventBus: EventBus;
-  private analyticsService: AnalyticsService;
-  private notificationService: NotificationService;
-  private auditService: AuditService;
-
-  async getUser(id: string): Promise<User> {
-    this.logger.debug('Getting user', { id });
-    this.analyticsService.track('user.fetched', { id }); // tracking a read?
-    const cached = await this.cache.get(`user:${id}`);
-    if (cached) {
-      this.logger.debug('Cache hit', { id });
-      return cached;
-    }
-    const user = await this.userRepo.findById(id);
-    if (!user) throw new NotFoundError('User');
-    await this.cache.set(`user:${id}`, user, 300);
-    this.auditService.log('user.read', { userId: id }); // audit on every read?
-    return user;
-  }
-}
-
-// After Michelangelo: the statue revealed
-class UserService {
-  async getUser(id: string): Promise<User> {
-    const user = await this.userRepo.findById(id);
-    if (!user) throw new NotFoundError('User');
-    return user;
-  }
-}
-// Caching: add when you have a performance problem
-// Audit logging: add for writes, not reads
-// Analytics: let the API layer track requests
-// The function now says exactly what it does and nothing else
-```
-
----
-
-## Applied to UI
-
+### Applied to UI
 ```tsx
 // Before: every stakeholder added their requirement
 const ProductCard = ({ product }: { product: Product }) => (
@@ -135,8 +106,7 @@ const ProductCard = ({ product }: { product: Product }) => (
 
 ---
 
-## The Minimum Viable API
-
+### The Minimum Viable API
 ```typescript
 // API design: Michelangelo asks "what must exist?"
 
@@ -165,22 +135,61 @@ interface UserAPI {
 
 ---
 
-## When NOT to Remove
+## Decision Framework
 
-Michelangelo knew what to keep. He never removed a detail that served the composition.
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
-```
-Don't remove:
-  - Error handling (it's marble, until it's the only thing protecting you)
-  - Test coverage (it's marble, until a regression proves it isn't)
-  - Accessibility (it looks like marble until 15% of your users can't use your product)
-  - Security validation (definitely looks like marble until it isn't)
-  - Documentation for non-obvious decisions (invisible marble — you'll need it in 6 months)
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Before Michelangelo: full of marble
+class UserService {
+  private logger: Logger;
+  private cache: CacheService;
+  private eventBus: EventBus;
+  private analyticsService: AnalyticsService;
+  private notificationService: NotificationService;
+  private auditService: AuditService;
+
+  async getUser(id: string): Promise<User> {
+    this.logger.debug('Getting user', { id });
+    this.analyticsService.track('user.fetched', { id }); // tracking a read?
+    const cached = await this.cache.get(`user:${id}`);
+    if (cached) {
+      this.logger.debug('Cache hit', { id });
+      return cached;
+    }
+    const user = await this.userRepo.findById(id);
+    if (!user) throw new NotFoundError('User');
+    await this.cache.set(`user:${id}`, user, 300);
+    this.auditService.log('user.read', { userId: id }); // audit on every read?
+    return user;
+  }
+}
+
+// After Michelangelo: the statue revealed
+class UserService {
+  async getUser(id: string): Promise<User> {
+    const user = await this.userRepo.findById(id);
+    if (!user) throw new NotFoundError('User');
+    return user;
+  }
+}
+// Caching: add when you have a performance problem
+// Audit logging: add for writes, not reads
+// Analytics: let the API layer track requests
+// The function now says exactly what it does and nothing else
 ```
 
 ---
-
-## Michelangelo Checklist
 
 - [ ] Feature scope: what is the absolute minimum it must do?
 - [ ] Every element in the UI: would users notice if this disappeared?

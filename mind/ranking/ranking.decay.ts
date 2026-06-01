@@ -58,8 +58,8 @@ function gaussianDecay(ageMs: number, peakMs: number, spreadMs: number): number 
 }
 
 function powerDecay(ageMs: number, power: number): number {
-  const ageHours = Math.max(ageMs / 3_600_000, 0.001); // Prevent division by zero
-  return 1 / Math.pow(ageHours, power);
+  const ageHours = ageMs / 3_600_000;
+  return 1 / Math.pow(1 + ageHours, power);
 }
 
 // ─── ScoreDecay ───────────────────────────────────────────────────────────────

@@ -2,16 +2,22 @@
 
 # Debugging — Async and Concurrency Issues
 
-## Why Async Bugs Are Hard
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to async.
+
+## Principles
+
+### Why Async Bugs Are Hard
 Async bugs are non-deterministic. They depend on timing, execution order, and state that changes between when you schedule work and when it executes. The bug may disappear when you add a log statement (because logging adds a delay that changes timing). They may only occur under load.
 
 This guide covers patterns for making async bugs reproducible and fixable.
 
 ---
 
-## Race Condition Patterns
-
+### Race Condition Patterns
 ### Stale Closure
 ```typescript
 // Bug: Captures stale state in async callback
@@ -107,8 +113,7 @@ const [isPending, setIsPending] = useState(false);
 
 ---
 
-## Promise Hell Debugging
-
+### Promise Hell Debugging
 ### Unhandled Rejection Tracking
 ```typescript
 // Find where rejections are silently swallowed
@@ -148,8 +153,7 @@ fetchUser(id)
 
 ---
 
-## State Machine for Async Operations
-
+### State Machine for Async Operations
 Represent async state explicitly — don't use multiple booleans.
 
 ```typescript
@@ -189,8 +193,7 @@ switch (state.status) {
 
 ---
 
-## Debugging Timing-Dependent Bugs
-
+### Debugging Timing-Dependent Bugs
 ```typescript
 // Make timing controllable in tests
 // Inject a delay function instead of using setTimeout directly
@@ -222,8 +225,7 @@ function AutoSave({ scheduler = realScheduler }: { scheduler?: Scheduler }) {
 
 ---
 
-## Concurrency Control Utilities
-
+### Concurrency Control Utilities
 ```typescript
 // Mutex: ensure only one async operation runs at a time
 class Mutex {
@@ -301,4 +303,23 @@ await Promise.all(files.map(async (file) => {
     release();
   }
 }));
+```
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
 ```

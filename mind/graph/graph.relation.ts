@@ -153,7 +153,7 @@ export class Graph<N = Record<string, unknown>, E = Record<string, unknown>> {
   allEdges(): GraphEdge<E>[] {
     return this.directed
       ? [...this.edges.values()]
-      : [...this.edges.values()].filter((e) => e.source < e.target); // Deduplicate undirected
+      : [...this.edges.values()].filter((e) => e.source <= e.target); // Deduplicate undirected, keep self-loops
   }
 
   // ─── Neighbors ─────────────────────────────────────────────────────────────

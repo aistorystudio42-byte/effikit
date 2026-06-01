@@ -2,8 +2,15 @@
 
 # Testing — Unit Tests
 
-## What Makes a Good Unit Test
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to unit.
+
+## Principles
+
+### What Makes a Good Unit Test
 A unit test verifies that a **single unit of behavior** works correctly in isolation. It runs fast (< 50ms), has no external dependencies (no DB, no HTTP, no file system), and fails for exactly one reason.
 
 ```
@@ -17,8 +24,7 @@ Good unit test properties:
 
 ---
 
-## What to Unit Test
-
+### What to Unit Test
 ```
 Test:
   ✓ Business logic functions (calculations, transformations, validations)
@@ -37,8 +43,7 @@ Don't unit test:
 
 ---
 
-## Test Structure: Arrange-Act-Assert
-
+### Test Structure: Arrange-Act-Assert
 ```typescript
 describe('OrderPricingService', () => {
   describe('calculateTotal', () => {
@@ -73,8 +78,7 @@ describe('OrderPricingService', () => {
 
 ---
 
-## Mocking
-
+### Mocking
 Mock external dependencies — not the code you're testing.
 
 ```typescript
@@ -127,8 +131,7 @@ describe('UserService.createUser', () => {
 
 ---
 
-## Testing Edge Cases
-
+### Testing Edge Cases
 ```typescript
 describe('parseAmount', () => {
   // Happy path
@@ -164,8 +167,7 @@ describe('parseAmount', () => {
 
 ---
 
-## Testing Reducers and State Machines
-
+### Testing Reducers and State Machines
 Reducers are pure functions — ideal for unit testing.
 
 ```typescript
@@ -203,8 +205,7 @@ describe('cartReducer', () => {
 
 ---
 
-## Test Quality Guidelines
-
+### Test Quality Guidelines
 ```typescript
 // Test names describe behavior, not implementation
 // Wrong:
@@ -234,4 +235,23 @@ test.each([
 ])('applies %.0f% discount: $%d → $%d', (price, discount, expected) => {
   expect(applyDiscount(price, discount)).toBe(expected);
 });
+```
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+```typescript
+// Apply the core principles identified above in a targeted manner.
+// Keep it simple and maintainable.
 ```

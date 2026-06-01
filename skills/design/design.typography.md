@@ -2,14 +2,20 @@
 
 # Design — Typography
 
-## Typography Is Communication
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to typography.
+
+## Principles
+
+### Typography Is Communication
 Typography is not decoration. Poorly set type makes content harder to read, even if it looks fine at a glance. These principles make text effortlessly readable.
 
 ---
 
-## Measure (Line Length)
-
+### Measure (Line Length)
 The optimal line length for body text is 60–80 characters (including spaces). Too short = choppy. Too long = eye loses its place.
 
 ```css
@@ -26,8 +32,7 @@ The optimal line length for body text is 60–80 characters (including spaces). 
 
 ---
 
-## Line Height (Leading)
-
+### Line Height (Leading)
 ```css
 /* Line height rules:
    Body text:    1.5–1.7 (more space for long reading)
@@ -50,7 +55,85 @@ h1, h2        { line-height: var(--lh-tight); }
 
 ---
 
-## Font Loading Strategy
+### Font Pairing
+```
+Effective pairing rules:
+  1. Contrast: pair a serif with a sans-serif
+     Heading: Playfair Display (serif, editorial)
+     Body: Inter (sans-serif, neutral)
+
+  2. Similarity in contrast: both geometric or both humanist
+     Heading: Montserrat (geometric sans)
+     Body: DM Sans (geometric sans, lighter weight)
+
+  3. One font, multiple weights (simplest, most cohesive)
+     Variable font with 400/500/600/700/800
+     No pairing needed — weight creates hierarchy
+
+Popular variable fonts (single-font system):
+  Inter:      https://rsms.me/inter/ (most popular, UI-optimized)
+  Plus Jakarta Sans: modern geometric, great for SaaS
+  Outfit:     clean, slightly playful
+  Sora:       rounded, friendly
+
+Font pairing generators:
+  fontpair.co, fonts.google.com/knowledge
+```
+
+---
+
+### Typographic Hierarchy
+```typescript
+// Visual hierarchy through size, weight, and spacing — not decoration
+const TypographicHierarchy = () => (
+  <article>
+    {/* Level 1: Page title — large, heavy weight */}
+    <h1 className="text-4xl font-extrabold tracking-tight leading-tight text-gray-900">
+      The Future of Work
+    </h1>
+
+    {/* Level 2: Subheadline — medium-large, medium weight, secondary color */}
+    <p className="text-xl font-medium text-gray-600 mt-3">
+      How distributed teams are reshaping productivity
+    </p>
+
+    {/* Level 3: Metadata — small, light, muted */}
+    <div className="flex gap-4 mt-4 text-sm text-gray-400">
+      <span>March 15, 2024</span>
+      <span>8 min read</span>
+    </div>
+
+    {/* Body copy: optimal measure, comfortable line height */}
+    <div className="mt-8 max-w-[65ch] text-base leading-relaxed text-gray-700 space-y-4">
+      <p>...</p>
+    </div>
+  </article>
+);
+```
+
+---
+
+### Spacing Around Text
+```css
+/* Margin between heading and following text */
+h1 { margin-bottom: 0.5em; }   /* relative to font size — scales */
+h2 { margin-bottom: 0.5em; }
+h3 { margin-bottom: 0.25em; }
+
+/* Paragraphs */
+p + p { margin-top: 1em; }     /* same-level spacing */
+h2 + p { margin-top: 0.5em; }  /* subheading → first paragraph is closer */
+
+/* Avoid orphans (single word on last line) */
+p {
+  orphans: 3;   /* min 3 lines before page break */
+  widows: 3;    /* min 3 lines after page break */
+}
+```
+
+---
+
+## Decision Framework
 
 ```html
 <!-- Preload critical fonts — prevent FOUT (flash of unstyled text) -->
@@ -89,88 +172,13 @@ h1, h2        { line-height: var(--lh-tight); }
 
 ---
 
-## Font Pairing
+## Anti-Patterns
 
-```
-Effective pairing rules:
-  1. Contrast: pair a serif with a sans-serif
-     Heading: Playfair Display (serif, editorial)
-     Body: Inter (sans-serif, neutral)
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
-  2. Similarity in contrast: both geometric or both humanist
-     Heading: Montserrat (geometric sans)
-     Body: DM Sans (geometric sans, lighter weight)
-
-  3. One font, multiple weights (simplest, most cohesive)
-     Variable font with 400/500/600/700/800
-     No pairing needed — weight creates hierarchy
-
-Popular variable fonts (single-font system):
-  Inter:      https://rsms.me/inter/ (most popular, UI-optimized)
-  Plus Jakarta Sans: modern geometric, great for SaaS
-  Outfit:     clean, slightly playful
-  Sora:       rounded, friendly
-
-Font pairing generators:
-  fontpair.co, fonts.google.com/knowledge
-```
-
----
-
-## Typographic Hierarchy
-
-```typescript
-// Visual hierarchy through size, weight, and spacing — not decoration
-const TypographicHierarchy = () => (
-  <article>
-    {/* Level 1: Page title — large, heavy weight */}
-    <h1 className="text-4xl font-extrabold tracking-tight leading-tight text-gray-900">
-      The Future of Work
-    </h1>
-
-    {/* Level 2: Subheadline — medium-large, medium weight, secondary color */}
-    <p className="text-xl font-medium text-gray-600 mt-3">
-      How distributed teams are reshaping productivity
-    </p>
-
-    {/* Level 3: Metadata — small, light, muted */}
-    <div className="flex gap-4 mt-4 text-sm text-gray-400">
-      <span>March 15, 2024</span>
-      <span>8 min read</span>
-    </div>
-
-    {/* Body copy: optimal measure, comfortable line height */}
-    <div className="mt-8 max-w-[65ch] text-base leading-relaxed text-gray-700 space-y-4">
-      <p>...</p>
-    </div>
-  </article>
-);
-```
-
----
-
-## Spacing Around Text
-
-```css
-/* Margin between heading and following text */
-h1 { margin-bottom: 0.5em; }   /* relative to font size — scales */
-h2 { margin-bottom: 0.5em; }
-h3 { margin-bottom: 0.25em; }
-
-/* Paragraphs */
-p + p { margin-top: 1em; }     /* same-level spacing */
-h2 + p { margin-top: 0.5em; }  /* subheading → first paragraph is closer */
-
-/* Avoid orphans (single word on last line) */
-p {
-  orphans: 3;   /* min 3 lines before page break */
-  widows: 3;    /* min 3 lines after page break */
-}
-```
-
----
-
-## Typography Checklist
+## Example in Action
 
 - [ ] Body text is 16px minimum
 - [ ] Line height for body copy is 1.5 or greater

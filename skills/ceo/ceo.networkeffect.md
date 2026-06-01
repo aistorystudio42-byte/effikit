@@ -19,8 +19,9 @@ Designing a network effect in means identifying the specific mechanism by which 
 
 ---
 
-## 13 Types of Network Effects (simplified)
+## Principles
 
+### 13 Types of Network Effects (simplified)
 **Direct (same-side):** Each new user directly adds value to all users (phone network, messaging apps).
 
 **Indirect (cross-side):** Two distinct user groups create value for each other (marketplace: buyers add value for sellers, sellers for buyers).
@@ -43,8 +44,7 @@ Designing a network effect in means identifying the specific mechanism by which 
 
 ---
 
-## Cold Start Problem
-
+### Cold Start Problem
 Every network effect faces the cold start problem: the product has no network effect until there are enough users to create value for each other. Solutions:
 
 **Single-player value:** The product must be useful with zero other users. Twitter is useless without others to read; Notion is useful as a solo note-taker. Design for single-player utility first.
@@ -55,8 +55,7 @@ Every network effect faces the cold start problem: the product has no network ef
 
 ---
 
-## Viral Loops vs Network Effects
-
+### Viral Loops vs Network Effects
 These are different:
 - **Viral loop:** User A invites user B. B joins. B invites C. A doesn't get more valuable — just more common.
 - **Network effect:** User A joins. The product is now better for all existing users, not just for recruiting.
@@ -64,6 +63,12 @@ These are different:
 Dropbox's referral program (free storage for invites) was viral, not a network effect. The product itself creates a weak network effect when users share folders — that's the real one.
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

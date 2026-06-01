@@ -19,20 +19,9 @@ The test of a real strategy: would a rational competitor disagree with your choi
 
 ---
 
-## 3 Levels of Strategy
+## Principles
 
-**1. Corporate strategy:** Which markets do we compete in? (This is where you say NO to entire categories)
-
-**2. Competitive strategy:** How do we win within our chosen market? (Porter's three: cost leadership, differentiation, focus)
-
-**3. Operational strategy:** How do we execute better? (This is where most companies spend all their time and call it "strategy")
-
-Most strategy conversations in early-stage companies are actually operational — they debate execution without having decided on competitive positioning. Fix the higher level first.
-
----
-
-## Porter's 5 Forces for Software
-
+### Porter's 5 Forces for Software
 **1. Threat of new entrants:** How easy is it to build what we built? (Low barrier = commoditization pressure)
 
 **2. Supplier power:** How dependent are we on specific technologies or APIs? (OpenAI as a supplier with pricing power is a real risk)
@@ -45,8 +34,7 @@ Most strategy conversations in early-stage companies are actually operational �
 
 ---
 
-## Moat Identification
-
+### Moat Identification
 A moat is what makes your position hard to replicate. In software:
 
 - **Data moat:** The data you accumulate makes the product better in ways competitors can't replicate without the data
@@ -60,6 +48,16 @@ A moat is what makes your position hard to replicate. In software:
 ---
 
 ## Decision Framework
+
+**1. Corporate strategy:** Which markets do we compete in? (This is where you say NO to entire categories)
+
+**2. Competitive strategy:** How do we win within our chosen market? (Porter's three: cost leadership, differentiation, focus)
+
+**3. Operational strategy:** How do we execute better? (This is where most companies spend all their time and call it "strategy")
+
+Most strategy conversations in early-stage companies are actually operational — they debate execution without having decided on competitive positioning. Fix the higher level first.
+
+---
 
 ```
 Is this opportunity consistent with our competitive strategy?

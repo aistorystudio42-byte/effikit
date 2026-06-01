@@ -119,15 +119,15 @@ export class TaggedCache<V = unknown> {
 
       if (!this.store.has(key)) continue;
 
-      invalidated.push(key);
-      this.removeFromIndexes(key);
-      this.store.delete(key);
-
       if (cascade) {
         const dependents = [...(this.depIndex.get(key) ?? [])];
         cascaded.push(...dependents);
         toProcess.push(...dependents);
       }
+
+      invalidated.push(key);
+      this.removeFromIndexes(key);
+      this.store.delete(key);
     }
 
     return { invalidatedKeys: invalidated, cascaded: [...new Set(cascaded)], trigger, timestamp: Date.now() };

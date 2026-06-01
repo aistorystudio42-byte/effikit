@@ -10,18 +10,6 @@ The browser will load what you give it. Give it wrong sizes, wrong formats, or n
 
 ---
 
-## When to Activate
-
-- Any page with more than one image above the fold
-- LCP image needs optimization
-- Cumulative Layout Shift (CLS) score is above 0.1
-- Images are blocking time-to-interactive
-- Hero images, product galleries, avatars, thumbnails
-
----
-
-## Principles
-
 **1. Declare dimensions always.** Width and height on every `<img>` prevents CLS. The browser reserves space before the image loads. No exceptions.
 
 **2. Lazy load below the fold.** Everything below the initial viewport gets `loading="lazy"`. LCP image never gets `loading="lazy"` — it gets `fetchpriority="high"`.
@@ -33,6 +21,18 @@ The browser will load what you give it. Give it wrong sizes, wrong formats, or n
 **5. Responsive srcset, not fixed width.** The image that looks perfect on desktop is 4× too large on mobile. Generate srcset at 400w, 800w, 1200w, 1600w minimum.
 
 ---
+
+## When to Activate
+
+- Any page with more than one image above the fold
+- LCP image needs optimization
+- Cumulative Layout Shift (CLS) score is above 0.1
+- Images are blocking time-to-interactive
+- Hero images, product galleries, avatars, thumbnails
+
+---
+
+## Principles
 
 ## Decision Framework
 

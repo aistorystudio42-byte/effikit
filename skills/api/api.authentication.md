@@ -2,8 +2,15 @@
 
 # API — Authentication and Authorization
 
-## Authentication vs Authorization
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to authentication.
+
+## Principles
+
+### Authentication vs Authorization
 ```
 Authentication: "Who are you?" — verifying identity
 Authorization:  "What can you do?" — checking permissions
@@ -13,8 +20,7 @@ Both are needed. Always in this order: authenticate first, then authorize.
 
 ---
 
-## JWT Authentication
-
+### JWT Authentication
 ### Token Structure and Validation
 ```typescript
 import jwt from 'jsonwebtoken';
@@ -115,8 +121,7 @@ res.cookie('refreshToken', refreshToken, {
 
 ---
 
-## API Key Authentication
-
+### API Key Authentication
 For server-to-server communication and public API consumers.
 
 ```typescript
@@ -155,8 +160,7 @@ class ApiKeyService {
 
 ---
 
-## Role-Based Authorization (RBAC)
-
+### Role-Based Authorization (RBAC)
 ```typescript
 // Role hierarchy
 const ROLE_HIERARCHY = {
@@ -209,8 +213,7 @@ router.delete('/posts/:id',
 
 ---
 
-## OAuth2 Integration
-
+### OAuth2 Integration
 ```typescript
 // Authorization Code Flow
 class OAuthService {
@@ -247,7 +250,19 @@ class OAuthService {
 
 ---
 
-## Security Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Tokens are short-lived (access: 15min, refresh: 7d)
 - [ ] Refresh tokens are rotated on use

@@ -128,7 +128,7 @@ export function ngramSimilarity(a: string, b: string, n = 2): number {
 export function bitapSearch(text: string, pattern: string, maxErrors = 1): number {
   const m = pattern.length;
   if (m === 0) return 0;
-  if (m > 63) return levenshtein(text, pattern) <= maxErrors ? 1 : 0; // Bitap limited to ~64 chars
+  if (m > 31) return levenshtein(text, pattern) <= maxErrors ? 1 : 0; // Bitap in JS is limited to 31 chars due to 32-bit bitwise ops
 
   // Build character bitmask
   const patternMask: Record<string, number> = {};

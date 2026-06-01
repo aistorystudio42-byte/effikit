@@ -1,9 +1,16 @@
 <!-- @keywords: testing strategy, test coverage, TDD, test pyramid, coverage thresholds, CI testing -->
 
-# Testing — Strategy and Coverage
+# Target: > 70% mutation score on business logic
 
-## The Testing Pyramid
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to strategy.
+
+## Principles
+
+### The Testing Pyramid
 ```
         /\
        /E2E\         ← 5-10 critical user journeys
@@ -18,7 +25,87 @@ Invert this pyramid (too many E2E, few unit tests) and you get a slow, brittle t
 
 ---
 
-## Coverage Strategy: What to Cover
+### Test-Driven Development (TDD)
+TDD is most valuable for business logic with clear requirements and edge cases.
+
+```
+Red → Green → Refactor cycle:
+
+1. Red:    Write a failing test that describes desired behavior
+2. Green:  Write the minimum code to make it pass
+3. Refactor: Clean up — tests still pass
+```
+
+```typescript
+// Step 1: Red — write test first
+it('calculates shipping cost based on weight and zone', () => {
+  const calculator = new ShippingCalculator();
+  expect(calculator.calculate({ weightKg: 2.5, zone: 'domestic' })).toBe(8_99);
+  expect(calculator.calculate({ weightKg: 10, zone: 'domestic' })).toBe(18_99);
+  expect(calculator.calculate({ weightKg: 2.5, zone: 'international' })).toBe(24_99);
+});
+
+// Step 2: Green — implement just enough to pass
+class ShippingCalculator {
+  calculate({ weightKg, zone }: { weightKg: number; zone: string }): number {
+    const base = zone === 'international' ? 15_00 : 5_00;
+    const perKg = zone === 'international' ? 4_00 : 1_60;
+    return base + Math.ceil(weightKg) * perKg;
+  }
+}
+
+// Step 3: Refactor — extract constants, add types, etc.
+```
+
+**TDD is useful when:**
+- Requirements are clear and stable
+- Business logic is complex with many edge cases
+- You're writing a library or utility
+
+**TDD is less useful when:**
+- Exploring/prototyping (requirements are unclear)
+- UI components (hard to write tests before seeing the visual)
+- Infrastructure code
+
+---
+
+### Mutation Testing
+Regular coverage tells you which lines ran. Mutation testing tells you if your tests actually catch bugs.
+
+```bash
+npx stryker run
+
+```
+
+---
+
+### Test Maintenance Guidelines
+```
+Flaky tests: Fix or delete — never ignore
+  - Flaky test causes: timing, shared state, network dependency
+  - Use deterministic time mocking, isolated state, stub network
+
+When to delete tests:
+  - Feature is removed
+  - Test tests implementation, not behavior (brittle)
+  - Test is permanently skipped (it.skip for > 1 sprint)
+  - Test is a duplicate of an integration test
+
+When a bug is found:
+  1. Write a failing test that reproduces the bug
+  2. Fix the bug
+  3. Verify test passes
+  4. Keep the test — it prevents regression
+
+Test ownership:
+  - Feature team owns feature tests
+  - Platform team owns infrastructure tests
+  - Every PR that introduces a bug must include a regression test
+```
+
+---
+
+## Decision Framework
 
 Coverage percentage is a vanity metric unless it reflects meaningful tests. 80% coverage with tests that don't assert anything is worse than 60% with strong assertions.
 
@@ -63,55 +150,7 @@ Lower priority:
 
 ---
 
-## Test-Driven Development (TDD)
-
-TDD is most valuable for business logic with clear requirements and edge cases.
-
-```
-Red → Green → Refactor cycle:
-
-1. Red:    Write a failing test that describes desired behavior
-2. Green:  Write the minimum code to make it pass
-3. Refactor: Clean up — tests still pass
-```
-
-```typescript
-// Step 1: Red — write test first
-it('calculates shipping cost based on weight and zone', () => {
-  const calculator = new ShippingCalculator();
-  expect(calculator.calculate({ weightKg: 2.5, zone: 'domestic' })).toBe(8_99);
-  expect(calculator.calculate({ weightKg: 10, zone: 'domestic' })).toBe(18_99);
-  expect(calculator.calculate({ weightKg: 2.5, zone: 'international' })).toBe(24_99);
-});
-
-// Step 2: Green — implement just enough to pass
-class ShippingCalculator {
-  calculate({ weightKg, zone }: { weightKg: number; zone: string }): number {
-    const base = zone === 'international' ? 15_00 : 5_00;
-    const perKg = zone === 'international' ? 4_00 : 1_60;
-    return base + Math.ceil(weightKg) * perKg;
-  }
-}
-
-// Step 3: Refactor — extract constants, add types, etc.
-```
-
-**TDD is useful when:**
-- Requirements are clear and stable
-- Business logic is complex with many edge cases
-- You're writing a library or utility
-
-**TDD is less useful when:**
-- Exploring/prototyping (requirements are unclear)
-- UI components (hard to write tests before seeing the visual)
-- Infrastructure code
-
----
-
-## Continuous Integration Test Strategy
-
 ```yaml
-# .github/workflows/test.yml
 name: Tests
 
 on: [push, pull_request]
@@ -173,56 +212,13 @@ jobs:
 
 ---
 
-## Mutation Testing
+## Anti-Patterns
 
-Regular coverage tells you which lines ran. Mutation testing tells you if your tests actually catch bugs.
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
-```bash
-# Stryker — mutates your code, checks if tests fail
-npx stryker run
-
-# Example mutations tested:
-# x > 0 → x >= 0
-# x + y → x - y
-# if (isValid) → if (!isValid)
-# return true → return false
-
-# If tests still pass with mutation → tests don't actually verify that logic
-
-# Mutation score: % of mutations caught
-# Target: > 70% mutation score on business logic
-```
-
----
-
-## Test Maintenance Guidelines
-
-```
-Flaky tests: Fix or delete — never ignore
-  - Flaky test causes: timing, shared state, network dependency
-  - Use deterministic time mocking, isolated state, stub network
-
-When to delete tests:
-  - Feature is removed
-  - Test tests implementation, not behavior (brittle)
-  - Test is permanently skipped (it.skip for > 1 sprint)
-  - Test is a duplicate of an integration test
-
-When a bug is found:
-  1. Write a failing test that reproduces the bug
-  2. Fix the bug
-  3. Verify test passes
-  4. Keep the test — it prevents regression
-
-Test ownership:
-  - Feature team owns feature tests
-  - Platform team owns infrastructure tests
-  - Every PR that introduces a bug must include a regression test
-```
-
----
-
-## Testing Checklist
+## Example in Action
 
 - [ ] Test pyramid respected: many unit, moderate integration, few E2E
 - [ ] Coverage thresholds configured and enforced in CI

@@ -2,7 +2,9 @@
 
 # API — Versioning and Breaking Changes
 
-## When to Version
+## Core Philosophy
+
+## When to Activate
 
 Not every change requires a version bump. Understand what constitutes a breaking change first.
 
@@ -32,8 +34,9 @@ Not every change requires a version bump. Understand what constitutes a breaking
 
 ---
 
-## Versioning Strategies
+## Principles
 
+### Versioning Strategies
 ### Strategy 1: URL Path Versioning (Recommended)
 ```
 /api/v1/users
@@ -80,8 +83,7 @@ Disadvantages:
 
 ---
 
-## Version Lifecycle Management
-
+### Version Lifecycle Management
 ```typescript
 // Version metadata — track version status
 const API_VERSIONS = {
@@ -122,8 +124,7 @@ app.use('/api/v2', versionMiddleware('v2'), v2Router);
 
 ---
 
-## Version Migration Pattern
-
+### Version Migration Pattern
 When introducing a breaking change, provide migration path.
 
 ```typescript
@@ -169,8 +170,7 @@ class UserTransformer {
 
 ---
 
-## Deprecation Communication
-
+### Deprecation Communication
 ```typescript
 // OpenAPI deprecation annotation
 paths:
@@ -201,7 +201,19 @@ const CHANGELOG = {
 
 ---
 
-## API Versioning Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Breaking vs non-breaking changes classified before any API change
 - [ ] URL path versioning used (or documented reason for alternative)

@@ -2,14 +2,19 @@
 
 # Code Review — Standards and Consistency
 
-## Why Standards Matter in Review
+## Core Philosophy
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to standards.
+
+## Principles
 
 Inconsistency is a form of technical debt. When the same problem is solved three different ways in three files, the next developer has to understand all three. Standards reduce cognitive overhead — you know what to expect.
 
 ---
 
-## Naming Consistency Checks
-
+### Naming Consistency Checks
 ```typescript
 // Check: does naming follow established patterns in the codebase?
 
@@ -31,7 +36,117 @@ UserCreated → order.create (inconsistent) ✗
 
 ---
 
-## Error Handling Consistency
+### Test Consistency
+```typescript
+// Check: do tests follow the same structure as existing tests?
+
+// If codebase uses describe/it with AAA:
+describe('UserService.createUser', () => {
+  it('sends welcome email after registration', async () => {
+    // Arrange
+    const dto = buildCreateUserDto();
+    userRepo.findByEmail.mockResolvedValue(null);
+
+    // Act
+    await userService.createUser(dto);
+
+    // Assert
+    expect(emailService.sendWelcome).toHaveBeenCalledWith(dto.email);
+  });
+});
+
+// If new test uses different style:
+test('user service creates user', () => {          // ✗ inconsistent structure
+  const result = userService.createUser({ ... });  // ✗ no AAA separation
+  expect(result).toBeDefined();                    // ✗ weak assertion
+});
+```
+
+---
+
+### API Response Consistency
+```typescript
+// Check: do all endpoints follow the same response structure?
+
+// Established pattern in codebase:
+// GET /users/:id → { data: User }
+// POST /users   → { data: User } + Location header
+// DELETE /users/:id → 204 No Content
+
+// New endpoint should follow:
+router.get('/products/:id', async (req, res) => {
+  const product = await productService.getById(req.params.id);
+  res.json({ data: product }); // ✓ follows established pattern
+});
+
+// Inconsistent response:
+router.get('/categories', async (req, res) => {
+  const categories = await categoryService.getAll();
+  res.json(categories); // ✗ bare array instead of { data: [...] }
+});
+```
+
+---
+
+### Dependency Import Consistency
+```typescript
+// Check: are imports organized consistently?
+
+// Established order: external → internal → types
+import express from 'express';           // external ✓
+import { db } from '@/database';         // internal ✓
+import type { User } from '@/types';     // types ✓
+
+// Inconsistent:
+import type { User } from '@/types';     // types first ✗
+import express from 'express';
+import { db } from '@/database';
+
+// Check: are path aliases used consistently?
+import { UserService } from '@/services/user.service';  // alias ✓
+import { UserService } from '../../services/user.service'; // relative ✗ (if alias exists)
+```
+
+---
+
+### Documentation Consistency
+```typescript
+// Check: does the PR documentation level match the rest of the codebase?
+
+// If complex functions have JSDoc in the codebase:
+/**
+ * Calculates order total with coupon and tax.
+ * Tax is calculated on post-discount amount.
+ */
+function calculateOrderTotal(items: Item[], coupon?: Coupon, taxRate = 0.1): number { ... }
+
+// New complex function without doc:
+function applyTieredDiscount(subtotal: number, tier: UserTier, orderHistory: Order[]): number {
+  // ✗ no explanation of tiering logic — complex enough to warrant a note
+}
+
+// Exception: obvious functions don't need docs
+function formatDate(date: Date): string { ... } // ✓ self-explanatory, no doc needed
+```
+
+---
+
+- [ ] Naming follows established codebase conventions
+- [ ] Error handling matches the established pattern (throw domain errors / Result type)
+- [ ] Functions operate at consistent abstraction levels (no SQL in business layer)
+- [ ] API responses follow the established response shape
+- [ ] Tests follow established structure (describe/it, AAA)
+- [ ] Import style matches codebase (path aliases, ordering)
+- [ ] Complex logic documented if documentation exists elsewhere in codebase
+- [ ] New patterns introduced only when existing pattern is demonstrably insufficient
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
 
 ```typescript
 // Check: are errors thrown and handled consistently?
@@ -62,7 +177,7 @@ try {
 
 ---
 
-## Abstraction Level Consistency
+## Example in Action
 
 ```typescript
 // Check: is the code at the right altitude?
@@ -91,113 +206,3 @@ async function processCheckout(cartId: string) {
 ```
 
 ---
-
-## Test Consistency
-
-```typescript
-// Check: do tests follow the same structure as existing tests?
-
-// If codebase uses describe/it with AAA:
-describe('UserService.createUser', () => {
-  it('sends welcome email after registration', async () => {
-    // Arrange
-    const dto = buildCreateUserDto();
-    userRepo.findByEmail.mockResolvedValue(null);
-
-    // Act
-    await userService.createUser(dto);
-
-    // Assert
-    expect(emailService.sendWelcome).toHaveBeenCalledWith(dto.email);
-  });
-});
-
-// If new test uses different style:
-test('user service creates user', () => {          // ✗ inconsistent structure
-  const result = userService.createUser({ ... });  // ✗ no AAA separation
-  expect(result).toBeDefined();                    // ✗ weak assertion
-});
-```
-
----
-
-## API Response Consistency
-
-```typescript
-// Check: do all endpoints follow the same response structure?
-
-// Established pattern in codebase:
-// GET /users/:id → { data: User }
-// POST /users   → { data: User } + Location header
-// DELETE /users/:id → 204 No Content
-
-// New endpoint should follow:
-router.get('/products/:id', async (req, res) => {
-  const product = await productService.getById(req.params.id);
-  res.json({ data: product }); // ✓ follows established pattern
-});
-
-// Inconsistent response:
-router.get('/categories', async (req, res) => {
-  const categories = await categoryService.getAll();
-  res.json(categories); // ✗ bare array instead of { data: [...] }
-});
-```
-
----
-
-## Dependency Import Consistency
-
-```typescript
-// Check: are imports organized consistently?
-
-// Established order: external → internal → types
-import express from 'express';           // external ✓
-import { db } from '@/database';         // internal ✓
-import type { User } from '@/types';     // types ✓
-
-// Inconsistent:
-import type { User } from '@/types';     // types first ✗
-import express from 'express';
-import { db } from '@/database';
-
-// Check: are path aliases used consistently?
-import { UserService } from '@/services/user.service';  // alias ✓
-import { UserService } from '../../services/user.service'; // relative ✗ (if alias exists)
-```
-
----
-
-## Documentation Consistency
-
-```typescript
-// Check: does the PR documentation level match the rest of the codebase?
-
-// If complex functions have JSDoc in the codebase:
-/**
- * Calculates order total with coupon and tax.
- * Tax is calculated on post-discount amount.
- */
-function calculateOrderTotal(items: Item[], coupon?: Coupon, taxRate = 0.1): number { ... }
-
-// New complex function without doc:
-function applyTieredDiscount(subtotal: number, tier: UserTier, orderHistory: Order[]): number {
-  // ✗ no explanation of tiering logic — complex enough to warrant a note
-}
-
-// Exception: obvious functions don't need docs
-function formatDate(date: Date): string { ... } // ✓ self-explanatory, no doc needed
-```
-
----
-
-## Standards Review Checklist
-
-- [ ] Naming follows established codebase conventions
-- [ ] Error handling matches the established pattern (throw domain errors / Result type)
-- [ ] Functions operate at consistent abstraction levels (no SQL in business layer)
-- [ ] API responses follow the established response shape
-- [ ] Tests follow established structure (describe/it, AAA)
-- [ ] Import style matches codebase (path aliases, ordering)
-- [ ] Complex logic documented if documentation exists elsewhere in codebase
-- [ ] New patterns introduced only when existing pattern is demonstrably insufficient

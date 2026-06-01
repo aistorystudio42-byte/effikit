@@ -1,12 +1,24 @@
 <!-- @keywords: media optimization, Core Web Vitals, LCP, CLS, media budget, build-time optimization, runtime optimization, SVG pipeline, video compression, Lighthouse, image pipeline -->
 
-# Media — Media as the #1 Performance Killer
+# Strip audio for background/hero videos
 
 ## Core Philosophy
 
 Media is responsible for 60-80% of page weight on the average site. Text, JavaScript, and CSS are optimized obsessively while a 4MB JPEG sits in the hero slot. Fix the media, and Lighthouse scores move more than any code optimization ever will.
 
 The constraint is not quality — it's **budget**. Define a media budget per page type, enforce it at build time, and treat every violation as a blocking bug.
+
+---
+
+**1. LCP image is the single highest-priority optimization.** Find it with DevTools → Performance → LCP. Then: preload it, serve it at the right size, use modern format. This one change moves LCP more than anything else.
+
+**2. Enforce a media budget.** Set hard limits per page type: hero page ≤ 1.5MB total media, product page ≤ 2MB, blog post ≤ 800KB. Treat budget overages as build failures.
+
+**3. Build-time over runtime.** Process images at build time with sharp, imagemin, or Squoosh. Runtime optimization (client-side canvas resize) is slow, synchronous, and never as good. If you're resizing in the browser, you've already lost.
+
+**4. SVG is code, not an image.** Inline SVGs that are used more than twice. Use `<use>` with `<symbol>` for repeated icons. Run all SVGs through SVGO — it removes 40-70% of file size from editor exports.
+
+**5. Video compression target: 1MB per minute at 1080p.** Use H.264 for maximum compatibility, H.265/HEVC for Apple devices, AV1 for modern browsers with highest quality/size ratio. ffmpeg with CRF 23-28 for H.264 is the production standard.
 
 ---
 
@@ -21,18 +33,6 @@ The constraint is not quality — it's **budget**. Define a media budget per pag
 ---
 
 ## Principles
-
-**1. LCP image is the single highest-priority optimization.** Find it with DevTools → Performance → LCP. Then: preload it, serve it at the right size, use modern format. This one change moves LCP more than anything else.
-
-**2. Enforce a media budget.** Set hard limits per page type: hero page ≤ 1.5MB total media, product page ≤ 2MB, blog post ≤ 800KB. Treat budget overages as build failures.
-
-**3. Build-time over runtime.** Process images at build time with sharp, imagemin, or Squoosh. Runtime optimization (client-side canvas resize) is slow, synchronous, and never as good. If you're resizing in the browser, you've already lost.
-
-**4. SVG is code, not an image.** Inline SVGs that are used more than twice. Use `<use>` with `<symbol>` for repeated icons. Run all SVGs through SVGO — it removes 40-70% of file size from editor exports.
-
-**5. Video compression target: 1MB per minute at 1080p.** Use H.264 for maximum compatibility, H.265/HEVC for Apple devices, AV1 for modern browsers with highest quality/size ratio. ffmpeg with CRF 23-28 for H.264 is the production standard.
-
----
 
 ## Decision Framework
 
@@ -80,11 +80,8 @@ Fix a media-heavy page from Lighthouse 40 to 90+:
 
 **Step 1 — Audit what you have**
 ```bash
-# Find all images above 100KB
 find ./public -name "*.jpg" -o -name "*.png" | xargs ls -la | awk '$5 > 102400'
 
-# Check actual vs displayed dimensions in DevTools
-# Network tab → filter Images → check "Size" column
 ```
 
 **Step 2 — Add build-time image pipeline**
@@ -136,24 +133,18 @@ console.log(`Processed ${files.length} images`);
 
 **Step 4 — SVG pipeline**
 ```bash
-# Install SVGO
 npm install -g svgo
 
-# Process all SVGs
 svgo --recursive ./public/icons --output ./public/icons/optimized
 
-# Typical result: 40-70% size reduction
 ```
 
 **Step 5 — Video re-encoding**
 ```bash
-# H.264 for universal compatibility
 ffmpeg -i input.mp4 -c:v libx264 -crf 23 -preset slow -c:a aac -b:a 128k output.mp4
 
-# AVIF/AV1 for modern browsers (smaller, slower encode)
 ffmpeg -i input.mp4 -c:v libaom-av1 -crf 32 -b:v 0 output-av1.mp4
 
-# Strip audio for background/hero videos
 ffmpeg -i input.mp4 -c:v libx264 -crf 23 -an output-muted.mp4
 ```
 

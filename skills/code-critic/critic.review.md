@@ -10,33 +10,6 @@ Every review comment is either blocking (must change before merge) or non-blocki
 
 ---
 
-## When to Activate
-
-- Reviewing a pull request before merge
-- Self-reviewing your own code before opening a PR
-- Providing structured feedback on a teammate's implementation
-- Establishing review standards for a new team
-
----
-
-## 5 Levels of Code Quality
-
-**Level 1 — Correctness:** Does it do what it's supposed to do? Is there a bug? A race condition? An edge case that crashes it?
-
-**Level 2 — Safety:** Does it introduce a security vulnerability? Does it leak sensitive data? Does it have injection risk?
-
-**Level 3 — Reliability:** Will it fail under load? Does it handle errors? Is there a memory leak? Does it clean up after itself?
-
-**Level 4 — Maintainability:** Will the next developer understand this? Are names honest? Is complexity justified?
-
-**Level 5 — Style:** Does it match the codebase conventions? Is it formatted consistently?
-
-**Review priority order: 1 → 2 → 3 → 4 → 5.** Style comments that block a PR containing correctness bugs are a failure of reviewer priorities.
-
----
-
-## Principles
-
 **1. One issue per comment.** Multi-issue comments get partially addressed. Split them.
 
 **2. Lead with the why, not the what.** "Extract this into a hook" is a command. "This logic will need to be duplicated in the ProfilePage — extract it into a hook to keep them in sync" explains the reason. Explained reasons get implemented. Commands get resisted.
@@ -51,6 +24,17 @@ Every review comment is either blocking (must change before merge) or non-blocki
 **5. Never review the person.** "You forgot to handle the null case" → "This will throw if `user` is null — add a guard." One talks about the author, the other talks about the code.
 
 ---
+
+## When to Activate
+
+- Reviewing a pull request before merge
+- Self-reviewing your own code before opening a PR
+- Providing structured feedback on a teammate's implementation
+- Establishing review standards for a new team
+
+---
+
+## Principles
 
 ## Decision Framework
 
@@ -85,6 +69,20 @@ Could this fail in production under realistic conditions?
 ---
 
 ## Example in Action
+
+**Level 1 — Correctness:** Does it do what it's supposed to do? Is there a bug? A race condition? An edge case that crashes it?
+
+**Level 2 — Safety:** Does it introduce a security vulnerability? Does it leak sensitive data? Does it have injection risk?
+
+**Level 3 — Reliability:** Will it fail under load? Does it handle errors? Is there a memory leak? Does it clean up after itself?
+
+**Level 4 — Maintainability:** Will the next developer understand this? Are names honest? Is complexity justified?
+
+**Level 5 — Style:** Does it match the codebase conventions? Is it formatted consistently?
+
+**Review priority order: 1 → 2 → 3 → 4 → 5.** Style comments that block a PR containing correctness bugs are a failure of reviewer priorities.
+
+---
 
 Full annotated review of a React component with 8 issues:
 

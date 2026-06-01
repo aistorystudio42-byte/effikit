@@ -2,119 +2,9 @@
 
 # Accessibility — Semantic HTML and ARIA
 
-## Why Semantics Matter
+## Core Philosophy
 
-Screen readers, search engines, and browser accessibility tools all rely on HTML semantics to understand page structure. A `<div>` with a click handler is invisible to these tools. A `<button>` is natively keyboard-accessible, focusable, and announced correctly by screen readers — for free.
-
-```
-Native HTML elements provide:
-  ✓ Keyboard accessibility (focus, Enter/Space activation)
-  ✓ Screen reader announcements (role, name, state)
-  ✓ Browser built-in behavior (form submission, link navigation)
-
-ARIA fills the gap only when native HTML is insufficient.
-Rule: First try to use native HTML. Use ARIA only when you can't.
-```
-
----
-
-## Landmark Regions
-
-Landmarks let screen reader users jump between major page sections.
-
-```html
-<!-- Every page should have these landmarks -->
-<header role="banner">        <!-- site header, logo, main nav -->
-  <nav aria-label="Main navigation">
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/products">Products</a></li>
-    </ul>
-  </nav>
-</header>
-
-<main>                        <!-- primary content — ONE per page -->
-  <h1>Page Title</h1>
-  <!-- page content -->
-</main>
-
-<aside aria-label="Related articles">  <!-- complementary content -->
-  <!-- sidebar -->
-</aside>
-
-<footer role="contentinfo">   <!-- site footer -->
-  <!-- footer content -->
-</footer>
-
-<!-- Multiple navs: differentiate with aria-label -->
-<nav aria-label="Main navigation">...</nav>
-<nav aria-label="Breadcrumb">...</nav>
-<nav aria-label="Pagination">...</nav>
-```
-
----
-
-## Heading Hierarchy
-
-Headings are the table of contents for screen reader users. They must follow a logical hierarchy.
-
-```html
-<!-- Correct: logical nesting, no skipped levels -->
-<h1>Product Catalog</h1>
-  <h2>Electronics</h2>
-    <h3>Laptops</h3>
-    <h3>Tablets</h3>
-  <h2>Clothing</h2>
-    <h3>Men's</h3>
-      <h4>Shirts</h4>
-
-<!-- Wrong: skipping levels for visual styling -->
-<h1>Product Catalog</h1>
-<h3>Electronics</h3>  <!-- ✗ skipped h2 -->
-
-<!-- Wrong: using headings for bold text -->
-<h4>Note:</h4>  <!-- ✗ not a structural heading -->
-<strong>Note:</strong>  <!-- ✓ bold text -->
-```
-
----
-
-## Interactive Elements
-
-```tsx
-// Always use semantic elements for interactive content
-
-// ✗ Non-semantic click handler
-<div onClick={handleSubmit} className="btn">Submit</div>
-// Not keyboard accessible, no role, no focus
-
-// ✓ Button: triggers actions
-<button type="submit" onClick={handleSubmit}>Submit</button>
-// Keyboard: Tab to focus, Enter/Space to activate
-// Screen reader: "Submit, button"
-
-// ✓ Link: navigates
-<a href="/products">View Products</a>
-// Keyboard: Tab to focus, Enter to activate
-// Screen reader: "View Products, link"
-
-// ✓ Select: pick from options
-<label htmlFor="sort">Sort by</label>
-<select id="sort" onChange={handleSort}>
-  <option value="price-asc">Price: Low to High</option>
-  <option value="price-desc">Price: High to Low</option>
-</select>
-
-// ✓ Checkbox
-<label>
-  <input type="checkbox" checked={isChecked} onChange={toggle} />
-  Subscribe to newsletter
-</label>
-```
-
----
-
-## ARIA — When and How
+## When to Activate
 
 ```tsx
 // aria-label: provide a name when visible text is insufficient
@@ -158,8 +48,117 @@ Headings are the table of contents for screen reader users. They must follow a l
 
 ---
 
-## Forms
+## Principles
 
+### Why Semantics Matter
+Screen readers, search engines, and browser accessibility tools all rely on HTML semantics to understand page structure. A `<div>` with a click handler is invisible to these tools. A `<button>` is natively keyboard-accessible, focusable, and announced correctly by screen readers — for free.
+
+```
+Native HTML elements provide:
+  ✓ Keyboard accessibility (focus, Enter/Space activation)
+  ✓ Screen reader announcements (role, name, state)
+  ✓ Browser built-in behavior (form submission, link navigation)
+
+ARIA fills the gap only when native HTML is insufficient.
+Rule: First try to use native HTML. Use ARIA only when you can't.
+```
+
+---
+
+### Landmark Regions
+Landmarks let screen reader users jump between major page sections.
+
+```html
+<!-- Every page should have these landmarks -->
+<header role="banner">        <!-- site header, logo, main nav -->
+  <nav aria-label="Main navigation">
+    <ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/products">Products</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>                        <!-- primary content — ONE per page -->
+  <h1>Page Title</h1>
+  <!-- page content -->
+</main>
+
+<aside aria-label="Related articles">  <!-- complementary content -->
+  <!-- sidebar -->
+</aside>
+
+<footer role="contentinfo">   <!-- site footer -->
+  <!-- footer content -->
+</footer>
+
+<!-- Multiple navs: differentiate with aria-label -->
+<nav aria-label="Main navigation">...</nav>
+<nav aria-label="Breadcrumb">...</nav>
+<nav aria-label="Pagination">...</nav>
+```
+
+---
+
+### Heading Hierarchy
+Headings are the table of contents for screen reader users. They must follow a logical hierarchy.
+
+```html
+<!-- Correct: logical nesting, no skipped levels -->
+<h1>Product Catalog</h1>
+  <h2>Electronics</h2>
+    <h3>Laptops</h3>
+    <h3>Tablets</h3>
+  <h2>Clothing</h2>
+    <h3>Men's</h3>
+      <h4>Shirts</h4>
+
+<!-- Wrong: skipping levels for visual styling -->
+<h1>Product Catalog</h1>
+<h3>Electronics</h3>  <!-- ✗ skipped h2 -->
+
+<!-- Wrong: using headings for bold text -->
+<h4>Note:</h4>  <!-- ✗ not a structural heading -->
+<strong>Note:</strong>  <!-- ✓ bold text -->
+```
+
+---
+
+### Interactive Elements
+```tsx
+// Always use semantic elements for interactive content
+
+// ✗ Non-semantic click handler
+<div onClick={handleSubmit} className="btn">Submit</div>
+// Not keyboard accessible, no role, no focus
+
+// ✓ Button: triggers actions
+<button type="submit" onClick={handleSubmit}>Submit</button>
+// Keyboard: Tab to focus, Enter/Space to activate
+// Screen reader: "Submit, button"
+
+// ✓ Link: navigates
+<a href="/products">View Products</a>
+// Keyboard: Tab to focus, Enter to activate
+// Screen reader: "View Products, link"
+
+// ✓ Select: pick from options
+<label htmlFor="sort">Sort by</label>
+<select id="sort" onChange={handleSort}>
+  <option value="price-asc">Price: Low to High</option>
+  <option value="price-desc">Price: High to Low</option>
+</select>
+
+// ✓ Checkbox
+<label>
+  <input type="checkbox" checked={isChecked} onChange={toggle} />
+  Subscribe to newsletter
+</label>
+```
+
+---
+
+### Forms
 ```tsx
 // Every input must have a visible label linked to the input
 // Don't rely on placeholder as label — it disappears on focus
@@ -207,8 +206,7 @@ Headings are the table of contents for screen reader users. They must follow a l
 
 ---
 
-## Images and Media
-
+### Images and Media
 ```tsx
 // Informative image: describe content
 <img src="/product.jpg" alt="Red Nike Air Max 90 running shoe, left side view" />
@@ -239,7 +237,19 @@ Headings are the table of contents for screen reader users. They must follow a l
 
 ---
 
-## Accessibility Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All interactive elements are `<button>`, `<a>`, or native form controls
 - [ ] Every `<img>` has `alt` (descriptive or empty for decorative)

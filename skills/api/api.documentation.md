@@ -1,19 +1,23 @@
 <!-- @keywords: api documentation, OpenAPI, swagger, JSDoc, endpoint docs, schema documentation -->
 
-# API — Documentation Standards
+# openapi.yaml
 
-## Why Documentation Is Not Optional
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to documentation.
+
+## Principles
+
+### Why Documentation Is Not Optional
 An undocumented API is a black box. Consumers waste hours guessing request formats, error codes, and edge cases. Good API documentation is a force multiplier: it reduces support burden, enables faster integration, and serves as a contract that breaks loudly when violated.
 
 ---
 
-## OpenAPI 3.0 — The Standard
-
 OpenAPI (formerly Swagger) is the industry standard for describing REST APIs. Define it once, generate client SDKs, test suites, and interactive docs automatically.
 
 ```yaml
-# openapi.yaml
 openapi: 3.0.3
 info:
   title: MyApp API
@@ -152,7 +156,84 @@ paths:
 
 ---
 
-## Code-First Documentation with TSDoc
+### Inline Documentation with Zod + OpenAPI
+```typescript
+import { z } from 'zod';
+import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+
+extendZodWithOpenApi(z);
+
+const CreateUserSchema = z.object({
+  name: z.string()
+    .min(2)
+    .max(100)
+    .openapi({ example: 'Alice Smith', description: 'Full display name' }),
+    
+  email: z.string()
+    .email()
+    .openapi({ example: 'alice@example.com' }),
+    
+  password: z.string()
+    .min(8)
+    .openapi({ description: 'Minimum 8 characters. Never returned in responses.' }),
+    
+  role: z.enum(['user', 'admin'])
+    .default('user')
+    .openapi({ description: 'Assigned role. Defaults to "user".' }),
+});
+
+// Auto-generate OpenAPI schema from Zod — single source of truth
+```
+
+---
+
+### Changelog Documentation
+Every API change should be documented in a human-readable changelog.
+
+```markdown
+
+### [2.1.0] — 2024-03-15
+### Added
+- `GET /users` now supports filtering by `createdAfter` and `createdBefore` query params
+- `POST /users/bulk` endpoint for creating up to 50 users in a single request
+- `X-Request-ID` header echoed in all responses for request tracing
+
+### Changed
+- `GET /users/:id` response now includes `lastLoginAt` field
+- Rate limit window increased from 1 minute to 5 minutes (limits unchanged)
+
+### Deprecated
+- `GET /users/:id/profile` — use `GET /users/:id` which now includes profile data
+  Will be removed in v3.0.0
+
+### Fixed
+- `PATCH /users/:id` no longer requires `email` field when only updating `name`
+
+### [2.0.0] — 2024-01-01
+### Breaking Changes
+- `name` field split into `firstName` and `lastName`
+- `address` field changed from string to structured object `{ street, city, country }`
+- `DELETE /users/:id` now returns 204 instead of 200
+
+### Migration Guide
+See: https://docs.myapp.com/api/migration/v1-to-v2
+```
+
+---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 When the API is defined in code, generate docs from annotations.
 
@@ -191,76 +272,6 @@ router.post('/users', validate(CreateUserSchema), userController.create);
 ```
 
 ---
-
-## Inline Documentation with Zod + OpenAPI
-
-```typescript
-import { z } from 'zod';
-import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
-
-extendZodWithOpenApi(z);
-
-const CreateUserSchema = z.object({
-  name: z.string()
-    .min(2)
-    .max(100)
-    .openapi({ example: 'Alice Smith', description: 'Full display name' }),
-    
-  email: z.string()
-    .email()
-    .openapi({ example: 'alice@example.com' }),
-    
-  password: z.string()
-    .min(8)
-    .openapi({ description: 'Minimum 8 characters. Never returned in responses.' }),
-    
-  role: z.enum(['user', 'admin'])
-    .default('user')
-    .openapi({ description: 'Assigned role. Defaults to "user".' }),
-});
-
-// Auto-generate OpenAPI schema from Zod — single source of truth
-```
-
----
-
-## Changelog Documentation
-
-Every API change should be documented in a human-readable changelog.
-
-```markdown
-## [2.1.0] — 2024-03-15
-
-### Added
-- `GET /users` now supports filtering by `createdAfter` and `createdBefore` query params
-- `POST /users/bulk` endpoint for creating up to 50 users in a single request
-- `X-Request-ID` header echoed in all responses for request tracing
-
-### Changed
-- `GET /users/:id` response now includes `lastLoginAt` field
-- Rate limit window increased from 1 minute to 5 minutes (limits unchanged)
-
-### Deprecated
-- `GET /users/:id/profile` — use `GET /users/:id` which now includes profile data
-  Will be removed in v3.0.0
-
-### Fixed
-- `PATCH /users/:id` no longer requires `email` field when only updating `name`
-
-## [2.0.0] — 2024-01-01
-
-### Breaking Changes
-- `name` field split into `firstName` and `lastName`
-- `address` field changed from string to structured object `{ street, city, country }`
-- `DELETE /users/:id` now returns 204 instead of 200
-
-### Migration Guide
-See: https://docs.myapp.com/api/migration/v1-to-v2
-```
-
----
-
-## Documentation Quality Checklist
 
 - [ ] Every endpoint has: description, all parameters, all possible responses
 - [ ] All error codes documented with example response body

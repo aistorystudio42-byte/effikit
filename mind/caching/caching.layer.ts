@@ -40,7 +40,7 @@ export class LayeredCache<V = unknown> {
   private config: Required<LayeredCacheConfig>;
   private hitCounts: number[];
   private missCounts: number[];
-  private dirtyKeys: Set<string> = new Set();
+  private dirtyKeys: Map<string, { ttlMs?: number }> = new Map();
   private writebackTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(layers: CacheLayer<V>[], config: LayeredCacheConfig = {}) {
@@ -93,7 +93,7 @@ export class LayeredCache<V = unknown> {
       case "write-back":
         // Write to L1 immediately, mark dirty for later flush to lower layers
         await this.layers[0].set(key, value, ttlMs);
-        this.dirtyKeys.add(key);
+        this.dirtyKeys.set(key, { ttlMs });
         if (this.dirtyKeys.size >= (this.config.writeback.maxDirtyKeys ?? 100)) {
           await this.flushDirtyKeys();
         }
@@ -121,17 +121,19 @@ export class LayeredCache<V = unknown> {
     if (this.dirtyKeys.size === 0) return [];
     const flushed: string[] = [];
 
-    for (const key of this.dirtyKeys) {
+    const keysToFlush = new Map(this.dirtyKeys);
+    this.dirtyKeys.clear();
+
+    for (const [key, { ttlMs }] of keysToFlush) {
       const value = await this.layers[0].get(key);
       if (value !== undefined) {
         for (let i = 1; i < this.layers.length; i++) {
-          await this.layers[i].set(key, value);
+          await this.layers[i].set(key, value, ttlMs);
         }
         flushed.push(key);
       }
     }
 
-    this.dirtyKeys.clear();
     return flushed;
   }
 

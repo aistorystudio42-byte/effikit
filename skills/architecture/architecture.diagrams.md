@@ -2,21 +2,15 @@
 
 # Architecture — Diagrams and Visual Documentation
 
-## C4 Model — Four Levels of Abstraction
+## Core Philosophy
 
-The C4 model provides a hierarchy of diagrams, each addressing a different audience.
+## When to Activate
 
-```
-Level 1: System Context  → "What does the system do and who uses it?"
-Level 2: Container       → "What are the deployable pieces?"
-Level 3: Component       → "What are the major structural blocks?"
-Level 4: Code            → "How is a component structured?" (rarely needed)
-```
+> This skill should be activated when you need to resolve issues related to diagrams.
 
----
+## Principles
 
-## Level 1: System Context Diagram
-
+### Level 1: System Context Diagram
 ```mermaid
 graph TD
     User[👤 Customer\n Web Browser / Mobile]
@@ -35,8 +29,7 @@ graph TD
 
 ---
 
-## Level 2: Container Diagram
-
+### Level 2: Container Diagram
 ```mermaid
 graph TD
     subgraph "Customer's Browser"
@@ -68,8 +61,7 @@ graph TD
 
 ---
 
-## Level 3: Component Diagram (API Server)
-
+### Level 3: Component Diagram (API Server)
 ```mermaid
 graph TD
     subgraph "API Server"
@@ -95,8 +87,7 @@ graph TD
 
 ---
 
-## Sequence Diagrams — Request Flows
-
+### Sequence Diagrams — Request Flows
 ```mermaid
 sequenceDiagram
     participant Client
@@ -127,8 +118,7 @@ sequenceDiagram
 
 ---
 
-## State Machine Diagrams
-
+### State Machine Diagrams
 ```mermaid
 stateDiagram-v2
     [*] --> pending: Order created
@@ -147,8 +137,7 @@ stateDiagram-v2
 
 ---
 
-## Data Flow Diagrams
-
+### Data Flow Diagrams
 ```mermaid
 flowchart LR
     subgraph "Data Sources"
@@ -180,8 +169,7 @@ flowchart LR
 
 ---
 
-## Diagram Guidelines
-
+### Diagram Guidelines
 ```
 When to create a diagram:
   ✓ Onboarding new team members
@@ -207,8 +195,7 @@ Level of detail:
 
 ---
 
-## Diagram Tools
-
+### Diagram Tools
 ```
 Mermaid    → Text-based, renders in GitHub/GitLab, ideal for repos
 PlantUML   → More diagram types, needs Java runtime
@@ -220,7 +207,30 @@ C4 DSL     → Purpose-built for C4 model (Structurizr)
 
 ---
 
-## Diagrams Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
+
+The C4 model provides a hierarchy of diagrams, each addressing a different audience.
+
+```
+Level 1: System Context  → "What does the system do and who uses it?"
+Level 2: Container       → "What are the deployable pieces?"
+Level 3: Component       → "What are the major structural blocks?"
+Level 4: Code            → "How is a component structured?" (rarely needed)
+```
+
+---
 
 - [ ] System context diagram exists (how system fits in the world)
 - [ ] Container diagram exists (deployable pieces and relationships)

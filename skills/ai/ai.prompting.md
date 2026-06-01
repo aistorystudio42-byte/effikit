@@ -2,14 +2,20 @@
 
 # AI — Prompt Engineering
 
-## The Prompt as a Contract
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to prompting.
+
+## Principles
+
+### The Prompt as a Contract
 A prompt is a contract between you and the model. Vague contracts produce unpredictable results. Precise contracts produce consistent, high-quality outputs. Every element of a prompt serves a purpose.
 
 ---
 
-## Prompt Anatomy
-
+### Prompt Anatomy
 ```
 [Role / Persona]         → Who is the model playing?
 [Context / Background]   → What does the model need to know?
@@ -53,7 +59,128 @@ Rules:
 
 ---
 
-## Few-Shot Examples
+### Chain of Thought
+For complex reasoning, ask the model to think step by step before answering.
+
+```typescript
+const analysisPrompt = `
+Analyze this SQL query for performance issues.
+
+Think through this step by step:
+1. What tables are being accessed?
+2. What indexes exist or might be needed?
+3. Is there an N+1 pattern?
+4. Are there any unnecessary computations in the WHERE clause?
+5. What is the estimated row count at each step?
+6. What would EXPLAIN ANALYZE likely show?
+
+Only after completing your analysis, provide your recommendations.
+
+Query:
+\`\`\`sql
+{{query}}
+\`\`\``;
+```
+
+---
+
+### Temperature and Sampling Parameters
+```typescript
+// Creative tasks — higher temperature, more variation
+const creativeConfig = {
+  model: 'claude-sonnet-4-6',
+  max_tokens: 2000,
+  temperature: 0.9,   // more creative, less predictable
+};
+
+// Analytical tasks — lower temperature, more deterministic
+const analyticalConfig = {
+  model: 'claude-sonnet-4-6',
+  max_tokens: 4000,
+  temperature: 0.2,   // more focused, consistent
+};
+
+// Classification / extraction — lowest temperature
+const extractionConfig = {
+  model: 'claude-sonnet-4-6',
+  max_tokens: 500,
+  temperature: 0.0,   // fully deterministic (same input = same output)
+};
+```
+
+---
+
+### Structured Output
+Force the model to output structured data.
+
+```typescript
+const extractionPrompt = `
+Extract the following information from the job posting.
+Return ONLY valid JSON matching this exact schema — no explanation, no markdown:
+
+{
+  "title": "string",
+  "company": "string",
+  "location": "string | null",
+  "remote": boolean,
+  "salary": {
+    "min": "number | null",
+    "max": "number | null",
+    "currency": "string | null"
+  },
+  "experience_years_min": "number | null",
+  "skills_required": "string[]",
+  "skills_preferred": "string[]"
+}
+
+Job posting:
+{{job_posting_text}}`;
+
+// Post-process: parse and validate
+const response = await callLLM(extractionPrompt);
+const data = JobPostingSchema.parse(JSON.parse(response));
+```
+
+---
+
+### Prompt Versioning and Testing
+```typescript
+// Treat prompts like code — version them, test them
+const PROMPT_VERSIONS = {
+  'ticket-classifier-v1': {
+    system: '...',
+    testCases: [
+      { input: 'charged twice', expected: 'BILLING' },
+      { input: 'app is crashing', expected: 'TECHNICAL' },
+    ],
+  },
+};
+
+async function evaluatePrompt(version: string, testCases: TestCase[]) {
+  let passed = 0;
+  for (const tc of testCases) {
+    const output = await callLLM(PROMPT_VERSIONS[version].system, tc.input);
+    if (output.trim() === tc.expected) passed++;
+  }
+  return { passed, total: testCases.length, accuracy: passed / testCases.length };
+}
+```
+
+---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 The most powerful prompting technique. Examples communicate intent better than description.
 
@@ -88,121 +215,6 @@ Output:`;
 ```
 
 ---
-
-## Chain of Thought
-
-For complex reasoning, ask the model to think step by step before answering.
-
-```typescript
-const analysisPrompt = `
-Analyze this SQL query for performance issues.
-
-Think through this step by step:
-1. What tables are being accessed?
-2. What indexes exist or might be needed?
-3. Is there an N+1 pattern?
-4. Are there any unnecessary computations in the WHERE clause?
-5. What is the estimated row count at each step?
-6. What would EXPLAIN ANALYZE likely show?
-
-Only after completing your analysis, provide your recommendations.
-
-Query:
-\`\`\`sql
-{{query}}
-\`\`\``;
-```
-
----
-
-## Temperature and Sampling Parameters
-
-```typescript
-// Creative tasks — higher temperature, more variation
-const creativeConfig = {
-  model: 'claude-sonnet-4-6',
-  max_tokens: 2000,
-  temperature: 0.9,   // more creative, less predictable
-};
-
-// Analytical tasks — lower temperature, more deterministic
-const analyticalConfig = {
-  model: 'claude-sonnet-4-6',
-  max_tokens: 4000,
-  temperature: 0.2,   // more focused, consistent
-};
-
-// Classification / extraction — lowest temperature
-const extractionConfig = {
-  model: 'claude-sonnet-4-6',
-  max_tokens: 500,
-  temperature: 0.0,   // fully deterministic (same input = same output)
-};
-```
-
----
-
-## Structured Output
-
-Force the model to output structured data.
-
-```typescript
-const extractionPrompt = `
-Extract the following information from the job posting.
-Return ONLY valid JSON matching this exact schema — no explanation, no markdown:
-
-{
-  "title": "string",
-  "company": "string",
-  "location": "string | null",
-  "remote": boolean,
-  "salary": {
-    "min": "number | null",
-    "max": "number | null",
-    "currency": "string | null"
-  },
-  "experience_years_min": "number | null",
-  "skills_required": "string[]",
-  "skills_preferred": "string[]"
-}
-
-Job posting:
-{{job_posting_text}}`;
-
-// Post-process: parse and validate
-const response = await callLLM(extractionPrompt);
-const data = JobPostingSchema.parse(JSON.parse(response));
-```
-
----
-
-## Prompt Versioning and Testing
-
-```typescript
-// Treat prompts like code — version them, test them
-const PROMPT_VERSIONS = {
-  'ticket-classifier-v1': {
-    system: '...',
-    testCases: [
-      { input: 'charged twice', expected: 'BILLING' },
-      { input: 'app is crashing', expected: 'TECHNICAL' },
-    ],
-  },
-};
-
-async function evaluatePrompt(version: string, testCases: TestCase[]) {
-  let passed = 0;
-  for (const tc of testCases) {
-    const output = await callLLM(PROMPT_VERSIONS[version].system, tc.input);
-    if (output.trim() === tc.expected) passed++;
-  }
-  return { passed, total: testCases.length, accuracy: passed / testCases.length };
-}
-```
-
----
-
-## Prompt Engineering Checklist
 
 - [ ] Role/persona defined (who the model is)
 - [ ] Context provided (what the model needs to know)

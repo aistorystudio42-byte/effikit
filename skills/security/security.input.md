@@ -2,7 +2,13 @@
 
 # Security — Input Security and Injection Prevention
 
-## The Golden Rule
+## Core Philosophy
+
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to input.
+
+## Principles
 
 **Never trust input.** Every value that crosses a trust boundary — HTTP body, query params, headers, file uploads, database reads from external sources, message queue payloads — must be treated as potentially malicious until validated and sanitized.
 
@@ -14,8 +20,7 @@ Trust boundaries:
 
 ---
 
-## SQL Injection Prevention
-
+### SQL Injection Prevention
 SQL injection is fully preventable. The fix is always the same: parameterized queries.
 
 ```typescript
@@ -44,8 +49,7 @@ const query = `SELECT * FROM users ORDER BY ${sortColumn}`; // safe, validated
 
 ---
 
-## XSS Prevention
-
+### XSS Prevention
 Cross-Site Scripting injects malicious scripts into web pages viewed by other users.
 
 ### Stored XSS
@@ -97,8 +101,7 @@ const safeRedirect = (url: string, allowedHosts: string[]): string => {
 
 ---
 
-## Path Traversal Prevention
-
+### Path Traversal Prevention
 ```typescript
 import path from 'path';
 
@@ -128,8 +131,7 @@ function safeFilePath(userInput: string): string {
 
 ---
 
-## Command Injection Prevention
-
+### Command Injection Prevention
 ```typescript
 import { execFile } from 'child_process';
 import { promisify } from 'util';
@@ -158,8 +160,7 @@ async function convertImage(filename: string): Promise<void> {
 
 ---
 
-## Header Injection Prevention
-
+### Header Injection Prevention
 ```typescript
 // VULNERABLE: User input in HTTP headers
 const redirectUrl = req.body.url;
@@ -181,8 +182,7 @@ res.setHeader('Location', safeHeader(redirectUrl));
 
 ---
 
-## File Upload Security
-
+### File Upload Security
 ```typescript
 import multer from 'multer';
 import { fileTypeFromBuffer } from 'file-type';
@@ -225,7 +225,19 @@ async function validateFileContent(buffer: Buffer, declaredType: string): Promis
 
 ---
 
-## Input Security Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] All SQL uses parameterized queries — zero string concatenation
 - [ ] Dynamic identifiers (column/table names) use strict allowlists

@@ -19,8 +19,9 @@ The goal is to push invariants into the type system. If something can go wrong, 
 
 ---
 
-## Conditional Types with `infer`
+## Principles
 
+### Conditional Types with `infer`
 Extract type information from other types at the structural level:
 
 ```ts
@@ -42,8 +43,7 @@ type FirstArg<T extends (...args: any[]) => any> =
 
 ---
 
-## Mapped Types
-
+### Mapped Types
 Transform every property of a type systematically:
 
 ```ts
@@ -69,8 +69,7 @@ type EventMap<T> = {
 
 ---
 
-## Branded Types
-
+### Branded Types
 Make structurally identical types semantically distinct:
 
 ```ts
@@ -95,8 +94,7 @@ getUser(postId); // Error: Argument of type 'PostId' is not assignable to 'UserI
 
 ---
 
-## Variance
-
+### Variance
 TypeScript is structurally typed with covariance for most cases:
 
 ```ts
@@ -117,6 +115,12 @@ type Contravariant<T> = (x: T) => void;
 ```
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

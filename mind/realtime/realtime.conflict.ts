@@ -128,19 +128,18 @@ export class ConflictError<T> extends Error {
 }
 
 function findConcurrentVersions<T>(versions: Array<VersionedValue<T>>): Array<VersionedValue<T>> {
-  const concurrent: Array<VersionedValue<T>> = [];
-
+  const leaves: Array<VersionedValue<T>> = [];
   for (let i = 0; i < versions.length; i++) {
-    let isConcurrent = false;
+    let isDominated = false;
     for (let j = 0; j < versions.length; j++) {
       if (i === j) continue;
       const rel = VectorClockOps.compare(versions[i].vectorClock, versions[j].vectorClock);
-      if (rel === "concurrent") { isConcurrent = true; break; }
+      if (rel === "before") { isDominated = true; break; }
+      if (rel === "equal" && i < j) { isDominated = true; break; }
     }
-    if (isConcurrent) concurrent.push(versions[i]);
+    if (!isDominated) leaves.push(versions[i]);
   }
-
-  return concurrent.length > 0 ? concurrent : versions;
+  return leaves;
 }
 
 // ─── CRDT: Last-Write-Wins Register ───────────────────────────────────────────

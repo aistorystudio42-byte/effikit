@@ -1,9 +1,16 @@
 <!-- @keywords: monitoring, observability, metrics, logs, traces, alerting, Prometheus, Grafana, OpenTelemetry -->
 
-# DevOps — Monitoring and Observability
+# Low success rate for orders
 
-## The Three Pillars of Observability
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to monitoring.
+
+## Principles
+
+### The Three Pillars of Observability
 ```
 Logs     → What happened? (events with context)
 Metrics  → How is the system performing? (numbers over time)
@@ -14,8 +21,7 @@ Observability is not installed after deployment — it's built in during develop
 
 ---
 
-## Structured Logging
-
+### Structured Logging
 ```typescript
 import pino from 'pino';
 
@@ -61,8 +67,7 @@ req.log.error({ event: 'payment.failed', orderId, error: err.message }, 'Payment
 
 ---
 
-## Metrics with Prometheus
-
+### Metrics with Prometheus
 ```typescript
 import { Registry, Counter, Histogram, Gauge } from 'prom-client';
 
@@ -118,8 +123,7 @@ app.get('/metrics', async (req, res) => {
 
 ---
 
-## Distributed Tracing with OpenTelemetry
-
+### Distributed Tracing with OpenTelemetry
 ```typescript
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -166,14 +170,10 @@ async function processOrder(orderId: string) {
 
 ---
 
-## Alerting Rules
-
 ```yaml
-# prometheus/alerts.yml
 groups:
   - name: api
     rules:
-      # High error rate
       - alert: HighErrorRate
         expr: |
           sum(rate(http_requests_total{status_code=~"5.."}[5m])) /
@@ -185,7 +185,6 @@ groups:
           summary: "Error rate above 1%"
           description: "{{ $value | humanizePercentage }} of requests are failing"
 
-      # High latency
       - alert: HighP99Latency
         expr: |
           histogram_quantile(0.99,
@@ -197,7 +196,6 @@ groups:
         annotations:
           summary: "P99 latency above 2s on {{ $labels.route }}"
 
-      # Low success rate for orders
       - alert: OrderCreationFailing
         expr: |
           sum(rate(orders_created_total[5m])) /
@@ -211,8 +209,7 @@ groups:
 
 ---
 
-## Grafana Dashboard Key Panels
-
+### Grafana Dashboard Key Panels
 ```
 Row 1: Traffic
   - Requests per second (by endpoint)
@@ -238,7 +235,19 @@ Row 4: Dependencies
 
 ---
 
-## Observability Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Structured JSON logging in production (no plain text logs)
 - [ ] Request IDs generated and propagated through all service calls

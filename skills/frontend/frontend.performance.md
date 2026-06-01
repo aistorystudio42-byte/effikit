@@ -1,8 +1,8 @@
 <!-- @keywords: performance, lazy loading, code splitting, bundle size, render optimization, web vitals -->
 
-# Frontend — Performance Optimization
+# Check for duplicate packages
 
-## Core Metric: What to Measure
+## Core Philosophy
 
 Performance optimization without measurement is guesswork. Target real user metrics:
 
@@ -18,8 +18,13 @@ Measure with: Chrome DevTools > Lighthouse, `web-vitals` library, Real User Moni
 
 ---
 
-## Bundle Optimization
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to performance.
+
+## Principles
+
+### Bundle Optimization
 ### Code Splitting — Route Level
 ```tsx
 import { lazy, Suspense } from 'react';
@@ -65,19 +70,15 @@ const Page = () => {
 
 ### Bundle Analysis
 ```bash
-# Analyze what's eating your bundle
 npx vite-bundle-analyzer
-# or for webpack
 npx webpack-bundle-analyzer
 
-# Check for duplicate packages
 npx duplicate-package-checker-webpack-plugin
 ```
 
 ---
 
-## Render Optimization
-
+### Render Optimization
 ### Virtualization — Long Lists
 ```tsx
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -137,8 +138,7 @@ Callback passed to memoized child?
 
 ---
 
-## Image Optimization
-
+### Image Optimization
 ```tsx
 // Next.js Image component — automatic optimization
 import Image from 'next/image';
@@ -177,8 +177,7 @@ import Image from 'next/image';
 
 ---
 
-## Data Fetching Performance
-
+### Data Fetching Performance
 ### Prefetching
 ```tsx
 // Prefetch on hover — data ready when user clicks
@@ -220,8 +219,7 @@ const Page = () => (
 
 ---
 
-## CSS Performance
-
+### CSS Performance
 ```tsx
 // Avoid layout thrashing — batch DOM reads and writes
 // Wrong: Read-write-read-write pattern
@@ -243,7 +241,19 @@ el.style.height = height + 'px';    // write
 
 ---
 
-## Performance Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Lighthouse score > 90 on production build
 - [ ] Routes are code-split

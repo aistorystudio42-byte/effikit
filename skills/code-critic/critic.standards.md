@@ -1,12 +1,24 @@
 <!-- @keywords: coding standards, team standards, automated enforcement, ESLint, Prettier, TypeScript config, RFC process, living documentation, standard categories, style guide -->
 
-# Code Critic — Standards a Team Actually Follows
+# RFC: [Standard Name Change]
 
 ## Core Philosophy
 
 A coding standard that lives in a Google Doc nobody reads is not a standard — it is aspirational documentation. A standard that lives in ESLint, TypeScript strict mode, and CI is one that enforces itself. Standards are only real when the build breaks if you violate them.
 
 The second failure mode: standards that are too rigid to evolve. A standard that cannot be updated through a transparent process will be worked around in secret. Build a standards change process before you need it.
+
+---
+
+**1. Automate the boring standards.** Every standard that can be automated must be automated. If a human is reviewing formatting, a human is wasting time that could be spent on logic.
+
+**2. tsconfig strict is non-negotiable.** `"strict": true` in tsconfig.json eliminates entire categories of runtime bugs at compile time. The short-term pain of fixing strict errors is worth it exactly once.
+
+**3. Standards must have rationale.** "We don't use default exports" with no explanation gets ignored or argued against. "We don't use default exports because rename refactors break silently and named exports are always explicit about what they're importing" gets adopted.
+
+**4. Living documentation beats static docs.** Standards that can be PRed and discussed evolve with the team. Standards that require an approval meeting don't.
+
+**5. RFC for standard changes.** Any change to enforced standards requires: 1) Problem statement, 2) Proposed change, 3) Migration plan for existing code, 4) 48-hour comment window. This prevents arbitrary standard changes while allowing evolution.
 
 ---
 
@@ -19,7 +31,7 @@ The second failure mode: standards that are too rigid to evolve. A standard that
 
 ---
 
-## Standard Categories
+## Principles
 
 **1. Enforced automatically (zero human review needed):**
 - Formatting: Prettier, EditorConfig
@@ -41,19 +53,19 @@ The second failure mode: standards that are too rigid to evolve. A standard that
 
 ---
 
-## Principles
+### Problem
+What existing behavior or gap is this addressing?
 
-**1. Automate the boring standards.** Every standard that can be automated must be automated. If a human is reviewing formatting, a human is wasting time that could be spent on logic.
+### Proposed Change
+What exactly changes? Before/after code example.
 
-**2. tsconfig strict is non-negotiable.** `"strict": true` in tsconfig.json eliminates entire categories of runtime bugs at compile time. The short-term pain of fixing strict errors is worth it exactly once.
+### Migration Plan
+How do we update existing code that violates the new standard?
+Automated codemod? Manual? Gradual?
 
-**3. Standards must have rationale.** "We don't use default exports" with no explanation gets ignored or argued against. "We don't use default exports because rename refactors break silently and named exports are always explicit about what they're importing" gets adopted.
-
-**4. Living documentation beats static docs.** Standards that can be PRed and discussed evolve with the team. Standards that require an approval meeting don't.
-
-**5. RFC for standard changes.** Any change to enforced standards requires: 1) Problem statement, 2) Proposed change, 3) Migration plan for existing code, 4) 48-hour comment window. This prevents arbitrary standard changes while allowing evolution.
-
----
+### Comment Period
+Open until [DATE + 48 hours]. Decisions made by team consensus or tech lead.
+```
 
 ## Decision Framework
 
@@ -127,7 +139,7 @@ TypeScript coding standard a 5-person team would actually adopt:
 
 **Human-review checklist (in PR template):**
 ```markdown
-## Review Checklist
+
 - [ ] Functions have a single responsibility — describe it in one sentence
 - [ ] Error cases are handled explicitly, not swallowed
 - [ ] New public functions have a JSDoc comment with @param and @returns
@@ -137,18 +149,3 @@ TypeScript coding standard a 5-person team would actually adopt:
 
 **RFC template for standard changes:**
 ```markdown
-# RFC: [Standard Name Change]
-
-## Problem
-What existing behavior or gap is this addressing?
-
-## Proposed Change  
-What exactly changes? Before/after code example.
-
-## Migration Plan
-How do we update existing code that violates the new standard?
-Automated codemod? Manual? Gradual?
-
-## Comment Period
-Open until [DATE + 48 hours]. Decisions made by team consensus or tech lead.
-```

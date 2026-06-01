@@ -132,13 +132,13 @@ export class TrueSkillSystem {
     const newWinner: TrueSkillPlayer = {
       id: winner.id,
       mu:    winner.mu + (winner.sigma ** 2 / c) * v,
-      sigma: Math.sqrt(winner.sigma ** 2 * (1 - (winner.sigma ** 2 / c ** 2) * w) + this.tau ** 2),
+      sigma: Math.sqrt(Math.max(1e-9, winner.sigma ** 2 * (1 - (winner.sigma ** 2 / c ** 2) * w)) + this.tau ** 2),
     };
 
     const newLoser: TrueSkillPlayer = {
       id: loser.id,
       mu:    loser.mu  - (loser.sigma  ** 2 / c) * v,
-      sigma: Math.sqrt(loser.sigma  ** 2 * (1 - (loser.sigma  ** 2 / c ** 2) * w) + this.tau ** 2),
+      sigma: Math.sqrt(Math.max(1e-9, loser.sigma ** 2 * (1 - (loser.sigma ** 2 / c ** 2) * w)) + this.tau ** 2),
     };
 
     return { winner: newWinner, loser: newLoser };

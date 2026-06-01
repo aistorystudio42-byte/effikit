@@ -20,8 +20,9 @@ The corrective is not willpower. It is process. The same brain that produces the
 
 ---
 
-## 8 Cognitive Biases Dangerous in Software Engineering
+## Principles
 
+### 8 Cognitive Biases Dangerous in Software Engineering
 ### 1. Confirmation Bias
 **What it does:** You notice evidence that supports your existing belief and discount evidence that contradicts it.  
 **In software:** You test the happy path but not the edge cases. Your code review finds flaws in the approach you argued against but not in your own PR.  
@@ -64,8 +65,7 @@ The corrective is not willpower. It is process. The same brain that produces the
 
 ---
 
-## Pre-Mortem Analysis
-
+### Pre-Mortem Analysis
 Before launching a major decision, imagine it is 12 months from now and the decision was a catastrophic failure. Write the story of how it failed.
 
 **Questions to answer:**
@@ -77,6 +77,18 @@ Before launching a major decision, imagine it is 12 months from now and the deci
 This reversal forces your brain to use imagination rather than optimism bias to evaluate the decision.
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
 
 ## Example in Action
 

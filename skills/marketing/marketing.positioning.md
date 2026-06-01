@@ -10,18 +10,6 @@ The fatal mistake: entering an existing category and competing on features. Feat
 
 ---
 
-## When to Activate
-
-- Launching or re-launching a product
-- Writing the homepage tagline and positioning statement
-- Deciding which competitors to name and which to ignore
-- Pricing conversations (price signals category)
-- Any time "it's like X but better" is the pitch
-
----
-
-## Principles
-
 **1. Category design beats category entry.** "Another project management tool" is a death sentence. "The first tool designed specifically for solo developers who hate standups" is a category. You are the only member of a category you create, so you are automatically the leader.
 
 **2. The positioning statement is a constraint, not a slogan.** Format: "For [specific customer] who [specific problem], [product] is the [category] that [unique differentiation] because [proof]." Everything else flows from this.
@@ -33,6 +21,18 @@ The fatal mistake: entering an existing category and competing on features. Feat
 **5. Feature-first positioning is a trap.** "We have 50 templates" is not a position. "The tool that learns how your team works" is a position. One describes outputs, the other describes a promise.
 
 ---
+
+## When to Activate
+
+- Launching or re-launching a product
+- Writing the homepage tagline and positioning statement
+- Deciding which competitors to name and which to ignore
+- Pricing conversations (price signals category)
+- Any time "it's like X but better" is the pitch
+
+---
+
+## Principles
 
 ## Decision Framework
 

@@ -2,8 +2,15 @@
 
 # Testing — End-to-End Tests
 
-## E2E Test Purpose
+## Core Philosophy
 
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to e2e.
+
+## Principles
+
+### E2E Test Purpose
 E2E tests verify complete user journeys from the browser's perspective. They catch integration failures that unit and integration tests miss: broken UI flows, missing API calls, wrong redirects, and visual regressions.
 
 ```
@@ -17,8 +24,7 @@ E2E tests are expensive. Cover the 5-10 most critical user paths, not every feat
 
 ---
 
-## Playwright Setup and Configuration
-
+### Playwright Setup and Configuration
 ```typescript
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
@@ -54,8 +60,7 @@ export default defineConfig({
 
 ---
 
-## Page Object Model
-
+### Page Object Model
 Page Objects encapsulate page-specific selectors and actions — tests stay readable when UI changes.
 
 ```typescript
@@ -112,8 +117,7 @@ export class CheckoutPage {
 
 ---
 
-## Critical Path Tests
-
+### Critical Path Tests
 ```typescript
 // e2e/checkout.spec.ts
 import { test, expect } from '@playwright/test';
@@ -176,8 +180,7 @@ test.describe('Checkout Flow', () => {
 
 ---
 
-## Authentication Helper
-
+### Authentication Helper
 ```typescript
 // e2e/helpers/auth.ts
 import { type BrowserContext } from '@playwright/test';
@@ -220,8 +223,7 @@ setup('authenticate', async ({ page }) => {
 
 ---
 
-## Visual Regression Testing
-
+### Visual Regression Testing
 ```typescript
 // Snapshot testing for visual consistency
 test('product card renders correctly', async ({ page }) => {
@@ -241,8 +243,7 @@ test('product card renders correctly', async ({ page }) => {
 
 ---
 
-## Debugging Failed E2E Tests
-
+### Debugging Failed E2E Tests
 ```typescript
 // Playwright trace viewer — step through test like a video
 // Run: npx playwright show-trace test-results/trace.zip
@@ -268,7 +269,19 @@ use: {
 
 ---
 
-## E2E Test Checklist
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Critical user paths covered (auth, core feature, checkout/conversion)
 - [ ] Page Object Model used — no raw selectors in test files

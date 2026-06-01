@@ -79,10 +79,10 @@ function normalize(scores: number[], strategy: ScoringConfig["normalizationStrat
 
 // ─── Weight Normalization ──────────────────────────────────────────────────────
 
-function normalizeWeights(signals: ScoringSignal[]): number[] {
+function normalizeWeights(signals: Array<{ weight: number }>): number[] {
   if (signals.length === 0) return [];
   const total = signals.reduce((s, sig) => s + Math.abs(sig.weight), 0);
-  return total === 0 ? signals.map(() => 1 / signals.length) : signals.map((s) => s.weight / total);
+  return total === 0 ? signals.map(() => 0) : signals.map((s) => s.weight / total);
 }
 
 // ─── MultiCriteriaScorer ──────────────────────────────────────────────────────
@@ -123,6 +123,8 @@ export class MultiCriteriaScorer<T = Record<string, unknown>> {
       );
     }
 
+    const weights = normalizeWeights(this.config.signals);
+
     // Compute weighted composite score for each item
     const scoredItems: ScoredItem<T>[] = items.map((item, idx) => {
       const signals: ScoringSignal[] = this.config.signals.map((sig) => ({
@@ -132,7 +134,6 @@ export class MultiCriteriaScorer<T = Record<string, unknown>> {
         transform: sig.transform,
       }));
 
-      const weights = normalizeWeights(signals);
       const rawScore = signals.reduce(
         (sum, sig, i) => sum + weights[i] * normalizedBySignal[sig.name][idx],
         0

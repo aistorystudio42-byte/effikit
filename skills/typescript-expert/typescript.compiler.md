@@ -19,8 +19,9 @@ Use the compiler API when you need to: enforce patterns that ESLint can't expres
 
 ---
 
-## ts-morph: The Practical AST API
+## Principles
 
+### ts-morph: The Practical AST API
 ts-morph wraps the TypeScript compiler API in a clean, maintainable interface:
 
 ```ts
@@ -50,8 +51,7 @@ await project.save();
 
 ---
 
-## Custom Transformer
-
+### Custom Transformer
 Transformers run during compilation and can rewrite AST nodes:
 
 ```ts
@@ -103,8 +103,7 @@ function addNullCheckTransformer(program: ts.Program): ts.TransformerFactory<ts.
 
 ---
 
-## Programmatic Type Checking
-
+### Programmatic Type Checking
 Run the type checker programmatically to build validation tools:
 
 ```ts
@@ -139,6 +138,12 @@ function checkFileForAnyTypes(filePath: string): string[] {
 ```
 
 ---
+
+## Decision Framework
+
+- Evaluate the complexity of the task.
+- Identify structural bottlenecks.
+- Choose the simplest abstraction that solves the problem.
 
 ## Anti-Patterns
 

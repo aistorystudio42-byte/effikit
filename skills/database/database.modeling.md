@@ -2,14 +2,19 @@
 
 # Database — Data Modeling and Schema Design
 
-## Core Principles
+## Core Philosophy
 
 A database schema is not just storage — it's a contract about what your data means. A well-designed schema makes invalid states unrepresentable, enforces business rules at the data layer, and remains easy to query efficiently.
 
 ---
 
-## Normalization vs Denormalization
+## When to Activate
 
+> This skill should be activated when you need to resolve issues related to modeling.
+
+## Principles
+
+### Normalization vs Denormalization
 ### When to Normalize (Default)
 Normalization reduces redundancy and keeps data consistent. Use it unless you have a specific reason not to.
 
@@ -60,8 +65,7 @@ CREATE TABLE orders (
 
 ---
 
-## Relationship Patterns
-
+### Relationship Patterns
 ### One-to-Many
 ```sql
 -- Standard: foreign key on the "many" side
@@ -120,8 +124,6 @@ SELECT * FROM category_tree ORDER BY path;
 
 ---
 
-## Constraints — Enforce Business Rules at DB Level
-
 ```sql
 CREATE TABLE products (
   id          UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -143,45 +145,7 @@ CREATE TABLE products (
 
 ---
 
-## Indexing Strategy
-
-```sql
--- Primary key: automatic index (B-tree)
-
--- Foreign keys: always index (used in JOINs and ON DELETE)
-CREATE INDEX idx_orders_user_id ON orders (user_id);
-CREATE INDEX idx_posts_author_id ON posts (author_id);
-
--- Frequently filtered columns
-CREATE INDEX idx_orders_status ON orders (status);
-CREATE INDEX idx_users_email ON users (email); -- UNIQUE already creates this
-
--- Composite index: order matters — most selective or most used first
-CREATE INDEX idx_orders_user_status ON orders (user_id, status);
--- Useful for: WHERE user_id = ? AND status = ?
--- Also useful for: WHERE user_id = ? (prefix match)
--- Not useful for: WHERE status = ? alone
-
--- Partial index: index only the rows you query
-CREATE INDEX idx_orders_pending ON orders (created_at)
-  WHERE status = 'pending';
-
--- Covering index: include columns to avoid table lookup
-CREATE INDEX idx_posts_author_cover ON posts (author_id)
-  INCLUDE (title, created_at);
-```
-
-### When to Add an Index
-```
-Query is slow → EXPLAIN ANALYZE → Seq Scan on large table → add index
-Don't pre-add indexes — they slow down writes and consume space
-Every index is a write penalty — measure before adding
-```
-
----
-
-## Audit Trail Pattern
-
+### Audit Trail Pattern
 ```sql
 -- Append-only audit log — never update, never delete
 CREATE TABLE audit_logs (
@@ -219,7 +183,50 @@ CREATE TRIGGER users_audit
 
 ---
 
-## Schema Design Checklist
+## Decision Framework
+
+```sql
+-- Primary key: automatic index (B-tree)
+
+-- Foreign keys: always index (used in JOINs and ON DELETE)
+CREATE INDEX idx_orders_user_id ON orders (user_id);
+CREATE INDEX idx_posts_author_id ON posts (author_id);
+
+-- Frequently filtered columns
+CREATE INDEX idx_orders_status ON orders (status);
+CREATE INDEX idx_users_email ON users (email); -- UNIQUE already creates this
+
+-- Composite index: order matters — most selective or most used first
+CREATE INDEX idx_orders_user_status ON orders (user_id, status);
+-- Useful for: WHERE user_id = ? AND status = ?
+-- Also useful for: WHERE user_id = ? (prefix match)
+-- Not useful for: WHERE status = ? alone
+
+-- Partial index: index only the rows you query
+CREATE INDEX idx_orders_pending ON orders (created_at)
+  WHERE status = 'pending';
+
+-- Covering index: include columns to avoid table lookup
+CREATE INDEX idx_posts_author_cover ON posts (author_id)
+  INCLUDE (title, created_at);
+```
+
+### When to Add an Index
+```
+Query is slow → EXPLAIN ANALYZE → Seq Scan on large table → add index
+Don't pre-add indexes — they slow down writes and consume space
+Every index is a write penalty — measure before adding
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 - [ ] Primary keys are UUIDs (or BIGSERIAL for high-insert tables)
 - [ ] All foreign keys have an explicit index

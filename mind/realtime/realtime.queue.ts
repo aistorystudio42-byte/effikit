@@ -100,6 +100,7 @@ export class JobQueue {
   private activeJobs: Set<string> = new Set();
   private deadLetterQueue: Job[] = [];
   private processingLoop: ReturnType<typeof setTimeout> | null = null;
+  private delayedTimer: ReturnType<typeof setTimeout> | null = null;
   private stats = { completed: 0, failed: 0, dead: 0 };
 
   constructor(config: QueueConfig = {}) {
@@ -202,7 +203,11 @@ export class JobQueue {
     // If there are delayed jobs, schedule wakeup for the earliest
     const next = this.queue.peek();
     if (next && next.scheduledAt > now) {
-      setTimeout(() => this.scheduleProcessing(), next.scheduledAt - now);
+      if (this.delayedTimer) clearTimeout(this.delayedTimer);
+      this.delayedTimer = setTimeout(() => {
+        this.delayedTimer = null;
+        this.scheduleProcessing();
+      }, next.scheduledAt - now);
     }
   }
 

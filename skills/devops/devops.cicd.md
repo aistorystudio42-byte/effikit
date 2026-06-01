@@ -1,8 +1,8 @@
 <!-- @keywords: CI/CD, GitHub Actions, pipeline, continuous integration, deployment, automation -->
 
-# DevOps — CI/CD Pipeline Design
+# Security: run as non-root user
 
-## Pipeline Philosophy
+## Core Philosophy
 
 A CI/CD pipeline is a quality gate, not a deployment button. Every commit should either prove the code is ready to ship or clearly explain why it isn't. Fast feedback is the goal — developers shouldn't wait 20 minutes to find out they broke a test.
 
@@ -19,10 +19,83 @@ Ideal pipeline stages:
 
 ---
 
-## GitHub Actions — Complete Pipeline
+## When to Activate
+
+> This skill should be activated when you need to resolve issues related to cicd.
+
+## Principles
+
+```dockerfile
+FROM node:20-alpine AS base
+WORKDIR /app
+COPY package*.json ./
+
+FROM base AS deps
+RUN npm ci --only=production && npm cache clean --force
+
+FROM base AS builder
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS production
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nodeapp
+
+COPY --from=deps --chown=nodeapp:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodeapp:nodejs /app/dist ./dist
+COPY --chown=nodeapp:nodejs package.json ./
+
+USER nodeapp
+
+EXPOSE 3000
+ENV NODE_ENV=production
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:3000/health || exit 1
+
+CMD ["node", "dist/main.js"]
+```
+
+---
+
+## Decision Framework
+
+```
+main        → production-ready code, protected branch
+develop     → integration branch for features
+feature/*   → individual feature branches
+hotfix/*    → emergency fixes branched from main
+
+PR rules:
+  - At least 1 approval required
+  - All CI checks must pass
+  - Squash merge to keep history clean
+  - Branch must be up to date with main
+
+Commit convention (enables automatic changelog):
+  feat:     new feature
+  fix:      bug fix
+  chore:    tooling, deps, config
+  docs:     documentation only
+  refactor: no feature or bug change
+  test:     test additions/changes
+  perf:     performance improvements
+```
+
+---
+
+## Anti-Patterns
+
+- Over-engineering the solution.
+- Ignoring context and copying blindly.
+- Mixing concerns unnecessarily.
+
+## Example in Action
 
 ```yaml
-# .github/workflows/ci.yml
 name: CI/CD
 
 on:
@@ -142,7 +215,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Deploy to staging
         run: |
-          # Update image tag in K8s manifest or call deployment API
           kubectl set image deployment/api api=${{ needs.build.outputs.image-tag }} \
             --namespace=staging
           kubectl rollout status deployment/api --namespace=staging --timeout=5m
@@ -163,77 +235,6 @@ jobs:
 ```
 
 ---
-
-## Dockerfile Best Practices
-
-```dockerfile
-# Multi-stage build — small production image
-FROM node:20-alpine AS base
-WORKDIR /app
-COPY package*.json ./
-
-# Dependencies stage — cached separately
-FROM base AS deps
-RUN npm ci --only=production && npm cache clean --force
-
-# Build stage
-FROM base AS builder
-RUN npm ci
-COPY . .
-RUN npm run build
-
-# Production stage — minimal image
-FROM node:20-alpine AS production
-WORKDIR /app
-
-# Security: run as non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nodeapp
-
-COPY --from=deps --chown=nodeapp:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodeapp:nodejs /app/dist ./dist
-COPY --chown=nodeapp:nodejs package.json ./
-
-USER nodeapp
-
-EXPOSE 3000
-ENV NODE_ENV=production
-
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://localhost:3000/health || exit 1
-
-CMD ["node", "dist/main.js"]
-```
-
----
-
-## Branch Strategy
-
-```
-main        → production-ready code, protected branch
-develop     → integration branch for features
-feature/*   → individual feature branches
-hotfix/*    → emergency fixes branched from main
-
-PR rules:
-  - At least 1 approval required
-  - All CI checks must pass
-  - Squash merge to keep history clean
-  - Branch must be up to date with main
-
-Commit convention (enables automatic changelog):
-  feat:     new feature
-  fix:      bug fix
-  chore:    tooling, deps, config
-  docs:     documentation only
-  refactor: no feature or bug change
-  test:     test additions/changes
-  perf:     performance improvements
-```
-
----
-
-## Pipeline Checklist
 
 - [ ] Pipeline fails fast (lint/type check before tests)
 - [ ] Tests run in parallel across jobs
